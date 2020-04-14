@@ -17,6 +17,7 @@ module.exports = {
             'client',
             'encoder',
             'decoder',
+            'doc',
             'lint',
             'branch',
             'global'

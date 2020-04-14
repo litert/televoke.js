@@ -20,7 +20,7 @@ npm install @litert/televoke. --save
 
 ## Documents
 
-- [简体中文版](./docs/zh-CN/README.md)
+Preparing.
 
 ## License
 
