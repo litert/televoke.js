@@ -1,4 +1,4 @@
-# LiteRT/Core
+# LiteRT/Televoke
 
 [![npm version](https://img.shields.io/npm/v/@litert/televoke.svg?colorB=brightgreen)](https://www.npmjs.com/package/@litert/televoke. "Stable Version")
 [![License](https://img.shields.io/npm/l/@litert/televoke.svg?maxAge=2592000?style=plastic)](https://github.com/litert/televoke./blob/master/LICENSE)
