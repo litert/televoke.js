@@ -24,12 +24,12 @@
   "license": "Apache-2.0",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/litert/televoke.git"
+    "url": "git+https://github.com/litert/televoke.js.git"
   },
   "bugs": {
-    "url": "https://github.com/litert/televoke/issues"
+    "url": "https://github.com/litert/televoke.js/issues"
   },
-  "homepage": "https://github.com/litert/televoke#readme",
+  "homepage": "https://github.com/litert/televoke.js#readme",
   "dependencies": {
     "@litert/core": "^1.0.3",
     "@litert/observable": "^0.2.1"

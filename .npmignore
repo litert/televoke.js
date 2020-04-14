@@ -7,3 +7,8 @@
 /examples/
 /test/
 /benchmarks/
+/commitlint.config.js
+/.eslintrc
+/.eslintignore
+/tsconfig.json
+/tsconfig-production.json
