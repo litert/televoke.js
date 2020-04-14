@@ -1,0 +1,58 @@
+{
+  "name": "@litert/televoke",
+  "version": "0.1.0",
+  "description": "A simple RPC service framework.",
+  "main": "lib/index.js",
+  "scripts": {
+    "prepare": "npm run rebuild-production",
+    "build": "tsc -v && tsc -p .",
+    "build-production": "tsc -v && tsc -p tsconfig.production.json",
+    "rebuild": "npm run clean && npm run lint && npm run build",
+    "rebuild-production": "npm run clean && npm run lint && npm run build-production",
+    "build-watch": "tsc -v && tsc -w -p .",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "mocha",
+    "clean": "rm -rf lib examples benchmarks test",
+    "lint": "eslint -c .eslintrc --ext '.ts' ./src"
+  },
+  "keywords": [
+    "litert",
+    "lrt",
+    "rpc"
+  ],
+  "author": "Angus.Fenying <fenying@litert.org> (https://fenying.net)",
+  "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/litert/televoke.git"
+  },
+  "bugs": {
+    "url": "https://github.com/litert/televoke/issues"
+  },
+  "homepage": "https://github.com/litert/televoke#readme",
+  "dependencies": {
+    "@litert/core": "^1.0.3",
+    "@litert/observable": "^0.2.1"
+  },
+  "types": "lib/index.d.ts",
+  "typings": "lib/index.d.ts",
+  "devDependencies": {
+    "@commitlint/cli": "^8.3.5",
+    "@commitlint/config-conventional": "^8.3.4",
+    "@types/node": "^13.11.1",
+    "@typescript-eslint/eslint-plugin": "^2.21.0",
+    "@typescript-eslint/parser": "^2.21.0",
+    "eslint": "^6.8.0",
+    "husky": "^4.2.5",
+    "typescript": "^3.2.2"
+  },
+  "husky": {
+    "hooks": {
+      "commit-msg": "commitlint -E HUSKY_GIT_PARAMS",
+      "pre-commit": "npm run lint && npm run typecheck"
+    }
+  },
+  "engines": {
+    "node": ">=8.0.0"
+  }
+}

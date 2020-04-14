@@ -1,0 +1,50 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "[Televoke] Benchmark: Decoder",
+            "program": "${workspaceFolder}/src/benchmarks/Decoder.ts",
+            "sourceMaps": true,
+            "cwd": "${workspaceFolder}",
+            "outFiles": [
+                "${workspaceFolder}/lib/*.js",
+                "${workspaceFolder}/lib/**/*.js",
+                "${workspaceFolder}/benchmarks/*.js",
+                "${workspaceFolder}/benchmarks/**/*.js"
+            ]
+        },
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "[Televoke] TCP",
+            "program": "${workspaceFolder}/src/examples/TCP.ts",
+            "sourceMaps": true,
+            "cwd": "${workspaceFolder}",
+            "outFiles": [
+                "${workspaceFolder}/lib/*.js",
+                "${workspaceFolder}/lib/**/*.js",
+                "${workspaceFolder}/examples/*.js",
+                "${workspaceFolder}/examples/**/*.js"
+            ]
+        },
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "[Televoke] Start H2 Server",
+            "program": "${workspaceFolder}/src/examples/Http.ts",
+            "sourceMaps": true,
+            "cwd": "${workspaceFolder}",
+            "outFiles": [
+                "${workspaceFolder}/lib/*.js",
+                "${workspaceFolder}/lib/**/*.js",
+                "${workspaceFolder}/examples/*.js",
+                "${workspaceFolder}/examples/**/*.js"
+            ]
+        }
+    ]
+}

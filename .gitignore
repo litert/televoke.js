@@ -1,0 +1,6 @@
+/lib/
+/node_modules/
+/examples/
+/test/
+/dist/
+/benchmarks/

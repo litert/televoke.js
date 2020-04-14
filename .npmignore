@@ -1,0 +1,9 @@
+/.git/
+/.vscode/
+/docs/
+/node_modules/
+/.gitignore
+/.npmignore
+/examples/
+/test/
+/benchmarks/
