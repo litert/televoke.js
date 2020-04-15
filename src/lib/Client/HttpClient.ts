@@ -19,8 +19,9 @@ import * as C from './Common';
 import * as GE from '../Errors';
 import * as G from '../Common';
 import * as E from './Errors';
+import { Events } from '@litert/observable';
 
-class HttpClient implements C.IClient {
+class HttpClient extends Events.EventEmitter<Events.ICallbackDefinitions> implements C.IClient {
 
     private _agent: $Http.Agent;
 
@@ -32,6 +33,8 @@ class HttpClient implements C.IClient {
         private _ridGenerator: C.IRIDGenerator,
         private _timeout: number = 30000
     ) {
+
+        super();
 
         this._agent = new $Http.Agent({
             maxSockets: 0,
@@ -68,7 +71,7 @@ class HttpClient implements C.IClient {
 
             const length = Buffer.byteLength(content);
 
-            if (length > 67108864) {
+            if (length > G.MAX_PACKET_SIZE) {
 
                 return reject(new GE.E_PACKET_TOO_LARGE());
             }
@@ -92,7 +95,7 @@ class HttpClient implements C.IClient {
 
                 const length = parseInt(resp.headers['content-length']);
 
-                if (!Number.isSafeInteger(length) || length > 67108864) { // Maximum request packet is 64MB
+                if (!Number.isSafeInteger(length) || length > G.MAX_PACKET_SIZE) { // Maximum request packet is 64MB
 
                     return reject(new GE.E_PACKET_TOO_LARGE());
                 }

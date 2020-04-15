@@ -15,6 +15,7 @@
  */
 
 import * as G from '../Common';
+import { Events } from '@litert/observable';
 
 export type IRIDGenerator = () => string | number;
 
@@ -25,9 +26,7 @@ export interface IResponse<A> extends G.IRawResponse<A> {
     crt: number;
 }
 
-export interface IClient<S extends G.IServiceAPIs = G.IServiceAPIs> {
-
-    onError: (e: unknown) => void;
+export interface IClient<S extends G.IServiceAPIs = G.IServiceAPIs> extends Events.IObservable<Events.ICallbackDefinitions> {
 
     connect(): Promise<void>;
 

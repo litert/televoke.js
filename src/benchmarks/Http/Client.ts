@@ -17,33 +17,48 @@
 import * as $Televoke from '../../lib';
 import { IGa, BENCHMARK_SERVER_PORT, BENCHMARK_SERVER_HOST } from './API';
 
+const ridGenerator = (function() {
+
+    let i = 0;
+    return () => i++;
+})();
+
+const CONCURRENCY = 10000;
+
 (async () => {
 
-    const client = $Televoke.createHttpClient<IGa>(BENCHMARK_SERVER_HOST, BENCHMARK_SERVER_PORT, Math.random);
+    const client = $Televoke.createHttpClient<IGa>(BENCHMARK_SERVER_HOST, BENCHMARK_SERVER_PORT, ridGenerator);
 
     await client.connect();
 
-    console.time('TCP Invoke Concurrent');
-    await Promise.all(Array(10000).fill(0).map(() => client.invoke('hi', {name: 'Angus'})));
-    console.timeEnd('TCP Invoke Concurrent');
+    await Promise.all(Array(CONCURRENCY).fill(0).map(() => client.invoke('hi', {name: 'Angus'})));
 
-    console.time('TCP Invoke Sequence');
-    for (let i = 0; i < 10000; i++) {
+    for (let i = 0; i < CONCURRENCY; i++) {
 
         await client.invoke('hi', {name: 'Angus'});
     }
-    console.timeEnd('TCP Invoke Sequence');
 
-    console.time('TCP Call Concurrent');
-    await Promise.all(Array(10000).fill(0).map(() => client.call('hi', {name: 'Angus'})));
-    console.timeEnd('TCP Call Concurrent');
+    console.time(`TCP ${CONCURRENCY} Invokes Concurrent`);
+    await Promise.all(Array(CONCURRENCY).fill(0).map(() => client.invoke('hi', {name: 'Angus'})));
+    console.timeEnd(`TCP ${CONCURRENCY} Invokes Concurrent`);
 
-    console.time('TCP Call Sequence');
-    for (let i = 0; i < 10000; i++) {
+    console.time(`TCP ${CONCURRENCY} Invokes Sequence`);
+    for (let i = 0; i < CONCURRENCY; i++) {
+
+        await client.invoke('hi', {name: 'Angus'});
+    }
+    console.timeEnd(`TCP ${CONCURRENCY} Invokes Sequence`);
+
+    console.time(`TCP ${CONCURRENCY} Calls Concurrent`);
+    await Promise.all(Array(CONCURRENCY).fill(0).map(() => client.call('hi', {name: 'Angus'})));
+    console.timeEnd(`TCP ${CONCURRENCY} Calls Concurrent`);
+
+    console.time(`TCP ${CONCURRENCY} Calls Sequence`);
+    for (let i = 0; i < CONCURRENCY; i++) {
 
         await client.call('hi', {name: 'Angus'});
     }
-    console.timeEnd('TCP Call Sequence');
+    console.timeEnd(`TCP ${CONCURRENCY} Calls Sequence`);
 
     await client.close();
 

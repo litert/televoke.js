@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+export const MAX_PACKET_SIZE = 67108864;
+
 export interface IWritable {
 
     write(buf: Buffer | string, cb?: () => void): void;

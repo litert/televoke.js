@@ -21,6 +21,7 @@ import { Promises } from '@litert/observable';
 import * as E from './Errors';
 import { createDecoder } from '../Encoder/Decoder';
 import { createEncoder } from '../Encoder/Encoder';
+import { Events } from '@litert/observable';
 
 enum EStatus {
 
@@ -45,7 +46,7 @@ interface IRequest {
     packet?: G.IRawRequest;
 }
 
-class TCPClient implements C.IClient {
+class TCPClient extends Events.EventEmitter<Events.ICallbackDefinitions> implements C.IClient {
 
     private static _promises = Promises.getGlobalFactory();
 
@@ -71,14 +72,14 @@ class TCPClient implements C.IClient {
 
     private _encoder = createEncoder();
 
-    public onError!: (e: unknown) => void;
-
     public constructor(
         private _host: string,
         private _port: number,
         private _ridGenerator: C.IRIDGenerator,
         private _timeout: number = 30000
     ) {
+
+        super();
 
         this._connPrId = `litert:televoke:tcp:client:${this._clientId}:connect`;
         this._closePrId = `litert:televoke:tcp:client:${this._clientId}:close`;
@@ -241,8 +242,8 @@ class TCPClient implements C.IClient {
 
             const decoder = createDecoder<G.IRawResponse>();
 
-            decoder.onLogicError = this.onError;
-            decoder.onProtocolError = this.onError;
+            decoder.onLogicError = (e: unknown) => this.emit('error', e);
+            decoder.onProtocolError = (e: unknown) => this.emit('error', e);
 
             decoder.onData = (rawData: G.IRawResponse): void => {
 
@@ -254,6 +255,7 @@ class TCPClient implements C.IClient {
 
                     return;
                 }
+
                 data.cst = req.cst;
                 data.crt = Date.now();
 

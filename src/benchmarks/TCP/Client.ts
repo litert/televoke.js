@@ -23,11 +23,11 @@ const ridGenerator = (function() {
     return () => i++;
 })();
 
-const CONCURRENCY = 10000;
+const CONCURRENCY = 30000;
 
 (async () => {
 
-    const client = $Televoke.createTCPClient<IGa>(BENCHMARK_SERVER_HOST, BENCHMARK_SERVER_PORT, ridGenerator);
+    const client = $Televoke.createTCPClient<IGa>(BENCHMARK_SERVER_HOST, BENCHMARK_SERVER_PORT, ridGenerator, 60000);
 
     await client.connect();
 

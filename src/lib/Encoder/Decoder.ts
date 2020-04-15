@@ -170,7 +170,7 @@ class Decoder implements C.IDecoder<any> {
                     }
                 }
 
-                if (this._packetLength > 67108864) { // Maximum packet size is 64M
+                if (this._packetLength > C.MAX_PACKET_SIZE) { // Maximum packet size is 64M
 
                     this.onProtocolError(new GE.E_PACKET_TOO_LARGE());
                     this.reset();

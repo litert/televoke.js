@@ -55,7 +55,7 @@ class HttpGateway implements C.IGateway {
 
         const length = parseInt(req.headers['content-length']);
 
-        if (!Number.isSafeInteger(length) || length > 67108864) { // Maximum request packet is 64MB
+        if (!Number.isSafeInteger(length) || length > G.MAX_PACKET_SIZE) { // Maximum request packet is 64MB
 
             resp.socket.destroy();
             return;

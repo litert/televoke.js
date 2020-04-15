@@ -23,7 +23,7 @@ module.exports = {
             'global'
         ]],
         'scope-empty': [2, 'never'],
-        'subject-case': [2, 'always', 'lowerCase'],
+        'subject-case': [2, 'never', 'lowerCase'],
         'subject-min-length': [2, 'always', 5],
         'subject-max-length': [2, 'always', 50],
     }
