@@ -14,21 +14,8 @@
  * limitations under the License.
  */
 
-import * as $Televoke from '../lib';
-
-interface IGreetArguments {
-
-    name: string;
-}
-
-interface IGa extends $Televoke.IServiceAPIs {
-
-    hi(data: IGreetArguments): string;
-
-    Hello(data: IGreetArguments): string;
-
-    TestError(data: IGreetArguments): string;
-}
+import * as $Televoke from '../../lib';
+import { IGa, BENCHMARK_SERVER_PORT, BENCHMARK_SERVER_HOST } from './API';
 
 (async () => {
 
@@ -41,7 +28,7 @@ interface IGa extends $Televoke.IServiceAPIs {
 
     router.register<IGa['Hello']>('Hello', async function(_) {
 
-        return `Hello, ${_.args[0].name} (Request ID: ${_.rid})`;
+        return `Hello, ${_.args[0].name}`;
     });
 
     router.add<IGa['TestError']>('TestError', async function(data) {
@@ -51,25 +38,11 @@ interface IGa extends $Televoke.IServiceAPIs {
 
     const server = $Televoke.createServer();
 
-    const client = $Televoke.createHttpClient<IGa>('127.0.0.1', 8899, Math.random);
-
     server.setRouter(router);
     server.on('error', console.error);
     server.on('handler_error', console.error);
-    server.addGateway('tcp', $Televoke.createHttpGateway('127.0.0.1', 8899));
+    server.addGateway('tcp', $Televoke.createTCPGateway(BENCHMARK_SERVER_HOST, BENCHMARK_SERVER_PORT));
 
     await server.start();
-
-    await client.connect();
-
-    console.log(await client.invoke('hi', {'name': 'Mick'}));
-    console.log(await client.call('Hello', {'name': 'Angus'}));
-
-    await client.invoke('not-exists-api', {'name': 'V'}).catch((e) => console.error(e.toString()));
-    await client.invoke('TestError', {'name': 'V'}).catch((e) => console.error(e.toString()));
-
-    await client.close();
-
-    await server.close();
 
 })().catch(console.error);

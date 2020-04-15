@@ -14,13 +14,21 @@
  * limitations under the License.
  */
 
-import { IRequest } from './Request';
+import * as $Televoke from '../../lib';
 
-export type IHandler<A extends (...args: any[]) => any> = (...args: Parameters<A>) => Promise<ReturnType<A>>;
+export const BENCHMARK_SERVER_HOST = '127.0.0.1';
+export const BENCHMARK_SERVER_PORT = 9988;
 
-export type IHandlerEx<A extends (...args: any[]) => any> = (req: IRequest<Parameters<A>>) => Promise<ReturnType<A>>;
+export interface IGreetArguments {
 
-export interface IRouter {
+    name: string;
+}
 
-    route(name: string): [IHandler<any>, true] | [IHandlerEx<any>, false] | void;
+export interface IGa extends $Televoke.IServiceAPIs {
+
+    hi(data: IGreetArguments): string;
+
+    Hello(data: IGreetArguments): string;
+
+    TestError(data: IGreetArguments): string;
 }

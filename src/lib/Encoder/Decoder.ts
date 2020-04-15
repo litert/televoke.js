@@ -1,4 +1,19 @@
-import * as E from './Errors';
+/**
+ * Copyright 2020 Angus.Fenying <fenying@litert.org>
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *   https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 import * as GE from '../Errors';
 import * as C from '../Common';
 
@@ -21,6 +36,10 @@ class Decoder implements C.IDecoder<any> {
     private _bufLength!: number;
 
     private _packetLength!: number;
+
+    private _plBuf: Buffer = Buffer.allocUnsafe(4);
+
+    private _plBufLength: number = 0;
 
     public constructor() {
 
@@ -116,25 +135,46 @@ class Decoder implements C.IDecoder<any> {
             }
             else {
 
-                /**
-                 * Accept at least 4 bytes as the leading packet.
-                 */
-                if (chunk.length < 4) {
+                if (this._plBufLength) {
 
-                    this.onProtocolError(new E.E_INVALID_LEADING_PACKET());
-                    this.reset();
-                    return;
+                    if (this._plBufLength + chunk.byteLength >= 4) {
+
+                        chunk.copy(this._plBuf, this._plBufLength, 0, 4 - this._plBufLength);
+
+                        chunk = chunk.slice(4 - this._plBufLength);
+                        this._plBufLength = 0;
+                        this._packetLength = this._plBuf.readUInt32LE(0);
+                    }
+                    else {
+
+                        chunk.copy(this._plBuf, this._plBufLength);
+
+                        this._plBufLength += chunk.byteLength;
+                        return;
+                    }
                 }
+                else {
 
-                this._packetLength = chunk.readUInt32LE(0);
+                    if (chunk.length >= 4) {
+
+                        this._packetLength = chunk.readUInt32LE(0);
+                        chunk = chunk.slice(4);
+                        this._plBufLength = 0;
+                    }
+                    else {
+
+                        chunk.copy(this._plBuf, this._plBufLength);
+
+                        this._plBufLength = chunk.byteLength;
+                        return;
+                    }
+                }
 
                 if (this._packetLength > 67108864) { // Maximum packet size is 64M
 
                     this.onProtocolError(new GE.E_PACKET_TOO_LARGE());
                     this.reset();
                 }
-
-                chunk = chunk.slice(4);
 
                 if (this._buf.byteLength < this._packetLength) {
 

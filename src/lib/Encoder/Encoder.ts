@@ -1,46 +1,38 @@
+/**
+ * Copyright 2020 Angus.Fenying <fenying@litert.org>
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *   https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 import * as C from '../Common';
 
 class Encoder implements C.IEncoder {
-
-    private _buf: Buffer;
-
-    private _bufOffset: number[];
-
-    private _cur: number = 0;
-
-    public constructor(bufSize: number = 1024 * 8) {
-
-        this._bufOffset = Array(bufSize / 4).fill(0).map((v, i) => i * 4);
-        this._buf = Buffer.allocUnsafe(bufSize);
-    }
 
     public encode(socket: C.IWritable, content: any): void {
 
         content = JSON.stringify(content);
 
-        let offset = this._bufOffset[this._cur++];
+        const contentLength = Buffer.byteLength(content);
 
-        if (undefined === offset) {
+        const ret = Buffer.allocUnsafe(contentLength + 4);
 
-            this._buf = Buffer.allocUnsafe(this._buf.byteLength * 2);
+        ret.writeUInt32LE(contentLength, 0);
+        ret.write(content, 4);
 
-            offset = this._bufOffset[this._cur - 2] + 4;
+        if (socket.writable) {
 
-            this._bufOffset = [
-                ...this._bufOffset,
-                ...Array(this._bufOffset.length).fill(0).map((v, i) => offset + i * 4)
-            ];
+            socket.write(ret);
         }
-
-        let buf: Buffer = this._buf.slice(offset, offset + 4);
-
-        buf.writeUInt32LE(Buffer.byteLength(content), 0);
-        socket.write(buf, () => {
-
-            this._bufOffset[--this._cur] = offset;
-        });
-
-        socket.write(content);
     }
 }
 

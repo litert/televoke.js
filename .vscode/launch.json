@@ -35,6 +35,20 @@
         {
             "type": "node",
             "request": "launch",
+            "name": "[Televoke] Http",
+            "program": "${workspaceFolder}/src/examples/Http.ts",
+            "sourceMaps": true,
+            "cwd": "${workspaceFolder}",
+            "outFiles": [
+                "${workspaceFolder}/lib/*.js",
+                "${workspaceFolder}/lib/**/*.js",
+                "${workspaceFolder}/examples/*.js",
+                "${workspaceFolder}/examples/**/*.js"
+            ]
+        },
+        {
+            "type": "node",
+            "request": "launch",
             "name": "[Televoke] Start H2 Server",
             "program": "${workspaceFolder}/src/examples/Http.ts",
             "sourceMaps": true,
