@@ -10,7 +10,7 @@ A simple RPC service framework.
 ## Installation
 
 ```sh
-npm install @litert/televoke. --save
+npm install @litert/televoke --save
 ```
 
 ## Requirements
