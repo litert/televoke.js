@@ -1,5 +1,9 @@
 # Changes Logs
 
+## v0.3.0
+
+- refactor(router): extract all routing logics from server into router.
+
 ## v0.2.0
 
 - refactor(global): Improved the experience.

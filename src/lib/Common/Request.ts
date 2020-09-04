@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-export interface IRawRequest<T extends any[] = any[]> {
+export interface IRawRequest<T extends any = any> {
 
     ttl: number;
 

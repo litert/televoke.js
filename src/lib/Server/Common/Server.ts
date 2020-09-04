@@ -25,13 +25,35 @@ export interface IServerEvents extends Events.ICallbackDefinitions {
 
 export interface IServer extends Events.IObservable<IServerEvents> {
 
+    /**
+     * Mount a new gateway.
+     *
+     * @param name      The name of the gateway.
+     * @param gateway   The gateway object.
+     */
     addGateway(name: string, gateway: IGateway): this;
 
+    /**
+     * Unmount a gateway.
+     *
+     * @param name      The name of the gateway.
+     */
     removeGateway(name: string): this;
 
+    /**
+     * Inject a router object for the server.
+     *
+     * @param router    The router object.
+     */
     setRouter(router: IRouter): this;
 
+    /**
+     * Start the server.
+     */
     start(): Promise<void>;
 
+    /**
+     * Stop the server.
+     */
     close(): Promise<void>;
 }

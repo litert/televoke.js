@@ -12,10 +12,7 @@
             "sourceMaps": true,
             "cwd": "${workspaceFolder}",
             "outFiles": [
-                "${workspaceFolder}/lib/*.js",
-                "${workspaceFolder}/lib/**/*.js",
-                "${workspaceFolder}/benchmarks/*.js",
-                "${workspaceFolder}/benchmarks/**/*.js"
+                "${workspaceFolder}/**/*.js",
             ]
         },
         {
@@ -26,10 +23,7 @@
             "sourceMaps": true,
             "cwd": "${workspaceFolder}",
             "outFiles": [
-                "${workspaceFolder}/lib/*.js",
-                "${workspaceFolder}/lib/**/*.js",
-                "${workspaceFolder}/examples/*.js",
-                "${workspaceFolder}/examples/**/*.js"
+                "${workspaceFolder}/**/*.js",
             ]
         },
         {
@@ -40,10 +34,7 @@
             "sourceMaps": true,
             "cwd": "${workspaceFolder}",
             "outFiles": [
-                "${workspaceFolder}/lib/*.js",
-                "${workspaceFolder}/lib/**/*.js",
-                "${workspaceFolder}/examples/*.js",
-                "${workspaceFolder}/examples/**/*.js"
+                "${workspaceFolder}/**/*.js",
             ]
         },
         {
@@ -54,10 +45,7 @@
             "sourceMaps": true,
             "cwd": "${workspaceFolder}",
             "outFiles": [
-                "${workspaceFolder}/lib/*.js",
-                "${workspaceFolder}/lib/**/*.js",
-                "${workspaceFolder}/examples/*.js",
-                "${workspaceFolder}/examples/**/*.js"
+                "${workspaceFolder}/**/*.js",
             ]
         }
     ]

@@ -17,6 +17,7 @@ module.exports = {
             'client',
             'encoder',
             'decoder',
+            'router',
             'doc',
             'lint',
             'branch',

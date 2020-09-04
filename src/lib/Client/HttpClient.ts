@@ -45,15 +45,15 @@ class HttpClient extends Events.EventEmitter<Events.ICallbackDefinitions> implem
 
     public invoke(api: any, ...args: any[]): Promise<any> {
 
-        return this._call(api, false, ...args);
+        return this._call(api, false, args);
     }
 
     public call(api: any, ...args: any[]): Promise<any> {
 
-        return this._call(api, true, ...args);
+        return this._call(api, true, args);
     }
 
-    public _call(api: any, returnRaw: boolean, ...args: any[]): Promise<any> {
+    public _call(api: any, returnRaw: boolean, args: any[]): Promise<any> {
 
         const rid = this._ridGenerator();
 

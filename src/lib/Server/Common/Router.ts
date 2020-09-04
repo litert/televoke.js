@@ -18,9 +18,30 @@ import { IRequest } from './Request';
 
 export type IHandler<A extends (...args: any[]) => any> = (...args: Parameters<A>) => Promise<ReturnType<A>>;
 
-export type IHandlerEx<A extends (...args: any[]) => any> = (req: IRequest<Parameters<A>>) => Promise<ReturnType<A>>;
+export type IHandlerEx<A extends (...args: any[]) => any> = (req: IRequest<Parameters<A>>, ...args: Parameters<A>) => Promise<ReturnType<A>>;
 
 export interface IRouter {
 
-    route(name: string): [IHandler<any>, true] | [IHandlerEx<any>, false] | void;
+    /**
+     * Try routing by the API name, and return the descriptor of the API.
+     *
+     * @param name  The name of API requested by client.
+     */
+    route(name: string): unknown | null;
+
+    /**
+     * Execute the determined API.
+     *
+     * @param request       The context object of current request.
+     * @param descriptor    The descriptor of the API.
+     */
+    execute(request: IRequest, descriptor: unknown): Promise<any>;
+
+    /**
+     * Validate the arguments inside the request.
+     *
+     * @param request       The context object of current request.
+     * @param descriptor    The descriptor of the API.
+     */
+    validate(request: IRequest, descriptor: unknown): boolean;
 }

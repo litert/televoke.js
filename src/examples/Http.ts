@@ -39,9 +39,9 @@ interface IGa extends $Televoke.IServiceAPIs {
         return `Hi, ${data.name}`;
     });
 
-    router.register<IGa['Hello']>('Hello', async function(_) {
+    router.register<IGa['Hello']>('Hello', async function(_, data) {
 
-        return `Hello, ${_.args[0].name} (Request ID: ${_.rid})`;
+        return `Hello, ${data.name} (Request ID: ${_.rid})`;
     });
 
     router.add<IGa['TestError']>('TestError', async function(data) {

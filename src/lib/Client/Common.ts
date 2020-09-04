@@ -21,8 +21,14 @@ export type IRIDGenerator = () => string | number;
 
 export interface IResponse<A> extends G.IRawResponse<A> {
 
+    /**
+     * The time when client sent the request.
+     */
     cst: number;
 
+    /**
+     * The time when client received the response.
+     */
     crt: number;
 }
 
@@ -30,8 +36,20 @@ export interface IClient<S extends G.IServiceAPIs = G.IServiceAPIs> extends Even
 
     connect(): Promise<void>;
 
+    /**
+     * Call an API and get the result.
+     *
+     * @param api   The name of API.
+     * @param args  The arguments of API.
+     */
     invoke<K extends keyof S>(api: K, ...args: Parameters<S[K]>): Promise<ReturnType<S[K]>>;
 
+    /**
+     * Call an API and get the raw response packet of result.
+     *
+     * @param api   The name of API.
+     * @param args  The arguments of API.
+     */
     call<K extends keyof S>(api: K, ...args: Parameters<S[K]>): Promise<IResponse<S[K]>>;
 
     close(): Promise<void>;

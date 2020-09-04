@@ -53,11 +53,11 @@ class Server extends Events.EventEmitter<C.IServerEvents> implements C.IServer {
         gateway.onError = (e) => this.emit('error', e);
         gateway.onRequest = (rawReq, reply) => {
 
-            const handler = this._router.route(rawReq.api);
-
             const req = rawReq as C.IRequest;
 
             req.srt = Date.now();
+
+            const handler = this._router.route(rawReq.api);
 
             if (!handler) {
 
@@ -70,29 +70,29 @@ class Server extends Events.EventEmitter<C.IServerEvents> implements C.IServer {
                 });
             }
 
-            let pr: Promise<any>;
+            if (!this._router.validate(req, handler)) {
 
-            if (handler[1]) {
-
-                pr = handler[0](...rawReq.args);
+                return reply({
+                    rid: req.rid,
+                    srt: req.srt,
+                    sst: Date.now(),
+                    code: G.EResponseCode.MALFORMED_ARGUMENTS,
+                    body: null
+                });
             }
-            else {
 
-                pr = handler[0](req);
-            }
-
-            pr.then((body) => reply({
+            this._router.execute(req, handler).then((body) => reply({
                 rid: req.rid,
                 srt: req.srt,
                 sst: Date.now(),
                 code: G.EResponseCode.OK,
-                body
+                body: body ?? null
             }), (body) => reply({
                 rid: req.rid,
                 srt: req.srt,
                 sst: Date.now(),
                 code: G.EResponseCode.FAILURE,
-                body
+                body: body ?? null
             }));
         };
 

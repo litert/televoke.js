@@ -16,21 +16,52 @@
 
 export enum EResponseCode {
 
+    /**
+     * API was called succeed
+     */
     OK,
+    /**
+     * The invoked API does not exist on the remote server.
+     */
     API_NOT_FOUND,
+    /**
+     * Some unexpected error happened.
+     */
     SYSTEM_ERROR,
-    FAILURE
+    /**
+     * Logical error happened inside the API handler.
+     */
+    FAILURE,
+    /**
+     * The arguments inside the request is malformed.
+     */
+    MALFORMED_ARGUMENTS
 }
 
 export interface IRawResponse<T = any> {
 
+    /**
+     * The time when server sent the response.
+     */
     sst: number;
 
+    /**
+     * The time when server received the request.
+     */
     srt: number;
 
+    /**
+     * The identity of the request.
+     */
     rid: string | number;
 
+    /**
+     * The protocol status code of the response.
+     */
     code: number;
 
+    /**
+     * The content of API response.
+     */
     body: T;
 }

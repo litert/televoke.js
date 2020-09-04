@@ -15,13 +15,32 @@
  */
 
 import * as C from './Common';
+import { IRequest } from './Common';
 
 export interface ISimpleRouter extends C.IRouter {
 
+    /**
+     * Register an API with a handler receiving API arguments only.
+     *
+     * @param apiName   The name of the API
+     * @param handler   The handler of API.
+     */
     add<A extends (...args: any[]) => any>(apiName: string, handler: C.IHandler<A>): this;
 
+    /**
+     * Register an API with a handler receiving context object of the request as the first argument,
+     * and receive the API arguments as the rest arguments of function.
+     *
+     * @param apiName   The name of the API
+     * @param handler   The handler of API.
+     */
     register<A extends (...args: any[]) => any>(apiName: string, handler: C.IHandlerEx<A>): this;
 
+    /**
+     * Unregister an API.
+     *
+     * @param apiName The name of API.
+     */
     removeHandler(apiName: string): this;
 }
 
@@ -50,6 +69,23 @@ class SimpleRouter implements ISimpleRouter {
     public route(name: string): [any, boolean] | void {
 
         return this._handlers[name];
+    }
+
+    public execute(request: IRequest, descriptor: [C.IHandler<any>, boolean]): Promise<any> {
+
+        if (descriptor[1]) {
+
+            return descriptor[0](...request.args);
+        }
+        else {
+
+            return descriptor[0](request, ...request.args);
+        }
+    }
+
+    public validate(request: IRequest): boolean {
+
+        return Array.isArray(request.args);
     }
 }
 
