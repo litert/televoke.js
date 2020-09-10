@@ -60,6 +60,28 @@ const CONCURRENCY = 30000;
     }
     console.timeEnd(`TCP ${CONCURRENCY} Calls Sequence`);
 
+    console.time(`TCP ${CONCURRENCY} Invokes Concurrent [Sync Handler]`);
+    await Promise.all(Array(CONCURRENCY).fill(0).map(() => client.invoke('Hello', {name: 'Angus'})));
+    console.timeEnd(`TCP ${CONCURRENCY} Invokes Concurrent [Sync Handler]`);
+
+    console.time(`TCP ${CONCURRENCY} Invokes Sequence [Sync Handler]`);
+    for (let i = 0; i < CONCURRENCY; i++) {
+
+        await client.invoke('Hello', {name: 'Angus'});
+    }
+    console.timeEnd(`TCP ${CONCURRENCY} Invokes Sequence [Sync Handler]`);
+
+    console.time(`TCP ${CONCURRENCY} Calls Concurrent [Sync Handler]`);
+    await Promise.all(Array(CONCURRENCY).fill(0).map(() => client.call('Hello', {name: 'Angus'})));
+    console.timeEnd(`TCP ${CONCURRENCY} Calls Concurrent [Sync Handler]`);
+
+    console.time(`TCP ${CONCURRENCY} Calls Sequence [Sync Handler]`);
+    for (let i = 0; i < CONCURRENCY; i++) {
+
+        await client.call('Hello', {name: 'Angus'});
+    }
+    console.timeEnd(`TCP ${CONCURRENCY} Calls Sequence [Sync Handler]`);
+
     await client.close();
 
 })().catch(console.error);

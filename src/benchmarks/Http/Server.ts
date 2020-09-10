@@ -26,7 +26,7 @@ import { IGa, BENCHMARK_SERVER_PORT, BENCHMARK_SERVER_HOST } from './API';
         return `Hi, ${data.name}`;
     });
 
-    router.register<IGa['Hello']>('Hello', async function(_) {
+    router.register<IGa['Hello']>('Hello', function(_) {
 
         return `Hello, ${_.args[0].name}`;
     });

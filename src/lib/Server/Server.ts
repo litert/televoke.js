@@ -81,19 +81,50 @@ class Server extends Events.EventEmitter<C.IServerEvents> implements C.IServer {
                 });
             }
 
-            this._router.execute(req, handler).then((body) => reply({
-                rid: req.rid,
-                srt: req.srt,
-                sst: Date.now(),
-                code: G.EResponseCode.OK,
-                body: body ?? null
-            }), (body) => reply({
-                rid: req.rid,
-                srt: req.srt,
-                sst: Date.now(),
-                code: G.EResponseCode.FAILURE,
-                body: body ?? null
-            }));
+            let resultPr: any;
+
+            try {
+
+                resultPr = this._router.execute(req, handler);
+            }
+            catch (e) {
+
+                reply({
+                    rid: req.rid,
+                    srt: req.srt,
+                    sst: Date.now(),
+                    code: G.EResponseCode.FAILURE,
+                    body: e ?? null
+                });
+
+                return;
+            }
+
+            if (resultPr instanceof Promise) {
+
+                resultPr.then((body) => reply({
+                    rid: req.rid,
+                    srt: req.srt,
+                    sst: Date.now(),
+                    code: G.EResponseCode.OK,
+                    body: body ?? null
+                }), (body) => reply({
+                    rid: req.rid,
+                    srt: req.srt,
+                    sst: Date.now(),
+                    code: G.EResponseCode.FAILURE,
+                    body: body ?? null
+                }));
+            }
+            else {
+                reply({
+                    rid: req.rid,
+                    srt: req.srt,
+                    sst: Date.now(),
+                    code: G.EResponseCode.OK,
+                    body: resultPr ?? null
+                });
+            }
         };
 
         return this;
