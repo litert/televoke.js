@@ -76,7 +76,8 @@ class TCPClient extends Events.EventEmitter<Events.ICallbackDefinitions> impleme
         private _host: string,
         private _port: number,
         private _ridGenerator: C.IRIDGenerator,
-        private _timeout: number = 30000
+        private _timeout: number = 30000,
+        private _apiNameWrapper?: (name: string) => string
     ) {
 
         super();
@@ -112,7 +113,7 @@ class TCPClient extends Events.EventEmitter<Events.ICallbackDefinitions> impleme
                     rid,
                     cst: NOW,
                     args,
-                    api
+                    api: this._apiNameWrapper ? this._apiNameWrapper(api) : api
                 });
                 this._sentQty++;
                 this._sent[rid] = {
@@ -156,7 +157,7 @@ class TCPClient extends Events.EventEmitter<Events.ICallbackDefinitions> impleme
                         rid,
                         cst: NOW,
                         args,
-                        api
+                        api: this._apiNameWrapper ? this._apiNameWrapper(api) : api
                     },
                     timer: this._timeout > 0 ? setTimeout(() => {
 
@@ -338,7 +339,7 @@ class TCPClient extends Events.EventEmitter<Events.ICallbackDefinitions> impleme
 
         }).once('error', (e) => {
 
-            delete this._socket;
+            this._socket = undefined as any;
             pr.reject(e);
         });
 
@@ -381,7 +382,7 @@ class TCPClient extends Events.EventEmitter<Events.ICallbackDefinitions> impleme
         }
 
         this._socket.destroy();
-        delete this._socket;
+        this._socket = undefined as any;
         this._status = EStatus.IDLE;
         return Promise.resolve();
     }
@@ -391,8 +392,9 @@ export function createTCPClient<S extends G.IServiceAPIs>(
     host: string,
     port: number,
     ridGenerator: C.IRIDGenerator,
-    timeout?: number
+    timeout?: number,
+    apiNameWrapper?: (name: string) => string
 ): C.IClient<S> {
 
-    return new TCPClient(host, port, ridGenerator, timeout);
+    return new TCPClient(host, port, ridGenerator, timeout, apiNameWrapper);
 }

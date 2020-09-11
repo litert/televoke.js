@@ -31,7 +31,8 @@ class HttpClient extends Events.EventEmitter<Events.ICallbackDefinitions> implem
         private _host: string,
         private _port: number,
         private _ridGenerator: C.IRIDGenerator,
-        private _timeout: number = 30000
+        private _timeout: number = 30000,
+        private _apiNameWrapper?: (name: string) => string
     ) {
 
         super();
@@ -64,7 +65,7 @@ class HttpClient extends Events.EventEmitter<Events.ICallbackDefinitions> implem
             rid,
             cst: CST,
             args,
-            api
+            api: this._apiNameWrapper ? this._apiNameWrapper(api) : api
         });
 
         return new Promise((resolve, reject) => {
@@ -193,8 +194,9 @@ export function createHttpClient<S extends G.IServiceAPIs>(
     host: string,
     port: number,
     ridGenerator: C.IRIDGenerator,
-    timeout?: number
+    timeout?: number,
+    apiNameWrapper?: (name: string) => string
 ): C.IClient<S> {
 
-    return new HttpClient(host, port, ridGenerator, timeout);
+    return new HttpClient(host, port, ridGenerator, timeout, apiNameWrapper);
 }

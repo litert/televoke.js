@@ -1,5 +1,9 @@
 # Changes Logs
 
+## v0.3.2
+
+- feat(client): allow customized API name wrapper.
+
 ## v0.3.1
 
 - fix(server): fixed the possible non-caught exception in non-async promise-type handler.

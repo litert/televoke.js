@@ -34,24 +34,30 @@ interface IGa extends $Televoke.IServiceAPIs {
 
     const router = $Televoke.createSimpleRouter();
 
-    router.add<IGa['hi']>('hi', async function(data) {
+    router.add<IGa['hi']>('TestPrefix.hi', async function(data) {
 
         return `Hi, ${data.name}`;
     });
 
-    router.register<IGa['Hello']>('Hello', async function(_) {
+    router.register<IGa['Hello']>('TestPrefix.Hello', async function(_) {
 
         return `Hello, ${_.args[0].name}`;
     });
 
-    router.add<IGa['TestError']>('TestError', async function(data) {
+    router.add<IGa['TestError']>('TestPrefix.TestError', async function(data) {
 
         throw `Hello, ${data.name}`;
     });
 
     const server = $Televoke.createServer();
 
-    const client = $Televoke.createTCPClient<IGa>('127.0.0.1', 8899, Math.random);
+    const client = $Televoke.createTCPClient<IGa>(
+        '127.0.0.1',
+        8899,
+        Math.random,
+        30000,
+        (v) => `TestPrefix.${v}`
+    );
 
     server.setRouter(router);
     server.on('error', console.error);
