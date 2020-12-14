@@ -54,7 +54,7 @@ class HttpClient extends Events.EventEmitter<Events.ICallbackDefinitions> implem
         return this._call(api, true, args);
     }
 
-    public _call(api: any, returnRaw: boolean, args: any[]): Promise<any> {
+    private _call(api: any, returnRaw: boolean, args: any[]): Promise<any> {
 
         const rid = this._ridGenerator();
 
@@ -190,13 +190,13 @@ class HttpClient extends Events.EventEmitter<Events.ICallbackDefinitions> implem
     }
 }
 
-export function createHttpClient<S extends G.IServiceAPIs>(
+export function createHttpClient<TAPIs extends G.IServiceAPIs>(
     host: string,
     port: number,
     ridGenerator: C.IRIDGenerator,
     timeout?: number,
     apiNameWrapper?: (name: string) => string
-): C.IClient<S> {
+): C.IClient<TAPIs> {
 
     return new HttpClient(host, port, ridGenerator, timeout, apiNameWrapper);
 }

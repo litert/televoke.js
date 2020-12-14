@@ -20,12 +20,12 @@ export type IReplyCallbak = (data: IRawResponse) => void;
 
 export interface IGateway {
 
-    onRequest: (
+    onRequest?: (
         request: IRawRequest,
         reply: IReplyCallbak
     ) => void;
 
-    onError: (e: unknown) => void;
+    onError?: (e: unknown) => void;
 
     start(): Promise<void>;
 

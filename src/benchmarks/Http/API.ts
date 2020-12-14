@@ -28,7 +28,9 @@ export interface IGa extends $Televoke.IServiceAPIs {
 
     hi(data: IGreetArguments): string;
 
+    /* eslint-disable @typescript-eslint/naming-convention */
     Hello(data: IGreetArguments): string;
 
     TestError(data: IGreetArguments): string;
+    /* eslint-enable @typescript-eslint/naming-convention */
 }

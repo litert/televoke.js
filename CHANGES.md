@@ -1,5 +1,9 @@
 # Changes Logs
 
+## v0.3.3
+
+- config(deps): updated the dependencies.
+
 ## v0.3.2
 
 - feat(client): allow customized API name wrapper.

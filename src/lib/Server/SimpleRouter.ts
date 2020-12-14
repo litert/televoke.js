@@ -25,7 +25,7 @@ export interface ISimpleRouter extends C.IRouter {
      * @param apiName   The name of the API
      * @param handler   The handler of API.
      */
-    add<A extends (...args: any[]) => any>(apiName: string, handler: C.IHandler<A>): this;
+    add<T extends (...args: any[]) => any>(apiName: string, handler: C.IHandler<T>): this;
 
     /**
      * Register an API with a handler receiving context object of the request as the first argument,
@@ -34,7 +34,7 @@ export interface ISimpleRouter extends C.IRouter {
      * @param apiName   The name of the API
      * @param handler   The handler of API.
      */
-    register<A extends (...args: any[]) => any>(apiName: string, handler: C.IHandlerEx<A>): this;
+    register<T extends (...args: any[]) => any>(apiName: string, handler: C.IHandlerEx<T>): this;
 
     /**
      * Unregister an API.
@@ -48,13 +48,13 @@ class SimpleRouter implements ISimpleRouter {
 
     private _handlers: Record<string, [any, boolean]> = {};
 
-    public add<A extends (...args: any[]) => any>(apiName: string, handler: C.IHandler<A>): this {
+    public add<T extends (...args: any[]) => any>(apiName: string, handler: C.IHandler<T>): this {
 
         this._handlers[apiName] = [handler, true];
         return this;
     }
 
-    public register<A extends (...args: any[]) => any>(apiName: string, handler: C.IHandlerEx<A>): this {
+    public register<T extends (...args: any[]) => any>(apiName: string, handler: C.IHandlerEx<T>): this {
 
         this._handlers[apiName] = [handler, false];
         return this;

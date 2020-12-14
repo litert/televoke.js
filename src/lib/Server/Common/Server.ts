@@ -20,7 +20,9 @@ import { Events } from '@litert/observable';
 
 export interface IServerEvents extends Events.ICallbackDefinitions {
 
-    'handler_error'(e: unknown): void;
+    /* eslint-disable @typescript-eslint/naming-convention */
+    handler_error(e: unknown): void;
+    /* eslint-enable @typescript-eslint/naming-convention */
 }
 
 export interface IServer extends Events.IObservable<IServerEvents> {

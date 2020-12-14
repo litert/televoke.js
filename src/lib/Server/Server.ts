@@ -17,7 +17,6 @@
 import * as C from './Common';
 import * as G from '../Common';
 import * as E from './Errors';
-import * as L from '@litert/core';
 import { Events } from '@litert/observable';
 
 enum EStatus {
@@ -181,26 +180,15 @@ class Server extends Events.EventEmitter<C.IServerEvents> implements C.IServer {
 
                     const gateways = Object.keys(this._gateways);
 
-                    const successIndex = (await L.Async.multiTasks(gateways.map(
+                    await Promise.all(gateways.map(
                         (k) => this._gateways[k].start()
-                    ))).map(
-                        (v, i) => v.success ? i : -1
-                    ).filter(
-                        (v) => v !== -1
-                    );
-
-                    if (successIndex.length !== gateways.length) {
-
-                        for (const k of successIndex) {
-
-                            await this._gateways[k].close();
-                        }
-                    }
+                    ));
 
                     this._status = EStatus.WORKING;
                 }
                 catch (e) {
 
+                    await this._doClose();
                     this._status = EStatus.IDLE;
                     throw e;
                 }
@@ -216,6 +204,13 @@ class Server extends Events.EventEmitter<C.IServerEvents> implements C.IServer {
         }
     }
 
+    private async _doClose(): Promise<void> {
+
+        await Promise.all(Object.values(this._gateways).map((k) => k.close()));
+
+        this._status = EStatus.IDLE;
+    }
+
     public async close(): Promise<void> {
 
         switch (this._status) {
@@ -225,9 +220,7 @@ class Server extends Events.EventEmitter<C.IServerEvents> implements C.IServer {
 
                 try {
 
-                    await L.Async.multiTasks(Object.values(this._gateways).map((k) => k.close()));
-
-                    this._status = EStatus.IDLE;
+                    await this._doClose();
                 }
                 catch (e) {
 

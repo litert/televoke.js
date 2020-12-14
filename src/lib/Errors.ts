@@ -14,20 +14,27 @@
  * limitations under the License.
  */
 
-import * as L from '@litert/core';
+import * as $Exceptions from '@litert/exception';
 
-export const ErrorHub = L.createErrorHub('@litert/televoke');
+export const errorRegistry = $Exceptions.createExceptionRegistry({
+    'module': 'televoke.litert.org',
+    'types': {
+        'public': {
+            'index': $Exceptions.createIncreaseCodeIndex(1)
+        }
+    }
+});
 
-export const E_PACKET_TOO_LARGE = ErrorHub.define(
-    null,
-    'E_PACKET_TOO_LARGE',
-    'The packet is larger than the maximum size of packet.',
-    {}
-);
+export const E_PACKET_TOO_LARGE = errorRegistry.register({
+    name: 'packet_too_large',
+    message: 'The packet is larger than the maximum size of packet.',
+    metadata: {},
+    type: 'public'
+});
 
-export const E_INVALID_PACKET = ErrorHub.define(
-    null,
-    'E_INVALID_PACKET',
-    'The packet is invalid.',
-    {}
-);
+export const E_INVALID_PACKET = errorRegistry.register({
+    name: 'invalid_packet',
+    message: 'The packet is invalid.',
+    metadata: {},
+    type: 'public'
+});

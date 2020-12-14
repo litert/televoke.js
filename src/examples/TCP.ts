@@ -25,9 +25,11 @@ interface IGa extends $Televoke.IServiceAPIs {
 
     hi(data: IGreetArguments): string;
 
+    /* eslint-disable @typescript-eslint/naming-convention */
     Hello(data: IGreetArguments): string;
 
     TestError(data: IGreetArguments): string;
+    /* eslint-enable @typescript-eslint/naming-convention */
 }
 
 (async () => {
@@ -39,9 +41,9 @@ interface IGa extends $Televoke.IServiceAPIs {
         return `Hi, ${data.name}`;
     });
 
-    router.register<IGa['Hello']>('TestPrefix.Hello', async function(_) {
+    router.register<IGa['Hello']>('TestPrefix.Hello', async function(ctx) {
 
-        return `Hello, ${_.args[0].name}`;
+        return `Hello, ${ctx.args[0].name}`;
     });
 
     router.add<IGa['TestError']>('TestPrefix.TestError', async function(data) {

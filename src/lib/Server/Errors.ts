@@ -14,60 +14,60 @@
  * limitations under the License.
  */
 
-import { ErrorHub } from '../Errors';
+import { errorRegistry } from '../Errors';
 
-export const E_GATEWAY_STARTING = ErrorHub.define(
-    null,
-    'E_GATEWAY_STARTING',
-    'A gateway has already been starting.',
-    {}
-);
+export const E_GATEWAY_STARTING = errorRegistry.register({
+    name: 'gateway_starting',
+    message: 'A gateway has already been starting.',
+    metadata: {},
+    type: 'public'
+});
 
-export const E_GATEWAY_CLOSING = ErrorHub.define(
-    null,
-    'E_GATEWAY_CLOSING',
-    'A gateway has already been closing.',
-    {}
-);
+export const E_GATEWAY_CLOSING = errorRegistry.register({
+    name: 'gateway_closing',
+    message: 'A gateway has already been closing.',
+    metadata: {},
+    type: 'public'
+});
 
-export const E_SERVER_STARTING = ErrorHub.define(
-    null,
-    'E_SERVER_STARTING',
-    'A server has already been starting.',
-    {}
-);
+export const E_SERVER_STARTING = errorRegistry.register({
+    name: 'server_starting',
+    message: 'A server has already been starting.',
+    metadata: {},
+    type: 'public'
+});
 
-export const E_SERVER_CLOSING = ErrorHub.define(
-    null,
-    'E_SERVER_CLOSING',
-    'A server has already been closing.',
-    {}
-);
+export const E_SERVER_CLOSING = errorRegistry.register({
+    name: 'server_closing',
+    message: 'A server has already been closing.',
+    metadata: {},
+    type: 'public'
+});
 
-export const E_SERVER_BUSY = ErrorHub.define(
-    null,
-    'E_SERVER_BUSY',
-    'It is not able to update server currnetly.',
-    {}
-);
+export const E_SERVER_BUSY = errorRegistry.register({
+    name: 'server_busy',
+    message: 'It is not able to update server currnetly.',
+    metadata: {},
+    type: 'public'
+});
 
-export const E_NO_SERVER_ATTACHED = ErrorHub.define(
-    null,
-    'E_NO_SERVER_ATTACHED',
-    'The gateway does not attach to a server.',
-    {}
-);
+export const E_NO_SERVER_ATTACHED = errorRegistry.register({
+    name: 'no_server_attached',
+    message: 'The gateway does not attach to a server.',
+    metadata: {},
+    type: 'public'
+});
 
-export const E_SERVER_NOT_READY = ErrorHub.define(
-    null,
-    'E_SERVER_NOT_READY',
-    'The server is not setup completely.',
-    {}
-);
+export const E_SERVER_NOT_READY = errorRegistry.register({
+    name: 'server_not_ready',
+    message: 'The server is not setup completely.',
+    metadata: {},
+    type: 'public'
+});
 
-export const E_GATEWAY_BUSY = ErrorHub.define(
-    null,
-    'E_GATEWAY_BUSY',
-    'The gateway has been attached to a server.',
-    {}
-);
+export const E_GATEWAY_BUSY = errorRegistry.register({
+    name: 'gateway_busy',
+    message: 'The gateway has been attached to a server.',
+    metadata: {},
+    type: 'public'
+});

@@ -16,9 +16,9 @@
 
 import { IRequest } from './Request';
 
-export type IHandler<A extends (...args: any[]) => any> = (...args: Parameters<A>) => ReturnType<A> | Promise<ReturnType<A>>;
+export type IHandler<TAPI extends (...args: any[]) => any> = (...args: Parameters<TAPI>) => ReturnType<TAPI> | Promise<ReturnType<TAPI>>;
 
-export type IHandlerEx<A extends (...args: any[]) => any> = (req: IRequest<Parameters<A>>, ...args: Parameters<A>) => ReturnType<A> | Promise<ReturnType<A>>;
+export type IHandlerEx<TAPI extends (...args: any[]) => any> = (req: IRequest<Parameters<TAPI>>, ...args: Parameters<TAPI>) => ReturnType<TAPI> | Promise<ReturnType<TAPI>>;
 
 export interface IRouter {
 

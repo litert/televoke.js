@@ -49,7 +49,8 @@ class HttpGateway implements C.IGateway {
 
         if (req.method !== 'POST' || !req.headers['content-length']) {
 
-            resp.socket.destroy();
+            // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
+            resp.socket!.destroy();
             return;
         }
 
@@ -57,7 +58,8 @@ class HttpGateway implements C.IGateway {
 
         if (!Number.isSafeInteger(length) || length > G.MAX_PACKET_SIZE) { // Maximum request packet is 64MB
 
-            resp.socket.destroy();
+            // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
+            resp.socket!.destroy();
             return;
         }
 

@@ -48,15 +48,15 @@ interface IRequest {
 
 class TCPClient extends Events.EventEmitter<Events.ICallbackDefinitions> implements C.IClient {
 
-    private static _promises = Promises.getGlobalFactory();
+    private static _$promises = Promises.getGlobalFactory();
 
-    private static _clientCounter = 0;
+    private static _$clientCounter = 0;
 
     private _socket!: $Net.Socket;
 
     private _status: EStatus = EStatus.IDLE;
 
-    private _clientId: number = TCPClient._clientCounter++;
+    private _clientId: number = TCPClient._$clientCounter++;
 
     private _connPrId: string;
 
@@ -120,7 +120,7 @@ class TCPClient extends Events.EventEmitter<Events.ICallbackDefinitions> impleme
                     api,
                     cst: NOW,
                     returnRaw,
-                    pr: pr = TCPClient._promises.createPromise(),
+                    pr: pr = TCPClient._$promises.createPromise(),
                     timer: this._timeout > 0 ? setTimeout(() => {
 
                         const req = this._sent[rid];
@@ -149,7 +149,7 @@ class TCPClient extends Events.EventEmitter<Events.ICallbackDefinitions> impleme
                 this._sendingQty++;
                 this._sending[rid] = {
                     api,
-                    pr: pr = TCPClient._promises.createPromise(),
+                    pr: pr = TCPClient._$promises.createPromise(),
                     cst: NOW,
                     returnRaw,
                     packet: {
@@ -220,7 +220,7 @@ class TCPClient extends Events.EventEmitter<Events.ICallbackDefinitions> impleme
             case EStatus.WORKING:
                 return Promise.resolve();
             case EStatus.CONNECTING:
-                return TCPClient._promises.findPromise(this._connPrId)!.promise;
+                return TCPClient._$promises.findPromise(this._connPrId)!.promise;
             case EStatus.CLOSING:
                 this._status = EStatus.WORKING;
                 break;
@@ -233,7 +233,7 @@ class TCPClient extends Events.EventEmitter<Events.ICallbackDefinitions> impleme
             port: this._port
         });
 
-        const pr = TCPClient._promises.createPromise({ id: this._connPrId });
+        const pr = TCPClient._$promises.createPromise({ id: this._connPrId });
 
         this._socket.once('connect', () => {
 
@@ -353,18 +353,18 @@ class TCPClient extends Events.EventEmitter<Events.ICallbackDefinitions> impleme
             case EStatus.IDLE:
                 return Promise.resolve();
             case EStatus.CLOSING:
-                return TCPClient._promises.findPromise(this._closePrId)!.promise;
+                return TCPClient._$promises.findPromise(this._closePrId)!.promise;
             case EStatus.WORKING:
                 break;
             case EStatus.CONNECTING:
-                TCPClient._promises.findPromise(this._connPrId)!.reject(new E.E_OPERATION_ABORTED());
+                TCPClient._$promises.findPromise(this._connPrId)!.reject(new E.E_OPERATION_ABORTED());
         }
 
         if (this._sentQty) {
 
             this._status = EStatus.CLOSING;
 
-            return TCPClient._promises.createPromise({ id: this._closePrId }).promise;
+            return TCPClient._$promises.createPromise({ id: this._closePrId }).promise;
         }
 
         if (this._sendingQty) {
@@ -388,13 +388,13 @@ class TCPClient extends Events.EventEmitter<Events.ICallbackDefinitions> impleme
     }
 }
 
-export function createTCPClient<S extends G.IServiceAPIs>(
+export function createTCPClient<TAPIs extends G.IServiceAPIs>(
     host: string,
     port: number,
     ridGenerator: C.IRIDGenerator,
     timeout?: number,
     apiNameWrapper?: (name: string) => string
-): C.IClient<S> {
+): C.IClient<TAPIs> {
 
     return new TCPClient(host, port, ridGenerator, timeout, apiNameWrapper);
 }

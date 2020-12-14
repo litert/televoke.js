@@ -19,7 +19,7 @@ import { Events } from '@litert/observable';
 
 export type IRIDGenerator = () => string | number;
 
-export interface IResponse<A> extends G.IRawResponse<A> {
+export interface IResponse<T> extends G.IRawResponse<T> {
 
     /**
      * The time when client sent the request.
@@ -32,7 +32,7 @@ export interface IResponse<A> extends G.IRawResponse<A> {
     crt: number;
 }
 
-export interface IClient<S extends G.IServiceAPIs = G.IServiceAPIs> extends Events.IObservable<Events.ICallbackDefinitions> {
+export interface IClient<TAPIs extends G.IServiceAPIs = G.IServiceAPIs> extends Events.IObservable<Events.ICallbackDefinitions> {
 
     connect(): Promise<void>;
 
@@ -42,7 +42,7 @@ export interface IClient<S extends G.IServiceAPIs = G.IServiceAPIs> extends Even
      * @param api   The name of API.
      * @param args  The arguments of API.
      */
-    invoke<K extends keyof S>(api: K, ...args: Parameters<S[K]>): Promise<ReturnType<S[K]>>;
+    invoke<TKey extends keyof TAPIs>(api: TKey, ...args: Parameters<TAPIs[TKey]>): Promise<ReturnType<TAPIs[TKey]>>;
 
     /**
      * Call an API and get the raw response packet of result.
@@ -50,7 +50,7 @@ export interface IClient<S extends G.IServiceAPIs = G.IServiceAPIs> extends Even
      * @param api   The name of API.
      * @param args  The arguments of API.
      */
-    call<K extends keyof S>(api: K, ...args: Parameters<S[K]>): Promise<IResponse<S[K]>>;
+    call<TKey extends keyof TAPIs>(api: TKey, ...args: Parameters<TAPIs[TKey]>): Promise<IResponse<TAPIs[TKey]>>;
 
     close(): Promise<void>;
 }

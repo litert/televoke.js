@@ -18,6 +18,7 @@ module.exports = {
             'encoder',
             'decoder',
             'router',
+            'deps',
             'doc',
             'lint',
             'branch',
