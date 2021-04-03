@@ -1,5 +1,9 @@
 # Changes Logs
 
+## v0.4.0
+
+- feat(client): added HTTPS client supports.
+
 ## v0.3.3
 
 - config(deps): updated the dependencies.

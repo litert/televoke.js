@@ -18,6 +18,12 @@ npm install @litert/televoke --save
 - Node.js v8.x (Or newer)
 - TypeScript v3.7.x (Or newer)
 
+## Implemented Protocol
+
+- http/1.1
+- https/1.1
+- tcp
+
 ## Documents
 
 Preparing.
