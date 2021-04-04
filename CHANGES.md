@@ -1,5 +1,9 @@
 # Changes Logs
 
+## v0.4.1
+
+- fix(client): fixed name and implement of `createRandStringRIDGenerator`.
+
 ## v0.4.0
 
 - feat(client): added HTTPS/TLS client supports.

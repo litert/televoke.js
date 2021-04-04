@@ -5,7 +5,7 @@ export function createIncreasementRIDGenerator(base: number): C.IRIDGenerator {
     return () => base++;
 }
 
-export function creatRandStringRIDGenerator(length: number, seed: string): C.IRIDGenerator {
+export function createRandStringRIDGenerator(length: number, seed: string): C.IRIDGenerator {
 
     return function() {
 
@@ -13,7 +13,7 @@ export function creatRandStringRIDGenerator(length: number, seed: string): C.IRI
 
         for (let i = 0; i < length; i++) {
 
-            ret += seed[i % seed.length];
+            ret += seed[Math.floor(Math.random() * seed.length)];
         }
 
         return ret;
