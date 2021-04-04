@@ -3,6 +3,7 @@
 ## v0.4.0
 
 - feat(client): added HTTPS client supports.
+- feat(client): added built-in RID generators.
 
 ## v0.3.3
 
