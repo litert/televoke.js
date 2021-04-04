@@ -40,8 +40,8 @@
         {
             "type": "node",
             "request": "launch",
-            "name": "[Televoke] Start H2 Server",
-            "program": "${workspaceFolder}/src/examples/Http.ts",
+            "name": "[Televoke] Demo: HTTPS Client",
+            "program": "${workspaceFolder}/src/examples/Https.ts",
             "sourceMaps": true,
             "cwd": "${workspaceFolder}",
             "outFiles": [

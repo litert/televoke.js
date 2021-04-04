@@ -7,6 +7,9 @@
 
 A simple RPC service framework.
 
+> NOTICES: There are no built-in TLS supports for the server-side, and if it's needed, please use a 
+> TLS gateway like NGINX, and put it in front of your Televoke server.
+
 ## Installation
 
 ```sh

@@ -31,6 +31,7 @@ class HttpClient extends Events.EventEmitter<Events.ICallbackDefinitions> implem
         private _host: string,
         private _port: number,
         private _ridGenerator: C.IRIDGenerator,
+        private _path: string = '/',
         private _timeout: number = 30000,
         private _apiNameWrapper?: (name: string) => string
     ) {
@@ -80,7 +81,7 @@ class HttpClient extends Events.EventEmitter<Events.ICallbackDefinitions> implem
             const req = $Http.request({
                 port: this._port,
                 host: this._host,
-                path: '',
+                path: this._path,
                 agent: this._agent,
                 method: 'POST',
                 headers: {
@@ -190,13 +191,39 @@ class HttpClient extends Events.EventEmitter<Events.ICallbackDefinitions> implem
     }
 }
 
-export function createHttpClient<TAPIs extends G.IServiceAPIs>(
-    host: string,
-    port: number,
-    ridGenerator: C.IRIDGenerator,
-    timeout?: number,
-    apiNameWrapper?: (name: string) => string
-): C.IClient<TAPIs> {
+export interface IHttpClientOptions {
 
-    return new HttpClient(host, port, ridGenerator, timeout, apiNameWrapper);
+    host: string;
+
+    /**
+     * The port of HTTP server.
+     *
+     * @default 80
+     */
+    port?: number;
+
+    /**
+     * The path to the RPC entry.
+     *
+     * @default '/'
+     */
+    path?: string;
+
+    ridGenerator: C.IRIDGenerator;
+
+    timeout?: number;
+
+    apiNameWrapper?: (name: string) => string;
+}
+
+export function createHttpClient<TAPIs extends G.IServiceAPIs>(opts: IHttpClientOptions): C.IClient<TAPIs> {
+
+    return new HttpClient(
+        opts.host,
+        opts.port ?? 80,
+        opts.ridGenerator,
+        opts.path,
+        opts.timeout,
+        opts.apiNameWrapper
+    );
 }

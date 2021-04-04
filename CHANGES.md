@@ -2,8 +2,10 @@
 
 ## v0.4.0
 
-- feat(client): added HTTPS client supports.
+- feat(client): added HTTPS/TLS client supports.
 - feat(client): added built-in RID generators.
+- refactor(client): used packed-object for the factory parameters.
+- feat(client): allow using determined HTTP path as RPC entry.
 
 ## v0.3.3
 

@@ -31,6 +31,7 @@ class HttpsClient extends Events.EventEmitter<Events.ICallbackDefinitions> imple
         private _host: string,
         private _port: number,
         private _ridGenerator: C.IRIDGenerator,
+        private _path: string = '',
         private _timeout: number = 30000,
         private _apiNameWrapper?: (name: string) => string,
         tlsAgentOptions?: $Https.AgentOptions
@@ -42,6 +43,7 @@ class HttpsClient extends Events.EventEmitter<Events.ICallbackDefinitions> imple
             maxSockets: 0,
             keepAlive: true,
             keepAliveMsecs: 30000,
+            // servername: _host,
             ...tlsAgentOptions
         });
     }
@@ -82,7 +84,7 @@ class HttpsClient extends Events.EventEmitter<Events.ICallbackDefinitions> imple
             const req = $Https.request({
                 port: this._port,
                 host: this._host,
-                path: '',
+                path: this._path,
                 agent: this._agent,
                 method: 'POST',
                 headers: {
@@ -192,14 +194,42 @@ class HttpsClient extends Events.EventEmitter<Events.ICallbackDefinitions> imple
     }
 }
 
-export function createHttpsClient<TAPIs extends G.IServiceAPIs>(
-    host: string,
-    port: number,
-    ridGenerator: C.IRIDGenerator,
-    timeout?: number,
-    apiNameWrapper?: (name: string) => string,
-    tlsAgentOptions?: $Https.AgentOptions
-): C.IClient<TAPIs> {
+export interface IHttpsClientOptions {
 
-    return new HttpsClient(host, port, ridGenerator, timeout, apiNameWrapper, tlsAgentOptions);
+    host: string;
+
+    /**
+     * The port of HTTPS server.
+     *
+     * @default 443
+     */
+    port?: number;
+
+    /**
+     * The path to the RPC entry.
+     *
+     * @default '/'
+     */
+    path?: string;
+
+    ridGenerator: C.IRIDGenerator;
+
+    timeout?: number;
+
+    apiNameWrapper?: (name: string) => string;
+
+    tlsAgentOptions?: $Https.AgentOptions;
+}
+
+export function createHttpsClient<TAPIs extends G.IServiceAPIs>(opts: IHttpsClientOptions): C.IClient<TAPIs> {
+
+    return new HttpsClient(
+        opts.host,
+        opts.port ?? 443,
+        opts.ridGenerator,
+        opts.path,
+        opts.timeout,
+        opts.apiNameWrapper,
+        opts.tlsAgentOptions
+    );
 }

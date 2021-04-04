@@ -27,7 +27,12 @@ const CONCURRENCY = 30000;
 
 (async () => {
 
-    const client = $Televoke.createTCPClient<IGa>(BENCHMARK_SERVER_HOST, BENCHMARK_SERVER_PORT, ridGenerator, 60000);
+    const client = $Televoke.createTCPClient<IGa>({
+        host: BENCHMARK_SERVER_HOST,
+        port: BENCHMARK_SERVER_PORT,
+        ridGenerator,
+        timeout: 60000
+    });
 
     await client.connect();
 

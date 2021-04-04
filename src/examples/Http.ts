@@ -53,7 +53,11 @@ interface IGa extends $Televoke.IServiceAPIs {
 
     const server = $Televoke.createServer();
 
-    const client = $Televoke.createHttpClient<IGa>('127.0.0.1', 8899, Math.random);
+    const client = $Televoke.createHttpClient<IGa>({
+        host: '127.0.0.1',
+        port: 8899,
+        ridGenerator: $Televoke.createIncreasementRIDGenerator(0)
+    });
 
     server.setRouter(router);
     server.on('error', console.error);

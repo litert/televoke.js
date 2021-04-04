@@ -34,50 +34,20 @@ interface IGa extends $Televoke.IServiceAPIs {
 
 (async () => {
 
-    const router = $Televoke.createSimpleRouter();
-
-    router.add<IGa['hi']>('TestPrefix.hi', async function(data) {
-
-        return `Hi, ${data.name}`;
+    const client = $Televoke.createHttpsClient<IGa>({
+        host: 'examples.org',
+        ridGenerator: $Televoke.createIncreasementRIDGenerator(0),
+        path: '/path/to/rpc/entry'
     });
-
-    router.register<IGa['Hello']>('TestPrefix.Hello', async function(ctx) {
-
-        return `Hello, ${ctx.args[0].name}`;
-    });
-
-    router.add<IGa['TestError']>('TestPrefix.TestError', async function(data) {
-
-        throw `Hello, ${data.name}`;
-    });
-
-    const server = $Televoke.createServer();
-
-    const client = $Televoke.createTCPClient<IGa>({
-        host: '127.0.0.1',
-        port: 8899,
-        ridGenerator: Math.random,
-        timeout: 30000,
-        apiNameWrapper: (v) => `TestPrefix.${v}`
-    });
-
-    server.setRouter(router);
-    server.on('error', console.error);
-    server.on('handler_error', console.error);
-    server.addGateway('tcp', $Televoke.createTCPGateway('127.0.0.1', 8899));
-
-    await server.start();
 
     await client.connect();
 
     console.log(await client.invoke('hi', {'name': 'Mick'}));
     console.log(await client.call('Hello', {'name': 'Angus'}));
 
-    await client.invoke('not-exists-api', {'name': 'V'}).catch((e) => console.error(e.toJSON()));
-    await client.invoke('TestError', {'name': 'V'}).catch((e) => console.error(e.toJSON()));
+    await client.invoke('not-exists-api', {'name': 'V'}).catch((e) => console.error(e.toString()));
+    await client.invoke('TestError', {'name': 'V'}).catch((e) => console.error(e.toString()));
 
     await client.close();
-
-    await server.close();
 
 })().catch(console.error);
