@@ -11,4 +11,7 @@
 /.eslintrc
 /.eslintignore
 /tsconfig.json
-/tsconfig-production.json
+/tsconfig.production.json
+/.husky/
+/src/examples/
+/src/benchmarks/

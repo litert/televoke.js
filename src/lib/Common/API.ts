@@ -14,8 +14,7 @@
  * limitations under the License.
  */
 
-// eslint-disable-next-line @typescript-eslint/consistent-type-definitions
-export type IServiceAPIs = {
+// eslint-disable-next-line @typescript-eslint/no-empty-interface
+export interface IServiceAPIs {}
 
-    [key: string]: (...args: any[]) => any;
-};
+export type IFunction = (...args: any[]) => any;

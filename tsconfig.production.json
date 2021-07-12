@@ -20,7 +20,7 @@
     "declaration": true,
     "declarationMap": true,
     "forceConsistentCasingInFileNames": true,
-    "sourceMap": false,
+    "sourceMap": true,
     "rootDir": "src",
     "outDir": "./",
     "noImplicitAny": true,
@@ -65,6 +65,8 @@
   },
   "exclude": [
     "./*.d.ts",
-    "./**/*.d.ts"
+    "./**/*.d.ts",
+    "./src/examples/**/*.ts",
+    "./src/benchmarks/**/*.ts",
   ]
 }

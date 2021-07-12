@@ -71,6 +71,7 @@ interface IGa extends $Televoke.IServiceAPIs {
     console.log(await client.invoke('hi', {'name': 'Mick'}));
     console.log(await client.call('Hello', {'name': 'Angus'}));
 
+    // @ts-ignore
     await client.invoke('not-exists-api', {'name': 'V'}).catch((e) => console.error(e.toString()));
     await client.invoke('TestError', {'name': 'V'}).catch((e) => console.error(e.toString()));
 

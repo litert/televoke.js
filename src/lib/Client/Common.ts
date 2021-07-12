@@ -42,7 +42,10 @@ export interface IClient<TAPIs extends G.IServiceAPIs = G.IServiceAPIs> extends 
      * @param api   The name of API.
      * @param args  The arguments of API.
      */
-    invoke<TKey extends keyof TAPIs>(api: TKey, ...args: Parameters<TAPIs[TKey]>): Promise<ReturnType<TAPIs[TKey]>>;
+    invoke<TKey extends keyof TAPIs>(
+        api: TKey,
+        ...args: TAPIs[TKey] extends G.IFunction ? Parameters<TAPIs[TKey]> : never
+    ): Promise<TAPIs[TKey] extends G.IFunction ? ReturnType<TAPIs[TKey]> : never>;
 
     /**
      * Call an API and get the raw response packet of result.
@@ -50,7 +53,10 @@ export interface IClient<TAPIs extends G.IServiceAPIs = G.IServiceAPIs> extends 
      * @param api   The name of API.
      * @param args  The arguments of API.
      */
-    call<TKey extends keyof TAPIs>(api: TKey, ...args: Parameters<TAPIs[TKey]>): Promise<IResponse<TAPIs[TKey]>>;
+    call<TKey extends keyof TAPIs>(
+        api: TKey,
+        ...args: TAPIs[TKey] extends G.IFunction ? Parameters<TAPIs[TKey]> : never
+    ): Promise<IResponse<TAPIs[TKey]>>;
 
     close(): Promise<void>;
 }

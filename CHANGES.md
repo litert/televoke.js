@@ -1,5 +1,9 @@
 # Changes Logs
 
+## v0.4.2
+
+- fix(server): removed the index signature limits of `IServiceAPIs`.
+
 ## v0.4.1
 
 - fix(client): fixed name and implement of `createRandStringRIDGenerator`.
