@@ -1,5 +1,9 @@
 # Changes Logs
 
+## v0.4.3
+
+- fix(client): export TLS client and fix tcp client naming.
+
 ## v0.4.2
 
 - fix(server): removed the index signature limits of `IServiceAPIs`.

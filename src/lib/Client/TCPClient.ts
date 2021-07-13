@@ -388,7 +388,7 @@ class TCPClient extends Events.EventEmitter<Events.ICallbackDefinitions> impleme
     }
 }
 
-export interface ITLSClientOptions {
+export interface ITCPClientOptions {
 
     host: string;
 
@@ -404,7 +404,7 @@ export interface ITLSClientOptions {
     apiNameWrapper?: (name: string) => string;
 }
 
-export function createTCPClient<TAPIs extends G.IServiceAPIs>(opts: ITLSClientOptions): C.IClient<TAPIs> {
+export function createTCPClient<TAPIs extends G.IServiceAPIs>(opts: ITCPClientOptions): C.IClient<TAPIs> {
 
     return new TCPClient(
         opts.host,
