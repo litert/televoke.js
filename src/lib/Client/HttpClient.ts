@@ -146,22 +146,22 @@ class HttpClient extends Events.EventEmitter<Events.ICallbackDefinitions> implem
                             break;
                         case G.EResponseCode.SYSTEM_ERROR:
                             reject(new E.E_SERVER_INTERNAL_ERROR({
-                                metadata: { api, requestId: data.rid, time: data.srt, details: data }
+                                api, ...data
                             }));
                             break;
                         case G.EResponseCode.FAILURE:
                             reject(new E.E_SERVER_LOGIC_FAILURE({
-                                metadata: { api, requestId: data.rid, time: data.srt, details: data }
+                                api, ...data
                             }));
                             break;
                         case G.EResponseCode.API_NOT_FOUND:
                             reject(new E.E_API_NOT_FOUND({
-                                metadata: { api, requestId: data.rid, time: data.srt, details: data }
+                                api, ...data
                             }));
                             break;
                         default:
                             reject(new E.E_SERVER_UNKNOWN_ERROR({
-                                metadata: { api, requestId: data.rid, time: data.srt, details: data }
+                                api, ...data
                             }));
                             break;
                     }

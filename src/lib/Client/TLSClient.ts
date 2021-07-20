@@ -282,22 +282,22 @@ class TLSClient extends Events.EventEmitter<Events.ICallbackDefinitions> impleme
                         break;
                     case G.EResponseCode.SYSTEM_ERROR:
                         req.pr.reject(new E.E_SERVER_INTERNAL_ERROR({
-                            metadata: { api: req.api, requestId: data.rid, time: data.srt, details: data }
+                            api: req.api, ...data
                         }));
                         break;
                     case G.EResponseCode.FAILURE:
                         req.pr.reject(new E.E_SERVER_LOGIC_FAILURE({
-                            metadata: { api: req.api, requestId: data.rid, time: data.srt, details: data }
+                            api: req.api, ...data
                         }));
                         break;
                     case G.EResponseCode.API_NOT_FOUND:
                         req.pr.reject(new E.E_API_NOT_FOUND({
-                            metadata: { api: req.api, requestId: data.rid, time: data.srt, details: data }
+                            api: req.api, ...data
                         }));
                         break;
                     default:
                         req.pr.reject(new E.E_SERVER_UNKNOWN_ERROR({
-                            metadata: { api: req.api, requestId: data.rid, time: data.srt, details: data }
+                            api: req.api, ...data
                         }));
                         break;
                 }

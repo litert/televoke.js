@@ -1,5 +1,9 @@
 # Changes Logs
 
+## v0.4.4
+
+- fix(client): simplified the exception.
+
 ## v0.4.3
 
 - fix(client): export TLS client and fix tcp client naming.
