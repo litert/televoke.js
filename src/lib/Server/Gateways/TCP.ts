@@ -65,7 +65,8 @@ class TCPGateway implements C.IGateway {
 
     public constructor(
         private _host: string,
-        private _port: number
+        private _port: number,
+        private _backlog?: number,
     ) { }
 
     private _onConnect(socket: $Net.Socket): void {
@@ -141,7 +142,7 @@ class TCPGateway implements C.IGateway {
 
                 return new Promise((resolve, reject) => {
 
-                    this._socket.listen(this._port, this._host)
+                    this._socket.listen(this._port, this._host, this._backlog)
                         .once('listening', () => {
 
                             this._socket.removeAllListeners('error');
@@ -204,7 +205,7 @@ class TCPGateway implements C.IGateway {
     }
 }
 
-export function createTCPGateway(host: string, port: number): C.IGateway {
+export function createTCPGateway(host: string, port: number, backlog?: number): C.IGateway {
 
-    return new TCPGateway(host, port);
+    return new TCPGateway(host, port, backlog);
 }

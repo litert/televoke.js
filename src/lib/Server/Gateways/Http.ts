@@ -42,7 +42,8 @@ class HttpGateway implements C.IGateway {
 
     public constructor(
         private _host: string,
-        private _port: number
+        private _port: number,
+        private _backlog?: number,
     ) { }
 
     private _onRequest(req: $Http.IncomingMessage, resp: $Http.ServerResponse): void {
@@ -130,7 +131,7 @@ class HttpGateway implements C.IGateway {
 
                 return new Promise((resolve, reject) => {
 
-                    this._server.listen(this._port, this._host)
+                    this._server.listen(this._port, this._host, this._backlog)
                         .once('listening', () => {
 
                             this._server.removeAllListeners('error');
@@ -173,7 +174,7 @@ class HttpGateway implements C.IGateway {
     }
 }
 
-export function createHttpGateway(host: string, port: number): C.IGateway {
+export function createHttpGateway(host: string, port: number, backlog?: number): C.IGateway {
 
-    return new HttpGateway(host, port);
+    return new HttpGateway(host, port, backlog);
 }

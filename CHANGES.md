@@ -1,5 +1,9 @@
 # Changes Logs
 
+## v0.4.5
+
+- feat(server): added listen backlog supports.
+
 ## v0.4.4
 
 - fix(client): simplified the exception.
