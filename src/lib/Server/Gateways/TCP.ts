@@ -39,7 +39,7 @@ interface IClient {
 
     socket: $Net.Socket;
 
-    decoder: G.IDecoder<G.IRawRequest>;
+    decoder: G.IDecoder<C.IRequest>;
 
     status: EClientStatus;
 
@@ -74,7 +74,7 @@ class TCPGateway implements C.IGateway {
         const clientId = this._clientIdCounter++;
 
         const encoder = createEncoder();
-        const decoder = createDecoder<G.IRawRequest>();
+        const decoder = createDecoder<C.IRequest>();
         const client = {
             decoder,
             socket,
@@ -94,6 +94,7 @@ class TCPGateway implements C.IGateway {
         decoder.onData = (data) => {
 
             client.loads++;
+            data.ip = (socket.address() as any).address;
 
             this.onRequest(
                 data,

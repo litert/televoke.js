@@ -92,6 +92,7 @@ class HttpGateway implements C.IGateway {
             try {
 
                 input = JSON.parse(buf as any);
+                input.ip = (req.socket.address() as any).address;
             }
             catch (e) {
 

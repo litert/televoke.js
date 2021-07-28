@@ -19,4 +19,6 @@ import { IRawRequest } from '../../Common';
 export interface IRequest<T extends any = any> extends IRawRequest<T> {
 
     srt: number;
+
+    ip: string;
 }

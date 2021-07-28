@@ -3,6 +3,7 @@
 ## v0.4.5
 
 - feat(server): added listen backlog supports.
+- feat(server): added client IP address in request context.
 
 ## v0.4.4
 
