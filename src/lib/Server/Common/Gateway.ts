@@ -20,6 +20,10 @@ export type IReplyCallbak = (data: IRawResponse) => void;
 
 export interface IGateway {
 
+    readonly host: string;
+
+    readonly port: number;
+
     onRequest?: (
         request: IRawRequest,
         reply: IReplyCallbak

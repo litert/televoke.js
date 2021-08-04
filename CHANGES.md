@@ -1,5 +1,9 @@
 # Changes Logs
 
+## v0.4.6
+
+- feat(server): added omitted gateway port supports.
+
 ## v0.4.5
 
 - feat(server): added listen backlog supports.

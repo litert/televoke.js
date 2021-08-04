@@ -64,10 +64,10 @@ class TCPGateway implements C.IGateway {
     ) => void;
 
     public constructor(
-        private _host: string,
-        private _port: number,
+        public host: string,
+        public port: number,
         private _backlog?: number,
-    ) { }
+    ) {}
 
     private _onConnect(socket: $Net.Socket): void {
 
@@ -143,11 +143,15 @@ class TCPGateway implements C.IGateway {
 
                 return new Promise((resolve, reject) => {
 
-                    this._socket.listen(this._port, this._host, this._backlog)
+                    this._socket.listen(this.port, this.host, this._backlog)
                         .once('listening', () => {
 
                             this._socket.removeAllListeners('error');
                             this._status = EStatus.WORKING;
+                            if (this.port === 0) {
+
+                                this.port = (this._socket.address() as $Net.AddressInfo).port;
+                            }
                             resolve();
                         })
                         .once('error', (e) => {

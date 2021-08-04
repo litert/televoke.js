@@ -36,6 +36,13 @@ export interface IServer extends Events.IObservable<IServerEvents> {
     addGateway(name: string, gateway: IGateway): this;
 
     /**
+     * Get a mounted gateway by name.
+     *
+     * @param name      The name of the gateway.
+     */
+    getGateway(name: string): IGateway;
+
+    /**
      * Unmount a gateway.
      *
      * @param name      The name of the gateway.

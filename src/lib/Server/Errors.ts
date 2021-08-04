@@ -71,3 +71,10 @@ export const E_GATEWAY_BUSY = errorRegistry.register({
     metadata: {},
     type: 'public'
 });
+
+export const E_GATEWAY_NOT_FOUND = errorRegistry.register({
+    name: 'gateway_not_found',
+    message: 'No such a gateway.',
+    metadata: {},
+    type: 'public'
+});

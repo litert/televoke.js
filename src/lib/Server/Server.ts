@@ -35,6 +35,18 @@ class Server extends Events.EventEmitter<C.IServerEvents> implements C.IServer {
 
     private _status: EStatus = EStatus.IDLE;
 
+    public getGateway(name: string): C.IGateway {
+
+        const ret = this._gateways[name];
+
+        if (!ret) {
+
+            throw new E.E_GATEWAY_NOT_FOUND({ name });
+        }
+
+        return ret;
+    }
+
     public addGateway(name: string, gateway: C.IGateway): this {
 
         if (this._status !== EStatus.IDLE) {
