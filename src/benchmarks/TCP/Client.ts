@@ -23,7 +23,33 @@ const ridGenerator = (function() {
     return () => i++;
 })();
 
-const CONCURRENCY = 30000;
+const TOTAL = 30000;
+
+async function timer(title: string, callback: () => Promise<void>): Promise<void> {
+
+    console.time(title);
+    await callback();
+    console.timeEnd(title);
+}
+
+function createTest<TK extends keyof IGa>(
+    client: $Televoke.IClient<IGa>,
+    total: number,
+    concurrency: number,
+    api: TK,
+    ...args: IGa[TK] extends $Televoke.IFunction ? Parameters<IGa[TK]> : never
+): () => Promise<any> {
+
+    const helps = new Array(concurrency).fill(0);
+
+    return async function(): Promise<void> {
+
+        for (let i = 0; i < total; i += concurrency) {
+
+            await Promise.all(helps.map(() => client.invoke(api, ...args)));
+        }
+    };
+}
 
 (async () => {
 
@@ -36,56 +62,69 @@ const CONCURRENCY = 30000;
 
     await client.connect();
 
-    await Promise.all(Array(CONCURRENCY).fill(0).map(() => client.invoke('hi', {name: 'Angus'})));
+    console.log('Protocol: TCP');
+    console.log(`Concurrency: ${TOTAL}`);
 
-    for (let i = 0; i < CONCURRENCY; i++) {
+    console.log('# Stage: Preheat');
 
-        await client.invoke('hi', {name: 'Angus'});
-    }
+    await timer(
+        `Concurrency: ${TOTAL}`,
+        createTest(client, TOTAL, TOTAL, 'hi', { name: 'Angus' })
+    );
 
-    console.time(`TCP ${CONCURRENCY} Invokes Concurrent`);
-    await Promise.all(Array(CONCURRENCY).fill(0).map(() => client.invoke('hi', {name: 'Angus'})));
-    console.timeEnd(`TCP ${CONCURRENCY} Invokes Concurrent`);
+    console.log('# Stage: Invoking API with async handler');
 
-    console.time(`TCP ${CONCURRENCY} Invokes Sequence`);
-    for (let i = 0; i < CONCURRENCY; i++) {
+    await timer(
+        `Concurrency: ${TOTAL}`,
+        createTest(client, TOTAL, TOTAL, 'hi', { name: 'Angus' })
+    );
 
-        await client.invoke('hi', {name: 'Angus'});
-    }
-    console.timeEnd(`TCP ${CONCURRENCY} Invokes Sequence`);
+    await timer(
+        'Concurrency: 5',
+        createTest(client, TOTAL, 5, 'hi', { name: 'Angus' })
+    );
 
-    console.time(`TCP ${CONCURRENCY} Calls Concurrent`);
-    await Promise.all(Array(CONCURRENCY).fill(0).map(() => client.call('hi', {name: 'Angus'})));
-    console.timeEnd(`TCP ${CONCURRENCY} Calls Concurrent`);
+    await timer(
+        'Concurrency: 10',
+        createTest(client, TOTAL, 5, 'hi', { name: 'Angus' })
+    );
 
-    console.time(`TCP ${CONCURRENCY} Calls Sequence`);
-    for (let i = 0; i < CONCURRENCY; i++) {
+    await timer(
+        'Concurrency: 50',
+        createTest(client, TOTAL, 5, 'hi', { name: 'Angus' })
+    );
 
-        await client.call('hi', {name: 'Angus'});
-    }
-    console.timeEnd(`TCP ${CONCURRENCY} Calls Sequence`);
+    await timer(
+        'Concurrency: 100',
+        createTest(client, TOTAL, 5, 'hi', { name: 'Angus' })
+    );
 
-    console.time(`TCP ${CONCURRENCY} Invokes Concurrent [Sync Handler]`);
-    await Promise.all(Array(CONCURRENCY).fill(0).map(() => client.invoke('Hello', {name: 'Angus'})));
-    console.timeEnd(`TCP ${CONCURRENCY} Invokes Concurrent [Sync Handler]`);
+    console.log('# Stage: Invoking API with sync handler');
 
-    console.time(`TCP ${CONCURRENCY} Invokes Sequence [Sync Handler]`);
-    for (let i = 0; i < CONCURRENCY; i++) {
+    await timer(
+        `Concurrency: ${TOTAL}`,
+        createTest(client, TOTAL, TOTAL, 'Hello', { name: 'Angus' })
+    );
 
-        await client.invoke('Hello', {name: 'Angus'});
-    }
-    console.timeEnd(`TCP ${CONCURRENCY} Invokes Sequence [Sync Handler]`);
+    await timer(
+        'Concurrency: 5',
+        createTest(client, TOTAL, 5, 'Hello', { name: 'Angus' })
+    );
 
-    console.time(`TCP ${CONCURRENCY} Calls Concurrent [Sync Handler]`);
-    await Promise.all(Array(CONCURRENCY).fill(0).map(() => client.call('Hello', {name: 'Angus'})));
-    console.timeEnd(`TCP ${CONCURRENCY} Calls Concurrent [Sync Handler]`);
+    await timer(
+        'Concurrency: 10',
+        createTest(client, TOTAL, 5, 'Hello', { name: 'Angus' })
+    );
 
-    console.time(`TCP ${CONCURRENCY} Calls Sequence [Sync Handler]`);
-    for (let i = 0; i < CONCURRENCY; i++) {
+    await timer(
+        'Concurrency: 50',
+        createTest(client, TOTAL, 5, 'Hello', { name: 'Angus' })
+    );
 
-        await client.call('Hello', {name: 'Angus'});
-    }
-    console.timeEnd(`TCP ${CONCURRENCY} Calls Sequence [Sync Handler]`);
+    await timer(
+        'Concurrency: 100',
+        createTest(client, TOTAL, 5, 'Hello', { name: 'Angus' })
+    );
 
     await client.close();
 

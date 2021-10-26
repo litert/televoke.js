@@ -22,16 +22,15 @@ class Encoder implements C.IEncoder {
 
         content = JSON.stringify(content);
 
-        const contentLength = Buffer.byteLength(content);
+        const ret = Buffer.allocUnsafe(8);
 
-        const ret = Buffer.allocUnsafe(contentLength + 4);
-
-        ret.writeUInt32LE(contentLength, 0);
-        ret.write(content, 4);
+        ret.writeUInt32LE(1, 0);
+        ret.writeUInt32LE(Buffer.byteLength(content), 4);
 
         if (socket.writable) {
 
             socket.write(ret);
+            socket.write(content);
         }
     }
 }

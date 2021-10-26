@@ -1,5 +1,9 @@
 # Changes Logs
 
+## v1.0.0
+
+- feat(server): added protocol version.
+
 ## v0.4.6
 
 - feat(server): added omitted gateway port supports.

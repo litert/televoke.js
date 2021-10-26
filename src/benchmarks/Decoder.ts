@@ -18,61 +18,78 @@ import * as $Televoke from '../lib';
 
 const decoder = $Televoke.createDecoder();
 
-const DATA_STRING = JSON.stringify({
-    ttl: 123,
-    api: 'createUser',
-    args: {
-        'email': 'fenying@litert.org',
-        'password': 'qwer1234',
-        'magics': Array(100).fill(0).map(() => Math.random().toString())
-    },
-    rid: 'fsafas09fum02x01f0,f1xfsdafasd',
-    rat: Date.now()
-});
+const TEST_ROLLS = parseInt(process.argv[2] ?? '10000');
 
-const BYTE_LENGTH = Buffer.byteLength(DATA_STRING);
+while (1) {
 
-const DATA_BUFFER = Buffer.allocUnsafe((4 + BYTE_LENGTH) * 2);
+    const DATA_STRING = JSON.stringify({
+        ttl: 123,
+        api: 'createUser',
+        args: {
+            'email': 'fenying@litert.org',
+            'password': 'qwer1234',
+            'magics': Array(100).fill(0).map(() => Math.random().toString())
+        },
+        rid: 'fsafas09fum02x01f0,f1xfsdafasd',
+        rat: Date.now()
+    });
 
-DATA_BUFFER.writeUInt32LE(BYTE_LENGTH, 0);
+    const BYTE_LENGTH = Buffer.byteLength(DATA_STRING);
 
-DATA_BUFFER.write(DATA_STRING, 4);
+    const QTY = Math.floor(10 * Math.random()) + 1;
 
-DATA_BUFFER.copy(DATA_BUFFER, DATA_BUFFER.byteLength / 2);
+    console.log('Packets:', QTY * TEST_ROLLS);
 
-decoder.onData = (): void => void 0;
+    const PACKET_LENGTH = 8 + BYTE_LENGTH;
 
-decoder.onLogicError = console.error;
-decoder.onProtocolError = console.error;
+    console.log('Packet Size:', PACKET_LENGTH);
 
-console.time('Decoder[Sync]');
+    const DATA_BUFFER = Buffer.allocUnsafe(PACKET_LENGTH * QTY);
 
-for (let i = 0; i < 1000000; i++) {
+    DATA_BUFFER.writeUInt32LE(1, 0);
+    DATA_BUFFER.writeUInt32LE(BYTE_LENGTH, 4);
 
-    decoder.decode(DATA_BUFFER);
-}
+    DATA_BUFFER.write(DATA_STRING, 8);
 
-console.timeEnd('Decoder[Sync]');
+    for (let i = 1; i < QTY; i++) {
 
-const SEGS: Array<[number, number]> = [[0, Math.floor(Math.random() * 10) + 4]];
-
-for (let i = SEGS[0][1]; i < DATA_BUFFER.byteLength;) {
-
-    const END = Math.floor(Math.random() * (DATA_BUFFER.byteLength - i)) + 1;
-    SEGS.push([i, i + END]);
-    i += END;
-}
-
-console.log(SEGS);
-
-console.time('Random[Sync]');
-
-for (let i = 0; i < 1000000; i++) {
-
-    for (const seg of SEGS) {
-
-        decoder.decode(DATA_BUFFER.slice(seg[0], seg[1]));
+        DATA_BUFFER.copy(DATA_BUFFER, PACKET_LENGTH * i);
     }
-}
 
-console.timeEnd('Random[Sync]');
+    decoder.onData = (): void => void 0;
+
+    decoder.onLogicError = console.error;
+    decoder.onProtocolError = console.error;
+
+    const SEGS: Array<[number, number]> = [[0, Math.floor(Math.random() * 10) + 4]];
+
+    for (let i = SEGS[0][1]; i < DATA_BUFFER.byteLength;) {
+
+        const END = Math.floor(Math.random() * (DATA_BUFFER.byteLength - i)) + 1;
+        SEGS.push([i, i + END]);
+        i += END;
+    }
+
+    console.log('Segments:', SEGS.length * TEST_ROLLS);
+
+    console.time('Decoder[Sync]');
+
+    for (let i = 0; i < TEST_ROLLS; i++) {
+
+        decoder.decode(DATA_BUFFER);
+    }
+
+    console.timeEnd('Decoder[Sync]');
+
+    console.time('Random[Sync]');
+
+    for (let i = 0; i < TEST_ROLLS; i++) {
+
+        for (const seg of SEGS) {
+
+            decoder.decode(DATA_BUFFER.slice(seg[0], seg[1]));
+        }
+    }
+
+    console.timeEnd('Random[Sync]');
+}

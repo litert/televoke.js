@@ -37,7 +37,7 @@ class Decoder implements C.IDecoder<any> {
 
     private _packetLength!: number;
 
-    private _plBuf: Buffer = Buffer.allocUnsafe(4);
+    private _plBuf: Buffer = Buffer.allocUnsafe(8);
 
     private _plBufLength: number = 0;
 
@@ -137,13 +137,21 @@ class Decoder implements C.IDecoder<any> {
 
                 if (this._plBufLength) {
 
-                    if (this._plBufLength + chunk.byteLength >= 4) {
+                    if (this._plBufLength + chunk.byteLength >= 8) {
 
-                        chunk.copy(this._plBuf, this._plBufLength, 0, 4 - this._plBufLength);
+                        chunk.copy(this._plBuf, this._plBufLength, 0, 8 - this._plBufLength);
 
-                        chunk = chunk.slice(4 - this._plBufLength);
+                        chunk = chunk.slice(8 - this._plBufLength);
+
+                        if (this._plBuf.readUInt32LE(0) !== 1) {
+
+                            this.onProtocolError(new GE.E_INVALID_PACKET());
+                            this.reset();
+                            return;
+                        }
+
                         this._plBufLength = 0;
-                        this._packetLength = this._plBuf.readUInt32LE(0);
+                        this._packetLength = this._plBuf.readUInt32LE(4);
                     }
                     else {
 
@@ -155,10 +163,17 @@ class Decoder implements C.IDecoder<any> {
                 }
                 else {
 
-                    if (chunk.length >= 4) {
+                    if (chunk.length >= 8) {
 
-                        this._packetLength = chunk.readUInt32LE(0);
-                        chunk = chunk.slice(4);
+                        if (chunk.readUInt32LE(0) !== 1) {
+
+                            this.onProtocolError(new GE.E_INVALID_PACKET());
+                            this.reset();
+                            return;
+                        }
+
+                        this._packetLength = chunk.readUInt32LE(4);
+                        chunk = chunk.slice(8);
                         this._plBufLength = 0;
                     }
                     else {

@@ -88,7 +88,8 @@ class HttpsClient extends Events.EventEmitter<Events.ICallbackDefinitions> imple
                 agent: this._agent,
                 method: 'POST',
                 headers: {
-                    'content-length': Buffer.byteLength(content)
+                    'content-length': Buffer.byteLength(content),
+                    'x-tv-ver': 1
                 },
                 timeout: this._timeout
             }, (resp) => {
