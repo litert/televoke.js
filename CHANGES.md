@@ -3,6 +3,7 @@
 ## v1.0.1
 
 - fix(server): refuse bad requests correctly.
+- build(protocol): deprecated TCP-based televoke/1 protocol.
 
 ## v1.0.0
 

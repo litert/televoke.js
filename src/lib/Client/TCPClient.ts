@@ -403,6 +403,11 @@ export interface ITCPClientOptions {
     apiNameWrapper?: (name: string) => string;
 }
 
+/**
+ * Create a client of TCP-base televoke/1 protocol.
+ *
+ * @deprecated This legacy TCP-based televoke/1 protocol is no longer maintained, and will be removed in v2.0.0
+ */
 export function createTCPClient<TAPIs extends G.IServiceAPIs>(opts: ITCPClientOptions): C.IClient<TAPIs> {
 
     return new TCPClient(

@@ -13,6 +13,7 @@ module.exports = {
             'encoder',
             'decoder',
             'router',
+            'protocol',
             'deps',
             'doc',
             'test',
