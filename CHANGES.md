@@ -1,16 +1,10 @@
 # Changes Logs
 
-## v1.0.1
+## v0.4.6
 
 - fix(server): refuse bad requests correctly.
 - build(protocol): deprecated TCP-based televoke/1 protocol.
-
-## v1.0.0
-
 - feat(server): added protocol version.
-
-## v0.4.6
-
 - feat(server): added omitted gateway port supports.
 
 ## v0.4.5
