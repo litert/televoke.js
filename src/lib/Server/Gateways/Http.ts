@@ -28,9 +28,28 @@ enum EStatus {
     CLOSING,
 }
 
+const INVALID_REQUEST_RESPONSE = Buffer.from('{"rid":"null","body":INVALID REQUEST,"sst":1698886839989,"srt":0,"code":4}');
+
+function refuseBadRequest(resp: $Http.ServerResponse): void {
+
+    try {
+
+        resp.writeHead(400, {
+            'content-length': INVALID_REQUEST_RESPONSE.byteLength,
+        });
+        const socket = resp.socket!;
+        resp.end(INVALID_REQUEST_RESPONSE);
+        socket.destroy();
+    }
+    catch {
+
+        // do nothing.
+    }
+}
+
 class HttpGateway implements C.IGateway {
 
-    private _server: $Http.Server = $Http.createServer(this._onRequest.bind(this));
+    private readonly _server: $Http.Server = $Http.createServer(this._onRequest.bind(this));
 
     private _status: EStatus = EStatus.IDLE;
 
@@ -44,15 +63,14 @@ class HttpGateway implements C.IGateway {
     public constructor(
         public host: string,
         public port: number,
-        private _backlog?: number,
+        private readonly _backlog?: number,
     ) { }
 
     private _onRequest(req: $Http.IncomingMessage, resp: $Http.ServerResponse): void {
 
         if (req.method !== 'POST' || !req.headers['content-length']) {
 
-            // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
-            resp.socket!.destroy();
+            refuseBadRequest(resp);
             return;
         }
 
@@ -60,8 +78,7 @@ class HttpGateway implements C.IGateway {
 
         if (!Number.isSafeInteger(length) || length > G.MAX_PACKET_SIZE) { // Maximum request packet is 64MB
 
-            // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
-            resp.socket!.destroy();
+            refuseBadRequest(resp);
             return;
         }
 
@@ -81,7 +98,7 @@ class HttpGateway implements C.IGateway {
 
                 req.removeAllListeners('end');
                 req.removeAllListeners('data');
-                req.destroy();
+                refuseBadRequest(resp);
                 return;
             }
 
@@ -97,8 +114,8 @@ class HttpGateway implements C.IGateway {
             }
             catch (e) {
 
+                refuseBadRequest(resp);
                 this.onError(e);
-                req.destroy();
                 return;
             }
 
@@ -174,7 +191,7 @@ class HttpGateway implements C.IGateway {
             case EStatus.WORKING:
                 return new Promise((resolve) => {
 
-                    this._server.close(() => resolve());
+                    this._server.close(() => { resolve(); });
                 });
         }
     }

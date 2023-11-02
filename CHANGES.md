@@ -1,5 +1,9 @@
 # Changes Logs
 
+## v1.0.1
+
+- fix(server): refuse bad requests correctly.
+
 ## v1.0.0
 
 - feat(server): added protocol version.

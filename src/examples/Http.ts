@@ -15,10 +15,47 @@
  */
 
 import * as $Televoke from '../lib';
+import * as $Http from 'http';
+import * as Timers from 'node:timers/promises';
 
 interface IGreetArguments {
 
     name: string;
+}
+
+const SERVER_PORT = 8899;
+
+function requestByHttp(method: 'POST' | 'PUT', data: string, headers: Record<string, string>): Promise<string> {
+
+    const req = $Http.request({
+        hostname: '127.0.0.1',
+        port: SERVER_PORT,
+        method,
+        path: '/',
+        headers,
+    });
+
+    const ret = new Promise<string>((resolve, reject) => {
+
+        req.on('response', resp => {
+
+            const chunks: Buffer[] = [];
+
+            resp.on('data', (chunk: Buffer) => chunks.push(chunk));
+
+            resp.on('end', () => {
+
+                resolve(Buffer.concat(chunks).toString());
+            });
+
+            resp.on('error', reject);
+        });
+        req.on('error', reject);
+    });
+
+    req.end(data);
+
+    return ret;
 }
 
 interface IGa extends $Televoke.IServiceAPIs {
@@ -76,6 +113,20 @@ interface IGa extends $Televoke.IServiceAPIs {
     await client.invoke('TestError', {'name': 'V'}).catch((e) => console.error(e.toString()));
 
     await client.close();
+
+    console.log(await requestByHttp('POST', '{1}', {}));
+
+    await Timers.setTimeout(100);
+
+    console.log(await requestByHttp('POST', '{1}', {'content-length': '1111111111111'}));
+
+    await Timers.setTimeout(100);
+
+    console.log(await requestByHttp('POST', '1}', {}));
+
+    await Timers.setTimeout(100);
+
+    console.log(await requestByHttp('PUT', '{"fffff":', {}));
 
     await server.close();
 

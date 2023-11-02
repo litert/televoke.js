@@ -32,7 +32,8 @@ export interface IResponse<T> extends G.IRawResponse<T> {
     crt: number;
 }
 
-export interface IClient<TAPIs extends G.IServiceAPIs = G.IServiceAPIs> extends Events.IObservable<Events.ICallbackDefinitions> {
+export interface IClient<TAPIs extends G.IServiceAPIs = G.IServiceAPIs>
+    extends Events.IObservable<Events.ICallbackDefinitions> {
 
     connect(): Promise<void>;
 

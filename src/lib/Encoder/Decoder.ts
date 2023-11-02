@@ -37,7 +37,7 @@ class Decoder implements C.IDecoder<any> {
 
     private _packetLength!: number;
 
-    private _plBuf: Buffer = Buffer.allocUnsafe(8);
+    private readonly _plBuf: Buffer = Buffer.allocUnsafe(8);
 
     private _plBufLength: number = 0;
 
@@ -72,7 +72,7 @@ class Decoder implements C.IDecoder<any> {
 
                     try {
 
-                        data = JSON.parse(chunk.slice(0, this._packetLength).toString());
+                        data = JSON.parse(chunk.subarray(0, this._packetLength).toString());
                     }
                     catch (e) {
 
@@ -81,7 +81,7 @@ class Decoder implements C.IDecoder<any> {
                         return;
                     }
 
-                    chunk = chunk.slice(this._packetLength);
+                    chunk = chunk.subarray(this._packetLength);
                     this.reset();
 
                     try {
@@ -98,15 +98,15 @@ class Decoder implements C.IDecoder<any> {
 
                 if (chunk.length + this._bufLength >= this._packetLength) {
 
-                    let restLength = this._packetLength - this._bufLength;
+                    const restLength = this._packetLength - this._bufLength;
                     chunk.copy(this._buf, this._bufLength, 0, this._packetLength - this._bufLength);
-                    chunk = chunk.slice(restLength);
+                    chunk = chunk.subarray(restLength);
 
                     let data: any;
 
                     try {
 
-                        data = JSON.parse(this._buf.slice(0, this._packetLength).toString());
+                        data = JSON.parse(this._buf.subarray(0, this._packetLength).toString());
                     }
                     catch (e) {
 
@@ -141,7 +141,7 @@ class Decoder implements C.IDecoder<any> {
 
                         chunk.copy(this._plBuf, this._plBufLength, 0, 8 - this._plBufLength);
 
-                        chunk = chunk.slice(8 - this._plBufLength);
+                        chunk = chunk.subarray(8 - this._plBufLength);
 
                         if (this._plBuf.readUInt32LE(0) !== 1) {
 
@@ -173,7 +173,7 @@ class Decoder implements C.IDecoder<any> {
                         }
 
                         this._packetLength = chunk.readUInt32LE(4);
-                        chunk = chunk.slice(8);
+                        chunk = chunk.subarray(8);
                         this._plBufLength = 0;
                     }
                     else {

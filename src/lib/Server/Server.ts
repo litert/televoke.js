@@ -56,7 +56,7 @@ class Server extends Events.EventEmitter<C.IServerEvents> implements C.IServer {
 
         this._gateways[name] = gateway;
 
-        if (gateway.onError || gateway.onRequest) {
+        if (gateway.onError ?? gateway.onRequest) {
 
             throw new E.E_GATEWAY_BUSY();
         }
@@ -72,24 +72,26 @@ class Server extends Events.EventEmitter<C.IServerEvents> implements C.IServer {
 
             if (!handler) {
 
-                return reply({
+                reply({
                     rid: req.rid,
                     srt: req.srt,
                     sst: Date.now(),
                     code: G.EResponseCode.API_NOT_FOUND,
                     body: null
                 });
+                return;
             }
 
             if (!this._router.validate(req, handler)) {
 
-                return reply({
+                reply({
                     rid: req.rid,
                     srt: req.srt,
                     sst: Date.now(),
                     code: G.EResponseCode.MALFORMED_ARGUMENTS,
                     body: null
                 });
+                return;
             }
 
             let resultPr: any;
@@ -113,21 +115,29 @@ class Server extends Events.EventEmitter<C.IServerEvents> implements C.IServer {
 
             if (resultPr instanceof Promise) {
 
-                resultPr.then((body) => reply({
-                    rid: req.rid,
-                    srt: req.srt,
-                    sst: Date.now(),
-                    code: G.EResponseCode.OK,
-                    body: body ?? null
-                }), (body) => reply({
-                    rid: req.rid,
-                    srt: req.srt,
-                    sst: Date.now(),
-                    code: G.EResponseCode.FAILURE,
-                    body: body ?? null
-                }));
+                resultPr.then(
+                    (body) => {
+                        reply({
+                            rid: req.rid,
+                            srt: req.srt,
+                            sst: Date.now(),
+                            code: G.EResponseCode.OK,
+                            body: body ?? null
+                        });
+                    },
+                    (err) => {
+                        reply({
+                            rid: req.rid,
+                            srt: req.srt,
+                            sst: Date.now(),
+                            code: G.EResponseCode.FAILURE,
+                            body: err ?? null
+                        });
+                    }
+                );
             }
             else {
+
                 reply({
                     rid: req.rid,
                     srt: req.srt,

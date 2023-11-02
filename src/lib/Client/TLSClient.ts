@@ -17,11 +17,10 @@
 import * as $TLS from 'tls';
 import * as C from './Common';
 import * as G from '../Common';
-import { Promises } from '@litert/observable';
+import { Promises, Events } from '@litert/observable';
 import * as E from './Errors';
 import { createDecoder } from '../Encoder/Decoder';
 import { createEncoder } from '../Encoder/Encoder';
-import { Events } from '@litert/observable';
 
 enum EStatus {
 
@@ -48,7 +47,7 @@ interface IRequest {
 
 class TLSClient extends Events.EventEmitter<Events.ICallbackDefinitions> implements C.IClient {
 
-    private static _$promises = Promises.getGlobalFactory();
+    private static readonly _$promises = Promises.getGlobalFactory();
 
     private static _$clientCounter = 0;
 
@@ -56,11 +55,11 @@ class TLSClient extends Events.EventEmitter<Events.ICallbackDefinitions> impleme
 
     private _status: EStatus = EStatus.IDLE;
 
-    private _clientId: number = TLSClient._$clientCounter++;
+    private readonly _clientId: number = TLSClient._$clientCounter++;
 
-    private _connPrId: string;
+    private readonly _connPrId: string;
 
-    private _closePrId: string;
+    private readonly _closePrId: string;
 
     private _sent: Record<string, IRequest> = {};
 
@@ -70,15 +69,15 @@ class TLSClient extends Events.EventEmitter<Events.ICallbackDefinitions> impleme
 
     private _sendingQty: number = 0;
 
-    private _encoder = createEncoder();
+    private readonly _encoder = createEncoder();
 
     public constructor(
-        private _host: string,
-        private _port: number,
-        private _ridGenerator: C.IRIDGenerator,
-        private _timeout: number = 30000,
-        private _apiNameWrapper?: (name: string) => string,
-        private _tlsOptions?: $TLS.ConnectionOptions
+        private readonly _host: string,
+        private readonly _port: number,
+        private readonly _ridGenerator: C.IRIDGenerator,
+        private readonly _timeout: number = 30000,
+        private readonly _apiNameWrapper?: (name: string) => string,
+        private readonly _tlsOptions?: $TLS.ConnectionOptions
     ) {
 
         super();

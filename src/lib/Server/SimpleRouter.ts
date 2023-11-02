@@ -66,7 +66,7 @@ class SimpleRouter implements ISimpleRouter {
         return this;
     }
 
-    public route(name: string): [any, boolean] | void {
+    public route(name: string): [any, boolean] | null {
 
         return this._handlers[name];
     }

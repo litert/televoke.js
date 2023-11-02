@@ -48,7 +48,7 @@ interface IClient {
 
 class TCPGateway implements C.IGateway {
 
-    private _socket: $Net.Server = $Net.createServer(this._onConnect.bind(this));
+    private readonly _socket: $Net.Server = $Net.createServer(this._onConnect.bind(this));
 
     private _status: EStatus = EStatus.IDLE;
 
@@ -66,7 +66,7 @@ class TCPGateway implements C.IGateway {
     public constructor(
         public host: string,
         public port: number,
-        private _backlog?: number,
+        private readonly _backlog?: number,
     ) {}
 
     private _onConnect(socket: $Net.Socket): void {
@@ -184,7 +184,7 @@ class TCPGateway implements C.IGateway {
             case EStatus.WORKING:
                 return new Promise((resolve) => {
 
-                    this._socket.close(() => resolve());
+                    this._socket.close(() => { resolve(); });
 
                     for (const clientId in this._clients) {
 

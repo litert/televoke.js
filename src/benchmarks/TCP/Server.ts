@@ -21,7 +21,7 @@ import { IGa, BENCHMARK_SERVER_PORT, BENCHMARK_SERVER_HOST } from './API';
 
     const router = $Televoke.createSimpleRouter();
 
-    router.add<IGa['hi']>('hi', async function(data) {
+    router.add<IGa['hi']>('hi', function(data) {
 
         return `Hi, ${data.name}`;
     });
@@ -31,7 +31,7 @@ import { IGa, BENCHMARK_SERVER_PORT, BENCHMARK_SERVER_HOST } from './API';
         return `Hello, ${ctx.args[0].name}`;
     });
 
-    router.add<IGa['TestError']>('TestError', async function(data) {
+    router.add<IGa['TestError']>('TestError', function(data) {
 
         throw `Hello, ${data.name}`;
     });

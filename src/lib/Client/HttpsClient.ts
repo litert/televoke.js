@@ -23,17 +23,17 @@ import { Events } from '@litert/observable';
 
 class HttpsClient extends Events.EventEmitter<Events.ICallbackDefinitions> implements C.IClient {
 
-    private _agent: $Https.Agent;
+    private readonly _agent: $Https.Agent;
 
     public onError!: any;
 
     public constructor(
-        private _host: string,
-        private _port: number,
-        private _ridGenerator: C.IRIDGenerator,
-        private _path: string = '',
-        private _timeout: number = 30000,
-        private _apiNameWrapper?: (name: string) => string,
+        private readonly _host: string,
+        private readonly _port: number,
+        private readonly _ridGenerator: C.IRIDGenerator,
+        private readonly _path: string = '',
+        private readonly _timeout: number = 30000,
+        private readonly _apiNameWrapper?: (name: string) => string,
         tlsAgentOptions?: $Https.AgentOptions
     ) {
 
@@ -78,7 +78,7 @@ class HttpsClient extends Events.EventEmitter<Events.ICallbackDefinitions> imple
 
             if (length > G.MAX_PACKET_SIZE) {
 
-                return reject(new GE.E_PACKET_TOO_LARGE());
+                reject(new GE.E_PACKET_TOO_LARGE()); return;
             }
 
             const req = $Https.request({
@@ -96,14 +96,14 @@ class HttpsClient extends Events.EventEmitter<Events.ICallbackDefinitions> imple
 
                 if (!resp.headers['content-length']) {
 
-                    return reject(new E.E_INVALID_RESPONSE());
+                    reject(new E.E_INVALID_RESPONSE()); return;
                 }
 
                 const length = parseInt(resp.headers['content-length']);
 
                 if (!Number.isSafeInteger(length) || length > G.MAX_PACKET_SIZE) { // Maximum request packet is 64MB
 
-                    return reject(new GE.E_PACKET_TOO_LARGE());
+                    reject(new GE.E_PACKET_TOO_LARGE()); return;
                 }
 
                 const buf = Buffer.allocUnsafe(length);
@@ -122,7 +122,7 @@ class HttpsClient extends Events.EventEmitter<Events.ICallbackDefinitions> imple
                         resp.removeAllListeners('data');
                         resp.destroy();
 
-                        return reject(new GE.E_INVALID_PACKET());
+                        reject(new GE.E_INVALID_PACKET()); return;
                     }
 
                     chunk.copy(buf, index);
@@ -137,7 +137,7 @@ class HttpsClient extends Events.EventEmitter<Events.ICallbackDefinitions> imple
                     }
                     catch {
 
-                        return reject(new GE.E_INVALID_PACKET());
+                        reject(new GE.E_INVALID_PACKET()); return;
                     }
 
                     const data = rawData as C.IResponse<any>;
@@ -172,9 +172,11 @@ class HttpsClient extends Events.EventEmitter<Events.ICallbackDefinitions> imple
                 });
             });
 
-            req.once('timeout', () => reject(new E.E_REQUEST_TIMEOUT({
-                metadata: { api, requestId: rid, time: Date.now(), details: null }
-            })));
+            req.once('timeout', () => {
+                reject(new E.E_REQUEST_TIMEOUT({
+                    metadata: { api, requestId: rid, time: Date.now(), details: null }
+                }));
+            });
 
             req.once('error', reject);
 
