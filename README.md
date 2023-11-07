@@ -7,9 +7,6 @@
 
 A simple RPC service framework.
 
-> NOTICES: There are no built-in TLS supports for the server-side, and if it's needed, please use a 
-> TLS gateway like NGINX, and put it in front of your Televoke server.
-
 ## Installation
 
 ```sh
@@ -18,14 +15,22 @@ npm install @litert/televoke --save
 
 ## Requirements
 
-- Node.js v8.x (Or newer)
-- TypeScript v3.7.x (Or newer)
+- Node.js v18.x (Or newer)
+- TypeScript v5.0.x (Or newer)
 
 ## Implemented Protocol
 
-- http/1.1
-- https/1.1
-- tcp
+- `http/1.1`  (televoke/1)
+- `https/1.1` (televoke/1)
+- `ws/wss`    (televoke/2)
+
+    > [`@litert/websocket`](https://github.com/litert/websocket.js) package is required.
+
+- `lwdfx/1`   (televoke/2)
+
+    > [`@litert/lwdfx`](https://github.com/litert/lwdfx.js) package is required.
+
+Check documents about `televoke/2` protocol [here](./docs/Televoke_v2.md).
 
 ## Documents
 

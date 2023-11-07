@@ -1,5 +1,11 @@
 # Changes Logs
 
+## v1.0.0
+
+- build(project): full refactored.
+- feat(protocol): added televoke/2 protocol supports.
+- build(protocol): removed supports for TCP-based televoke/1 protocol.
+
 ## v0.4.6
 
 - fix(server): refuse bad requests correctly.

@@ -2,6 +2,8 @@
 /node_modules/
 /examples/
 /test/
-/dist/
 /benchmarks/
+/examples/
+/lib/
+/debug/
 /*.log

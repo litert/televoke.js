@@ -12,15 +12,15 @@ module.exports = {
             'server',
             'encoder',
             'decoder',
-            'router',
             'protocol',
+            'router',
             'deps',
             'doc',
             'test',
             'config',
             'lint',
             'branch',
-            'global'
+            'project'
         ]],
         'scope-empty': [2, 'never'],
         'subject-min-length': [2, 'always', 5],

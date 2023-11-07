@@ -15,3 +15,7 @@
 /.husky/
 /src/examples/
 /src/benchmarks/
+/src/test/
+/docker/
+/init-test-data.sh
+/debug/
