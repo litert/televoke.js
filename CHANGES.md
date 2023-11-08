@@ -1,5 +1,9 @@
 # Changes Logs
 
+## v0.4.7
+
+- fix(server): refuse malformed request body.
+
 ## v0.4.6
 
 - fix(server): refuse bad requests correctly.

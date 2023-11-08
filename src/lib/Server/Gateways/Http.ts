@@ -107,6 +107,12 @@ class HttpGateway implements C.IGateway {
 
             let input: any;
 
+            if (offset !== length || buf[0] !== 123 || buf[offset - 1] !== 125) {
+
+                refuseBadRequest(resp);
+                return;
+            }
+
             try {
 
                 input = JSON.parse(buf as any);
