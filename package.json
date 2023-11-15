@@ -1,6 +1,6 @@
 {
   "name": "@litert/televoke",
-  "version": "1.0.0-0",
+  "version": "1.0.0-1",
   "description": "A simple RPC service framework.",
   "main": "lib/index.js",
   "scripts": {
@@ -32,13 +32,13 @@
   "types": "lib/index.d.ts",
   "typings": "lib/index.d.ts",
   "devDependencies": {
-    "@commitlint/cli": "^18.2.0",
-    "@commitlint/config-conventional": "^18.1.0",
+    "@commitlint/cli": "^18.4.1",
+    "@commitlint/config-conventional": "^18.4.0",
     "@litert/eslint-plugin-rules": "^0.1.6",
     "@litert/lwdfx": "^1.1.1",
     "@litert/websocket": "^0.1.0",
-    "@types/mocha": "^10.0.3",
-    "@types/node": "^20.8.10",
+    "@types/mocha": "^10.0.4",
+    "@types/node": "^20.9.0",
     "husky": "^8.0.3",
     "mocha": "^10.2.0",
     "typescript": "^5.2.2"

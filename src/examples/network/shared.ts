@@ -83,17 +83,25 @@ export async function testSendingStream(
 
     let i = 0;
 
-    for (const p of buffers) {
+    for (const [idx, p] of buffers.entries()) {
 
         sum = sumBuffer(p, sum);
 
+        if (Math.random() > 0.9) {
+
+            console.log(`[${endpoint}] Aborting stream #${streamId} at chunk#${i} of ${p.length} bytes.`);
+
+            ch.sendBinaryChunk(streamId, false, null);
+            return;
+        }
+
         console.log(`[${endpoint}] Sending chunk#${i++} of ${p.length} bytes to stream #${streamId}`);
-        await ch.sendBinaryChunk(streamId, p);
+        await ch.sendBinaryChunk(streamId, idx, p);
 
         await sleep(Math.ceil(1000 * Math.random()));
     }
 
-    await ch.sendBinaryChunk(streamId, null);
+    await ch.sendBinaryChunk(streamId, buffers.length, null);
 
     console.log(`[${endpoint}] Stream #${streamId} all sent, sum = ${sum}`);
 }

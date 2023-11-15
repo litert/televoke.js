@@ -197,12 +197,27 @@ export interface ITransporter {
     getAllProperties(): Record<string, unknown>;
 }
 
-export interface IBinaryReadStream extends Readable {
+export interface IBinaryReadStream extends Omit<Readable, 'push'> {
 
     /**
      * The unique id of binary stream.
      */
     readonly id: number;
+
+    /**
+     * The expected index of next chunk to read.
+     */
+    readonly nextIndex: number;
+
+    /**
+     * Append a binary data chunk to this binary stream, with the given index.
+     *
+     * @param chunk     The binary data chunk to be appended.
+     * @param index     The index of the chunk in the stream.
+     *
+     * @returns Whether the chunk is appended successfully.
+     */
+    append(chunk: Buffer[]): void;
 
     /**
      * Abort the binary stream before it's completed, and release the resource.
@@ -332,13 +347,17 @@ export interface IChannelBase<TEvents extends IDefaultEvents> extends IEventList
     /**
      * Send a binary data chunk to an opened binary stream on the remote side.
      *
-     * > **NOTE: It is not recommended to send a large binary data chunk at once. A large binary chunk should be split**
-     * > **into several small chunks, and then send them one by one, in order.**
+     * > **NOTE**
+     * > - It is not recommended to send a large binary data chunk at once. A large binary chunk should be split
+     * >   into several small chunks, and then send them one by one, in order.
+     * > - Set the `index` to `false` to close the binary stream by aborting.
+     * > - Set the `chunk` to `null` to close the binary stream by finishing.
      *
      * @param id        The `id` field in `IBinaryReadStream`, opened by remote side.
+     * @param index     The index of this chunk in the stream.
      * @param chunks    The binary data chunks to be sent.
      */
-    sendBinaryChunk(id: number, chunk: Buffer | null): Promise<void>;
+    sendBinaryChunk(id: number, index: number | false, chunk: Buffer | null): Promise<void>;
 
     /**
      * Close the channel.

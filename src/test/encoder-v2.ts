@@ -153,6 +153,7 @@ describe('Encoder/Decoder', () => {
 
             const PACKET_SEQ = Math.ceil(Math.random() * 0xFFFFFFFFFFFF);
             const STREAM_ID = Math.ceil(Math.random() * 0xFFFFFFFF);
+            const CHUNK_INDEX = Math.floor(Math.random() * 0xFFFFFFFF);
 
             const packet = Buffer.concat(ensureBufferArray(encoder.encode({
                 'cmd': Tv.Encodings.v2.ECommand.BINARY_CHUNK,
@@ -160,32 +161,38 @@ describe('Encoder/Decoder', () => {
                 'seq': PACKET_SEQ,
                 'ct': {
                     'streamId': STREAM_ID,
-                    'body': chunks
+                    'body': chunks,
+                    'index': CHUNK_INDEX
                 }
             })));
 
             testHeader(
                 packet,
-                DW_LEN + DW_LEN + dataLen,
+                DW_LEN + DW_LEN + DW_LEN + dataLen,
                 Tv.Encodings.v2.ECommand.BINARY_CHUNK,
                 Tv.Encodings.v2.EPacketType.REQUEST,
                 PACKET_SEQ
             );
 
-            it('The bytes[9...12] should be the corrected chunk sequence', function() {
+            it('The bytes[9...12] should be the corrected stream id', function() {
 
                 Assert.equal(packet.readUInt32LE(Tv.Encodings.v2.HEADER_SIZE), STREAM_ID);
             });
 
-            it('The bytes[13...16] should be the corrected body length', function() {
+            it('The bytes[13...16] should be the corrected chunk index', function() {
 
-                Assert.equal(packet.readUInt32LE(Tv.Encodings.v2.HEADER_SIZE + DW_LEN), dataLen);
+                Assert.equal(packet.readUInt32LE(Tv.Encodings.v2.HEADER_SIZE + DW_LEN), CHUNK_INDEX);
+            });
+
+            it('The bytes[17...20] should be the corrected body length', function() {
+
+                Assert.equal(packet.readUInt32LE(Tv.Encodings.v2.HEADER_SIZE + DW_LEN + DW_LEN), dataLen);
             });
 
             it('The bytes[17...] should be the corrected body', function() {
 
                 Assert.equal(
-                    packet.subarray(Tv.Encodings.v2.HEADER_SIZE + DW_LEN + DW_LEN)
+                    packet.subarray(Tv.Encodings.v2.HEADER_SIZE + DW_LEN + DW_LEN + DW_LEN)
                         .compare(Buffer.concat(chunks)),
                     0
                 );

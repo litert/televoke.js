@@ -112,6 +112,11 @@ export interface IBinaryChunkRequestPacket extends IRequestPacket {
         readonly streamId: number;
 
         /**
+         * The index of this chunk in the stream.
+         */
+        readonly index: number;
+
+        /**
          * The chunk data.
          */
         readonly body: IDataChunkField;

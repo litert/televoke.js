@@ -185,9 +185,9 @@ class TvJsonApiClient<TApis extends Shared.IObject> extends EventEmitter impleme
         await this._getChannel();
     }
 
-    public async sendBinaryChunk(streamId: number, chunk: Buffer): Promise<void> {
+    public async sendBinaryChunk(streamId: number, index: number, chunk: Buffer): Promise<void> {
 
-        return (await this._getChannel()).sendBinaryChunk(streamId, chunk);
+        return (await this._getChannel()).sendBinaryChunk(streamId, index, chunk);
     }
 }
 

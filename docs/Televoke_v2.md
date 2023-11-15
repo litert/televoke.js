@@ -274,8 +274,9 @@ struct Tv2BinaryChunkCommandRequestPacket {
 
     struct Tv2PacketHeader  header;
 
-    uint32_t                dwStreamId;
-    var_binary32_t            aChunkData;
+    uint32_t            dwStreamId;
+    uint32_t            dwChunkIndex;
+    var_binary32_t      aChunkData;
 };
 ```
 
@@ -283,11 +284,21 @@ Here are the explanations of the fields:
 
 - `dwStreamId`
 
-    The stream identity of the binary chunk. It is a 32-bit unsigned integer.
+    The stream identity of the binary chunk. It is a 32-bit integer.
 
-- `sChunkData`
+- `dwChunkIndex`
+
+    The index of the binary chunk. It is a 32-bit integer, starts from 0.
+
+    The receiver would expect `0` as the first chunk index, and then 1, 2, 3, one by one, in sequence.
+
+    > Sending `0xFFFFFFFF` means aborting the stream by the sender, and the receiver should drop the stream.
+
+- `aChunkData`
 
     The body of the binary chunk. It is a variable-length binary chunk.
+
+    If a zero-length binary chunk is received, it means all the binary chunks are sent, and the stream is completed.
 
 #### Response Packet
 

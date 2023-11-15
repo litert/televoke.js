@@ -149,6 +149,7 @@ describe('Encoder/Decoder', () => {
                 'seq': PACKET_SEQ,
                 'ct': {
                     'streamId': STREAM_ID,
+                    'index': 123,
                     'body': chunks
                 }
             } satisfies Tv.Encodings.v2.IBinaryChunkRequestPacket))) as Tv.Encodings.v2.IBinaryChunkRequestPacket;

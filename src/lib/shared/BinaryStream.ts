@@ -20,6 +20,11 @@ import { Readable } from 'node:stream';
 
 export class TvBinaryReadStream extends Readable implements Shared.IBinaryReadStream {
 
+    /**
+     * The index of next chunk to read.
+     */
+    public nextIndex: number = 0;
+
     private _timer: NodeJS.Timeout | null = null;
 
     public constructor(
@@ -87,7 +92,7 @@ export class TvBinaryReadStream extends Readable implements Shared.IBinaryReadSt
         }, this._timeout);
     }
 
-    public push(buf: Buffer | null): boolean {
+    public append(chunkSegments: Buffer[]): void {
 
         if (this.readableEnded) {
 
@@ -99,7 +104,12 @@ export class TvBinaryReadStream extends Readable implements Shared.IBinaryReadSt
             this._resetTimer();
         }
 
-        return super.push(buf);
+        for (const s of chunkSegments) {
+
+            super.push(s);
+        }
+
+        this.nextIndex++;
     }
 
     public close(): void {

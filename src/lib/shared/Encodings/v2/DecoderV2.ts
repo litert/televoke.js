@@ -244,12 +244,14 @@ class TvBinaryChunkRequestDecoder implements IPacketDecoder {
     public decode(ctx: IDecodeContext): dEnc2.ICommandPacket {
 
         const streamId = readSmallBytes(4, B4, ctx).readUInt32LE(0);
+        const chunkIndex = readSmallBytes(4, B4, ctx).readUInt32LE(0);
         return {
             'cmd': CSv2.ECommand.BINARY_CHUNK,
             'typ': CSv2.EPacketType.REQUEST,
             'seq': ctx.seq,
             'ct': {
                 'streamId': streamId,
+                'index': chunkIndex,
                 'body': readVarBuffer(ctx),
             }
         } satisfies dEnc2.IBinaryChunkRequestPacket;

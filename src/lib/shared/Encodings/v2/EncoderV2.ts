@@ -104,10 +104,11 @@ class BinaryChunkRequestEncoder implements IPacketEncoder {
 
     public encode(packet: dEnc2.IBinaryChunkRequestPacket): v2.IDataChunkArray {
 
-        const leadSeg = Buffer.allocUnsafe(CS.HEADER_SIZE + 4 + 4);
+        const leadSeg = Buffer.allocUnsafe(CS.HEADER_SIZE + 12);
 
         writePacketHeader(leadSeg, packet.cmd, packet.typ, packet.seq);
         leadSeg.writeUInt32LE(packet.ct.streamId, CS.HEADER_SIZE);
+        leadSeg.writeUInt32LE(packet.ct.index, CS.HEADER_SIZE + 4);
 
         if (Array.isArray(packet.ct.body)) {
 
@@ -118,12 +119,12 @@ class BinaryChunkRequestEncoder implements IPacketEncoder {
                 bodyLen += Buffer.byteLength(p);
             }
 
-            leadSeg.writeUInt32LE(bodyLen, CS.HEADER_SIZE + 4);
+            leadSeg.writeUInt32LE(bodyLen, CS.HEADER_SIZE + 8);
 
             return [leadSeg, ...packet.ct.body];
         }
 
-        leadSeg.writeUInt32LE(Buffer.byteLength(packet.ct.body), CS.HEADER_SIZE + 4);
+        leadSeg.writeUInt32LE(Buffer.byteLength(packet.ct.body), CS.HEADER_SIZE + 8);
 
         return [leadSeg, packet.ct.body];
     }

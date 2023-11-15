@@ -73,6 +73,7 @@ const errorCtors = {
     ...defineProtocolError('stream_not_found'),
     ...defineProtocolError('stream_aborted'),
     ...defineProtocolError('stream_closed'),
+    ...defineProtocolError('stream_index_mismatch'),
     ...defineProtocolError('system_busy'),
     ...defineProtocolError('timeout'),
     ...defineProtocolError('unknown'),

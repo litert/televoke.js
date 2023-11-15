@@ -109,16 +109,16 @@ async function testSendingStream(
 
     let sum = 0;
 
-    for (const p of buffers) {
+    for (const [i, p] of buffers.entries()) {
 
         sum = sumBuffer(p, sum);
 
-        await ch.sendBinaryChunk(streamId, p);
+        await ch.sendBinaryChunk(streamId, i, p);
 
         await sleep(Math.floor(1000 * Math.random()));
     }
 
-    await ch.sendBinaryChunk(streamId, null);
+    await ch.sendBinaryChunk(streamId, buffers.length, null);
 
     console.log(`[${endpoint}]: Stream #${streamId} all sent, sum = ${sum}`);
 }

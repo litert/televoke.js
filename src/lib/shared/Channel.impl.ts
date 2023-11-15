@@ -438,18 +438,34 @@ export abstract class AbstractTvChannelV2
                     break;
                 }
 
-                const chunks = (packet as v2.IBinaryChunkRequestPacket).ct.body as Buffer[];
+                const chunkSegments = (packet as v2.IBinaryChunkRequestPacket).ct.body as Buffer[];
 
-                if (!chunks[0]?.byteLength) {
+                const chunkIndex = (packet as v2.IBinaryChunkRequestPacket).ct.index;
+
+                if (chunkIndex === 0xFFFFFFFF) {
+
+                    stream.abort();
+                }
+                else if (chunkIndex !== stream.nextIndex) {
+
+                    this._reply({
+                        'cmd': v2.ECommand.BINARY_CHUNK,
+                        'typ': v2.EPacketType.ERROR_RESPONSE,
+                        'seq': packet.seq,
+                        'ct': new E.errors.stream_index_mismatch({
+                            'sid': (packet as v2.IBinaryChunkRequestPacket).ct.streamId,
+                            'chId': this.id,
+                        }),
+                    });
+                    break;
+                }
+                else if (!chunkSegments[0]?.byteLength) {
 
                     stream.close();
                 }
                 else {
 
-                    for (const chunk of chunks) {
-
-                        stream.push(chunk);
-                    }
+                    stream.append(chunkSegments);
                 }
 
                 this._reply({
@@ -546,7 +562,7 @@ export abstract class AbstractTvChannelV2
         });
     }
 
-    public sendBinaryChunk(streamId: number, chunk: Buffer | null): Promise<void> {
+    public sendBinaryChunk(streamId: number, index: number | false, chunk: Buffer | null): Promise<void> {
 
         if (!this.writable) {
 
@@ -561,6 +577,7 @@ export abstract class AbstractTvChannelV2
             'seq': seq,
             'ct': {
                 streamId,
+                'index': index === false ? 0xFFFFFFFF : index,
                 'body': chunk ?? [],
             }
         } satisfies v2.IBinaryChunkRequestPacket));
