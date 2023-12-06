@@ -1,5 +1,9 @@
 # Changes Logs
 
+## v0.4.8
+
+- fix(client): fixed `ECONNRESET` error when using `http/https` client.
+
 ## v0.4.7
 
 - fix(server): refuse malformed request body.

@@ -1,6 +1,6 @@
 import * as C from './Common';
 
-export function createIncreasementRIDGenerator(base: number): C.IRIDGenerator {
+export function createIncrementRIDGenerator(base: number): C.IRIDGenerator {
 
     return () => base++;
 }

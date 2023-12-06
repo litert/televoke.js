@@ -1,5 +1,5 @@
 /**
- * Copyright 2021 Angus.Fenying <fenying@litert.org>
+ * Copyright 2023 Angus.Fenying <fenying@litert.org>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,7 +33,8 @@ class HttpClient extends Events.EventEmitter<Events.ICallbackDefinitions> implem
         private readonly _ridGenerator: C.IRIDGenerator,
         private readonly _path: string = '/',
         private readonly _timeout: number = 30000,
-        private readonly _apiNameWrapper?: (name: string) => string
+        private readonly _apiNameWrapper?: (name: string) => string,
+        private readonly _retryConnReset?: boolean,
     ) {
 
         super();
@@ -41,18 +42,46 @@ class HttpClient extends Events.EventEmitter<Events.ICallbackDefinitions> implem
         this._agent = new $Http.Agent({
             maxSockets: 0,
             keepAlive: true,
-            keepAliveMsecs: 30000
+            keepAliveMsecs: this._timeout
         });
     }
 
-    public invoke(api: any, ...args: any[]): Promise<any> {
+    public async invoke(api: any, ...args: any[]): Promise<any> {
 
-        return this._call(api, false, args);
+        try {
+
+            return await this._call(api, false, args);
+        }
+        catch (e) {
+
+            if (this._retryConnReset && (e as any)?.code === 'ECONNRESET') {
+
+                return this._call(api, false, args);
+            }
+            else {
+
+                throw e;
+            }
+        }
     }
 
-    public call(api: any, ...args: any[]): Promise<any> {
+    public async call(api: any, ...args: any[]): Promise<any> {
 
-        return this._call(api, true, args);
+        try {
+
+            return await this._call(api, true, args);
+        }
+        catch (e) {
+
+            if (this._retryConnReset && (e as any)?.code === 'ECONNRESET') {
+
+                return this._call(api, true, args);
+            }
+            else {
+
+                throw e;
+            }
+        }
     }
 
     private _call(api: any, returnRaw: boolean, args: any[]): Promise<any> {
@@ -217,6 +246,13 @@ export interface IHttpClientOptions {
     timeout?: number;
 
     apiNameWrapper?: (name: string) => string;
+
+    /**
+     * Whether to retry when the connection is reset.
+     *
+     * @default false
+     */
+    retryConnReset?: boolean;
 }
 
 export function createHttpClient<TAPIs extends G.IServiceAPIs>(opts: IHttpClientOptions): C.IClient<TAPIs> {
@@ -227,6 +263,7 @@ export function createHttpClient<TAPIs extends G.IServiceAPIs>(opts: IHttpClient
         opts.ridGenerator,
         opts.path,
         opts.timeout,
-        opts.apiNameWrapper
+        opts.apiNameWrapper,
+        opts.retryConnReset,
     );
 }

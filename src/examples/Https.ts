@@ -1,5 +1,5 @@
 /**
- * Copyright 2021 Angus.Fenying <fenying@litert.org>
+ * Copyright 2023 Angus.Fenying <fenying@litert.org>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,7 +36,7 @@ interface IGa extends $Televoke.IServiceAPIs {
 
     const client = $Televoke.createHttpsClient<IGa>({
         host: 'examples.org',
-        ridGenerator: $Televoke.createIncreasementRIDGenerator(0),
+        ridGenerator: $Televoke.createIncrementRIDGenerator(0),
         path: '/path/to/rpc/entry'
     });
 

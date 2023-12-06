@@ -1,5 +1,5 @@
 /**
- * Copyright 2021 Angus.Fenying <fenying@litert.org>
+ * Copyright 2023 Angus.Fenying <fenying@litert.org>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,7 +34,8 @@ class HttpsClient extends Events.EventEmitter<Events.ICallbackDefinitions> imple
         private readonly _path: string = '',
         private readonly _timeout: number = 30000,
         private readonly _apiNameWrapper?: (name: string) => string,
-        tlsAgentOptions?: $Https.AgentOptions
+        tlsAgentOptions?: $Https.AgentOptions,
+        private readonly _retryConnReset?: boolean,
     ) {
 
         super();
@@ -42,20 +43,48 @@ class HttpsClient extends Events.EventEmitter<Events.ICallbackDefinitions> imple
         this._agent = new $Https.Agent({
             maxSockets: 0,
             keepAlive: true,
-            keepAliveMsecs: 30000,
+            keepAliveMsecs: this._timeout,
             // servername: _host,
             ...tlsAgentOptions
         });
     }
 
-    public invoke(api: any, ...args: any[]): Promise<any> {
+    public async invoke(api: any, ...args: any[]): Promise<any> {
 
-        return this._call(api, false, args);
+        try {
+
+            return await this._call(api, false, args);
+        }
+        catch (e) {
+
+            if (this._retryConnReset && (e as any)?.code === 'ECONNRESET') {
+
+                return this._call(api, false, args);
+            }
+            else {
+
+                throw e;
+            }
+        }
     }
 
-    public call(api: any, ...args: any[]): Promise<any> {
+    public async call(api: any, ...args: any[]): Promise<any> {
 
-        return this._call(api, true, args);
+        try {
+
+            return await this._call(api, true, args);
+        }
+        catch (e) {
+
+            if (this._retryConnReset && (e as any)?.code === 'ECONNRESET') {
+
+                return this._call(api, true, args);
+            }
+            else {
+
+                throw e;
+            }
+        }
     }
 
     private _call(api: any, returnRaw: boolean, args: any[]): Promise<any> {
@@ -222,6 +251,13 @@ export interface IHttpsClientOptions {
     apiNameWrapper?: (name: string) => string;
 
     tlsAgentOptions?: $Https.AgentOptions;
+
+    /**
+     * Whether to retry when the connection is reset.
+     *
+     * @default false
+     */
+    retryConnReset?: boolean;
 }
 
 export function createHttpsClient<TAPIs extends G.IServiceAPIs>(opts: IHttpsClientOptions): C.IClient<TAPIs> {
@@ -233,6 +269,7 @@ export function createHttpsClient<TAPIs extends G.IServiceAPIs>(opts: IHttpsClie
         opts.path,
         opts.timeout,
         opts.apiNameWrapper,
-        opts.tlsAgentOptions
+        opts.tlsAgentOptions,
+        opts.retryConnReset,
     );
 }

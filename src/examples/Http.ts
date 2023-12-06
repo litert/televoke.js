@@ -1,5 +1,5 @@
 /**
- * Copyright 2021 Angus.Fenying <fenying@litert.org>
+ * Copyright 2023 Angus.Fenying <fenying@litert.org>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -93,7 +93,7 @@ interface IGa extends $Televoke.IServiceAPIs {
     const client = $Televoke.createHttpClient<IGa>({
         host: '127.0.0.1',
         port: 8899,
-        ridGenerator: $Televoke.createIncreasementRIDGenerator(0)
+        ridGenerator: $Televoke.createIncrementRIDGenerator(0)
     });
 
     server.setRouter(router);
@@ -127,6 +127,59 @@ interface IGa extends $Televoke.IServiceAPIs {
     await Timers.setTimeout(100);
 
     console.log(await requestByHttp('PUT', '{"fffff":', {}));
+
+    try {
+
+        await client.invoke('hi', {'name': 'Mick'});
+        const T = Date.now();
+
+        while (1) {
+
+            if (T < Date.now() - 10000) {
+
+                break;
+            }
+        }
+
+        console.log(await client.invoke('hi', {'name': 'Mick'}));
+
+        console.info('Failed: Should got ECONNRESET here.');
+    }
+    catch (e) {
+
+        console.error('PASSED: Got ECONNRESET here when CPU stuck for 10s');
+        console.error(e);
+    }
+
+    const client2 = $Televoke.createHttpClient<IGa>({
+        host: '127.0.0.1',
+        port: 8899,
+        ridGenerator: $Televoke.createIncrementRIDGenerator(0),
+        retryConnReset: true,
+    });
+
+    try {
+
+        await client2.invoke('hi', {'name': 'Mick'});
+        const T = Date.now();
+
+        while (1) {
+
+            if (T < Date.now() - 10000) {
+
+                break;
+            }
+        }
+
+        console.log(await client2.invoke('hi', {'name': 'Mick'}));
+
+        console.info('PASSED: No ECONNRESET here even if CPU stuck for 10s');
+    }
+    catch (e) {
+
+        console.error('Failed: Still got error here.');
+        console.error(e);
+    }
 
     await server.close();
 
