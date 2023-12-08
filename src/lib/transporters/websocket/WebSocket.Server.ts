@@ -28,6 +28,7 @@ class WebSocketGateway extends EventEmitter implements dT.IGateway {
     public constructor(
         private readonly _listener: Listener.IHttpListener,
         private readonly _server: dT.IServer,
+        timeout?: number,
     ) {
 
         super();
@@ -38,6 +39,7 @@ class WebSocketGateway extends EventEmitter implements dT.IGateway {
 
         this._wsServer = LibWS.createServer({
             liteFrameMode: true,
+            timeout,
         });
     }
 
@@ -103,6 +105,18 @@ class WebSocketGateway extends EventEmitter implements dT.IGateway {
     }
 }
 
+export interface IWebSocketGatewayOptions {
+
+    /**
+     * The timeout of WebSocket connections.
+     *
+     * > Set to 0 to disable timeout.
+     *
+     * @default 60000
+     */
+    timeout?: number;
+}
+
 /**
  * Create a WebSocket gateway.
  *
@@ -112,7 +126,8 @@ class WebSocketGateway extends EventEmitter implements dT.IGateway {
 export function createWebsocketGateway(
     listener: Listener.IHttpListener,
     server: dT.IServer,
+    options: IWebSocketGatewayOptions = {}
 ): dT.IGateway {
 
-    return new WebSocketGateway(listener, server);
+    return new WebSocketGateway(listener, server, options.timeout);
 }
