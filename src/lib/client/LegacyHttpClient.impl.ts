@@ -36,7 +36,8 @@ class TvLegacyHttpClient extends EventEmitter implements C.IClient<any> {
         private readonly _request: (opts: any, cb: (resp: $Http.IncomingMessage) => void) => $Http.ClientRequest,
         private readonly _opts: $Https.RequestOptions,
         private readonly _agent: $Http.Agent,
-        private readonly _apiNameWrapper?: (name: string) => string
+        private readonly _retryOnConnReset: boolean = true,
+        private readonly _apiNameWrapper?: (name: string) => string,
     ) {
 
         super();
@@ -75,7 +76,26 @@ class TvLegacyHttpClient extends EventEmitter implements C.IClient<any> {
         return Promise.reject(new Shared.errors.cmd_not_impl());
     }
 
-    public invoke(api: any, ...args: any[]): Promise<any> {
+    public async invoke(api: any, ...args: any[]): Promise<any> {
+
+        try {
+
+            return await this._invoke(api, ...args);
+        }
+        catch (e) {
+
+            if (this._retryOnConnReset && (e as any)?.code === 'ECONNRESET') {
+
+                return this._invoke(api, ...args);
+            }
+            else {
+
+                throw e;
+            }
+        }
+    }
+
+    private _invoke(api: any, ...args: any[]): Promise<any> {
 
         const CST = Date.now();
 
@@ -84,7 +104,7 @@ class TvLegacyHttpClient extends EventEmitter implements C.IClient<any> {
             rid: 0,
             cst: CST,
             args,
-            api: this._apiNameWrapper ? this._apiNameWrapper(api) : api
+            api: this._apiNameWrapper?.(api) ?? api
         });
 
         return new Promise((resolve, reject) => {
@@ -207,7 +227,7 @@ class TvLegacyHttpClient extends EventEmitter implements C.IClient<any> {
     }
 }
 
-export interface IHttpClientNetworkOptions extends $Https.RequestOptions {
+interface IHttpClientOptionsBase extends $Https.RequestOptions {
 
     /**
      * Whether to use HTTPS.
@@ -215,6 +235,23 @@ export interface IHttpClientNetworkOptions extends $Https.RequestOptions {
      * @default false
      */
     https?: boolean;
+
+    /**
+     * Wrap the API name before sending to server.
+     *
+     * @default null
+     */
+    apiNameWrapper?: (name: string) => string;
+
+    /**
+     * Whether to retry on connection reset.
+     *
+     * @default true
+     */
+    retryOnConnReset?: boolean;
+}
+
+export interface IHttpClientNetworkOptions extends IHttpClientOptionsBase {
 
     /**
      * The hostname of HTTP server.
@@ -229,32 +266,14 @@ export interface IHttpClientNetworkOptions extends $Https.RequestOptions {
      * @default 80 or 443
      */
     port?: number;
-
-    /**
-     * The path to the RPC entry.
-     *
-     * @default '/'
-     */
-    path?: string;
-
-    apiNameWrapper?: (name: string) => string;
 }
 
-export interface IHttpClientUnixSocketOptions extends $Https.RequestOptions {
-
-    /**
-     * Whether to use HTTPS.
-     *
-     * > Always `false` for Unix domain socket.
-     */
-    https?: false;
+export interface IHttpClientUnixSocketOptions extends IHttpClientOptionsBase {
 
     /**
      * The path of Unix domain socket to connect to.
      */
     socketPath: string;
-
-    apiNameWrapper?: (name: string) => string;
 }
 
 export type IHttpClientOptions = IHttpClientNetworkOptions | IHttpClientUnixSocketOptions;
@@ -265,14 +284,15 @@ export function createLegacyHttpClient<TAPIs extends Shared.IObject>(opts: IHttp
         opts.https ? $Https.request : $Http.request,
         opts,
         opts.https ? new $Https.Agent({
-            maxSockets: 0,
-            keepAlive: true,
-            keepAliveMsecs: DEFAULT_TIMEOUT
+            'maxSockets': 0,
+            'keepAlive': true,
+            'keepAliveMsecs': DEFAULT_TIMEOUT
         }) : new $Http.Agent({
-            maxSockets: 0,
-            keepAlive: true,
-            keepAliveMsecs: DEFAULT_TIMEOUT
+            'maxSockets': 0,
+            'keepAlive': true,
+            'keepAliveMsecs': DEFAULT_TIMEOUT
         }),
-        opts.apiNameWrapper
+        opts.retryOnConnReset,
+        opts.apiNameWrapper,
     );
 }
