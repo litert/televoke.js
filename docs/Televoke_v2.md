@@ -242,13 +242,13 @@ struct Tv2PushMessageCommandRequestPacket {
 
     struct Tv2PacketHeader  header;
 
-    var_binary16_t          aMessage;
+    var_binary32_t          aMessage;
 };
 ```
 
 Here are the explanations of the fields:
 
-- `sMessage`
+- `aMessage`
 
     The body of the message. It is a variable-length binary chunk.
 

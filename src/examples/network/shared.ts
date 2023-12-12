@@ -91,7 +91,7 @@ export async function testSendingStream(
 
             console.log(`[${endpoint}] Aborting stream #${streamId} at chunk#${i} of ${p.length} bytes.`);
 
-            ch.sendBinaryChunk(streamId, false, null);
+            await ch.sendBinaryChunk(streamId, false, null);
             return;
         }
 

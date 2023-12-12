@@ -174,7 +174,7 @@ class PushMessageRequestEncoder implements IPacketEncoder {
 
     public encode(packet: dEnc2.IPushMessageRequestPacket): v2.IDataChunkArray {
 
-        const leadSeg = Buffer.allocUnsafe(CS.HEADER_SIZE + 2);
+        const leadSeg = Buffer.allocUnsafe(CS.HEADER_SIZE + 4);
 
         writePacketHeader(leadSeg, packet.cmd, packet.typ, packet.seq);
 
@@ -187,12 +187,12 @@ class PushMessageRequestEncoder implements IPacketEncoder {
                 bodyLen += Buffer.byteLength(p);
             }
 
-            leadSeg.writeUInt16LE(bodyLen, CS.HEADER_SIZE);
+            leadSeg.writeUInt32LE(bodyLen, CS.HEADER_SIZE);
 
             return [leadSeg, ...packet.ct];
         }
 
-        leadSeg.writeUInt16LE(Buffer.byteLength(packet.ct), CS.HEADER_SIZE);
+        leadSeg.writeUInt32LE(Buffer.byteLength(packet.ct), CS.HEADER_SIZE);
 
         return [leadSeg, packet.ct];
     }

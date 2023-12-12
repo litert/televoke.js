@@ -234,7 +234,7 @@ class TvPushMessageRequestDecoder implements IPacketDecoder {
             'cmd': CSv2.ECommand.PUSH_MESSAGE,
             'typ': CSv2.EPacketType.REQUEST,
             'seq': ctx.seq,
-            'ct': readVarBuffer16(ctx)
+            'ct': readVarBuffer(ctx)
         } satisfies dEnc2.IPushMessageRequestPacket;
     }
 }
