@@ -35,11 +35,19 @@ export class TvServer extends EventEmitter implements dS.IServer, dT.IServer {
         private readonly _streamManagerFactory: Shared.IStreamManagerFactory = Shared.createSharedStreamManagerFactory()
     ) {
         super();
+        this.router.on('error', this._onRouterError);
     }
+
+    private readonly _onRouterError = (e: unknown): void => {
+
+        this.emit('error', e);
+    };
 
     public setRouter(router: dS.IRouter): void {
 
-        this.router = router;
+        this.router?.off('error', this._onRouterError);
+        this.router = router
+            .on('error', this._onRouterError);
     }
 
     public registerChannel(transporter: dT.ITransporter): void {

@@ -7,8 +7,8 @@
         {
             "type": "node",
             "request": "launch",
-            "name": "[Televoke] Benchmark: Decoder",
-            "program": "${workspaceFolder}/src/benchmarks/Decoder.ts",
+            "name": "[Televoke] Network: Start Server",
+            "program": "${workspaceFolder}/src/examples/network/server.ts",
             "sourceMaps": true,
             "cwd": "${workspaceFolder}",
             "outFiles": [
@@ -18,8 +18,8 @@
         {
             "type": "node",
             "request": "launch",
-            "name": "[Televoke] TCP",
-            "program": "${workspaceFolder}/src/examples/TCP.ts",
+            "name": "[Televoke] Network: Start Legacy Http Client",
+            "program": "${workspaceFolder}/src/examples/network/legacy-http-client.ts",
             "sourceMaps": true,
             "cwd": "${workspaceFolder}",
             "outFiles": [
@@ -29,8 +29,8 @@
         {
             "type": "node",
             "request": "launch",
-            "name": "[Televoke] Http",
-            "program": "${workspaceFolder}/src/examples/Http.ts",
+            "name": "[Televoke] Network: Start WebSocket Client",
+            "program": "${workspaceFolder}/src/examples/network/ws-client.ts",
             "sourceMaps": true,
             "cwd": "${workspaceFolder}",
             "outFiles": [

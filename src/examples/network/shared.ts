@@ -32,6 +32,10 @@ export interface IApis {
     hi(text: string): string;
 
     shit(): string;
+
+    test_bad_response(): unknown;
+
+    test_bad_response_async(): unknown;
 }
 
 function sumBuffer(d: Buffer, b: number): number {

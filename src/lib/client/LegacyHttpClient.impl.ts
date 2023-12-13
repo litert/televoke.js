@@ -194,7 +194,7 @@ class TvLegacyHttpClient extends EventEmitter implements C.IClient<any> {
                         case v1.EResponseCode.MALFORMED_ARGUMENTS:
                         case v1.EResponseCode.SYSTEM_ERROR:
                         default:
-                            reject(new Shared.errors.unknown({
+                            reject(new Shared.errors.server_internal_error({
                                 api, ...data
                             }));
                             break;

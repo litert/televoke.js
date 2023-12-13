@@ -41,7 +41,7 @@ export type IRouteApiCallback = (response: string | Buffer | Array<string | Buff
 
 export type IRouteLegacyApiCallback = (response: unknown | Shared.TvErrorResponse | Shared.TelevokeError) => void;
 
-export interface IRouter {
+export interface IRouter extends Shared.IEventListener<Shared.IDefaultEvents> {
 
     /**
      * The encoding of the API request/response.

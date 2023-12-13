@@ -76,6 +76,19 @@ class LegacyHttpGateway extends EventEmitter implements dT.IGateway {
             .setLegacyApiProcessor(this._onRequest);
     }
 
+    private _sendResponse(resp: Http.ServerResponse, data: string): void {
+
+        try {
+
+            resp.setHeader('content-length', Buffer.byteLength(data));
+            resp.end(data);
+        }
+        catch (e) {
+
+            this.emit('error', e);
+        }
+    }
+
     public get running(): boolean {
 
         return this._listener.running;
@@ -159,7 +172,6 @@ class LegacyHttpGateway extends EventEmitter implements dT.IGateway {
                     refuseBadRequest(resp);
                     this.emit('error', new Shared.errors.invalid_packet({
                         reason: 'invalid_json',
-                        data: buf,
                     }, e));
                     return;
                 }
@@ -169,7 +181,6 @@ class LegacyHttpGateway extends EventEmitter implements dT.IGateway {
                     refuseBadRequest(resp);
                     this.emit('error', new Shared.errors.invalid_packet({
                         reason: 'malformed_json',
-                        data: input,
                     }));
                     return;
                 }
@@ -185,48 +196,54 @@ class LegacyHttpGateway extends EventEmitter implements dT.IGateway {
 
                         if (result instanceof Shared.errors.app_error) {
 
-                            const data = encoder.encodeApiErrorResponse(
+                            this._sendResponse(resp, encoder.encodeApiErrorResponse(
                                 input.rid,
                                 v1.EResponseCode.FAILURE,
                                 result.message,
                                 recvAt
-                            );
-
-                            resp.setHeader('content-length', Buffer.byteLength(data));
-                            resp.end(data);
+                            ));
                         }
                         else if (result instanceof Shared.errors.api_not_found) {
 
-                            const data = encoder.encodeApiErrorResponse(
+                            this._sendResponse(resp, encoder.encodeApiErrorResponse(
                                 input.rid,
                                 v1.EResponseCode.API_NOT_FOUND,
                                 'null',
                                 recvAt
-                            );
-
-                            resp.setHeader('content-length', Buffer.byteLength(data));
-                            resp.end(data);
+                            ));
                         }
                         else {
 
-                            const data = encoder.encodeApiErrorResponse(
+                            this._sendResponse(resp, encoder.encodeApiErrorResponse(
                                 input.rid,
                                 v1.EResponseCode.SYSTEM_ERROR,
                                 'null',
                                 recvAt
-                            );
-
-                            resp.setHeader('content-length', Buffer.byteLength(data));
-                            resp.end(data);
+                            ));
                         }
 
                         return;
                     }
 
-                    const data = encoder.encodeApiOkResponse(input.rid, result ?? null, recvAt);
+                    let data: string;
 
-                    resp.setHeader('content-length', Buffer.byteLength(data));
-                    resp.end(data);
+                    try {
+
+                        data = encoder.encodeApiOkResponse(input.rid, result ?? null, recvAt);
+                    }
+                    catch (e) {
+
+                        data = encoder.encodeApiErrorResponse(
+                            input.rid,
+                            v1.EResponseCode.SYSTEM_ERROR,
+                            'null',
+                            recvAt
+                        );
+
+                        this.emit('error', new Shared.errors.unprocessable_error({ api: input.api }, e));
+                    }
+
+                    this._sendResponse(resp, data);
 
                 }, input.api, input.args, new LegacyHttpTransporter(req));
             });

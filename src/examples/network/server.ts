@@ -38,6 +38,22 @@ router
             ctx.channel.sendMessage('hello').catch(console.error);
         }
     })
+    .registerApi('test_bad_response', (ctx): unknown => {
+
+        console.log(`[Server] Channel#${ctx.channel.id} invoked test_bad_response`);
+
+        return {
+            f: BigInt(123)
+        };
+    })
+    .registerApi('test_bad_response_async', (ctx): Promise<unknown> => {
+
+        console.log(`[Server] Channel#${ctx.channel.id} invoked test_bad_response`);
+
+        return Promise.resolve({
+            f: BigInt(123)
+        });
+    })
     .registerApi('say', (ctx, text: string): string => {
 
         return text;

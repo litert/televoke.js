@@ -17,12 +17,13 @@
 import type * as dS from './Server.decl';
 import * as Shared from '../shared';
 import { buffer2json } from '../shared/Utils';
+import { EventEmitter } from 'node:events';
 
 export type ISimpleJsonApiHandler = (ctx: dS.IRequestContext, ...args: any[]) => unknown;
 
 export type ISimpleJsonMessageHandler = (ctx: dS.IRequestContext, msg: unknown) => unknown;
 
-export class SimpleJsonApiRouter implements dS.IRouter {
+export class SimpleJsonApiRouter extends EventEmitter implements dS.IRouter {
 
     public get encoding(): string {
 
@@ -65,8 +66,18 @@ export class SimpleJsonApiRouter implements dS.IRouter {
             if (result instanceof Promise) {
 
                 result.then(
-                    (data) => { cb(JSON.stringify(data ?? null)); },
-                    (e) => { this._processError(cb, e); },
+                    (data) => {
+
+                        try {
+
+                            cb(JSON.stringify(data ?? null));
+                        }
+                        catch (e) {
+
+                            this._processError(cb, e, name);
+                        }
+                    },
+                    (e) => { this._processError(cb, e, name); },
                 );
             }
             else {
@@ -76,11 +87,11 @@ export class SimpleJsonApiRouter implements dS.IRouter {
         }
         catch (e) {
 
-            this._processError(cb, e);
+            this._processError(cb, e, name);
         }
     }
 
-    private _processError(cb: dS.IRouteApiCallback, e: unknown): void {
+    private _processError(cb: dS.IRouteApiCallback, e: unknown, name: string): void {
 
         if (e instanceof Shared.TelevokeError) {
 
@@ -94,7 +105,8 @@ export class SimpleJsonApiRouter implements dS.IRouter {
             return;
         }
 
-        cb(new Shared.errors.app_error('null'));
+        cb(new Shared.errors.server_internal_error());
+        this.emit('error', new Shared.errors.unprocessable_error({ api: name }, e));
     }
 
     public processLegacyApi(
@@ -118,8 +130,8 @@ export class SimpleJsonApiRouter implements dS.IRouter {
             if (result instanceof Promise) {
 
                 result.then(
-                    (data) => { cb(data); },
-                    (e) => { this._processError(cb, e); },
+                    (data) => { cb(data ?? null); },
+                    (e) => { this._processError(cb, e, name); },
                 );
             }
             else {
@@ -129,7 +141,7 @@ export class SimpleJsonApiRouter implements dS.IRouter {
         }
         catch (e) {
 
-            this._processError(cb, e);
+            this._processError(cb, e, name);
         }
     }
 }

@@ -75,8 +75,10 @@ const errorCtors = {
     ...defineProtocolError('stream_closed'),
     ...defineProtocolError('stream_index_mismatch'),
     ...defineProtocolError('system_busy'),
+    ...defineProtocolError('server_internal_error'),
     ...defineProtocolError('timeout'),
     ...defineProtocolError('unknown'),
+    ...defineProtocolError('unprocessable_error'),
 
     ['app_error']: class AppError extends TelevokeError {
 
