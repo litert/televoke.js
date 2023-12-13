@@ -60,6 +60,7 @@ export class TvServer extends EventEmitter implements dS.IServer, dT.IServer {
                 });
             })
             .on('error', (err) => this.emit('error', err))
+            .on('warning', (err) => this.emit('warning', err, this._channels[id]))
             .on('close', () => { delete this._channels[id]; });
     }
 

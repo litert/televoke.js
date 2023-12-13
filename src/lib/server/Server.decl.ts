@@ -82,6 +82,8 @@ export interface IRouter {
 export interface IServerEvents extends Shared.IDefaultEvents {
 
     channel(channel: IChannel): void;
+
+    warning(error: unknown, channel?: IChannel): void;
 }
 
 export interface IServer extends Shared.IEventListener<IServerEvents> {

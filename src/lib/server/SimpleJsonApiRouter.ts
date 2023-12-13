@@ -65,7 +65,7 @@ export class SimpleJsonApiRouter implements dS.IRouter {
             if (result instanceof Promise) {
 
                 result.then(
-                    (data) => { cb(JSON.stringify(data)); },
+                    (data) => { cb(JSON.stringify(data ?? null)); },
                     (e) => { this._processError(cb, e); },
                 );
             }
@@ -90,7 +90,7 @@ export class SimpleJsonApiRouter implements dS.IRouter {
 
         if (e instanceof Shared.TvErrorResponse) {
 
-            cb(new Shared.errors.app_error(JSON.stringify(e.data)));
+            cb(new Shared.errors.app_error(JSON.stringify(e.data ?? null)));
             return;
         }
 
