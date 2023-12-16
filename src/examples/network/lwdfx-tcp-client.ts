@@ -16,16 +16,16 @@
 
 import * as Tv from '../../lib';
 import * as LwDfx from '../../lib/transporters/lwdfx';
-import { IApis, sleep, testSendingStream, testRecvStream } from './shared';
+import { IApis, sleep, testSendingStream, testRecvStream, getClaOption, holdProcess } from './shared';
 
-setInterval(() => { console.log('Ticking'); }, 1000);
+holdProcess();
 
 (async () => {
 
     const client: Tv.Clients.IClient<IApis> = Tv.Clients.createJsonApiClient<IApis>(
         LwDfx.createTcpConnector({
-            port: parseInt(process.argv[3] ?? '8698'),
-            hostname: process.argv[2] ?? '127.0.0.1',
+            'port': parseInt(getClaOption('port', '8698')),
+            'hostname': getClaOption('hostname', '127.0.0.1'),
         })
     );
 

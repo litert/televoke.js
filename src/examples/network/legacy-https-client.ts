@@ -16,15 +16,15 @@
 
 import * as FS from 'node:fs';
 import * as Tv from '../../lib';
-import { IApis, sleep } from './shared';
+import { IApis, getClaOption, holdProcess, sleep } from './shared';
 
-setInterval(() => { console.log('Ticking'); }, 1000);
+holdProcess();
 
 (async () => {
 
     const client: Tv.Clients.IClient<IApis> = Tv.Clients.createLegacyHttpClient<IApis>({
-        'port': parseInt(process.argv[3] ?? '10443'),
-        'hostname': process.argv[2] ?? '127.0.0.1',
+        'port': parseInt(getClaOption('port', '10443')),
+        'hostname': getClaOption('hostname', '127.0.0.1'),
         'https': true,
         'servername': 'https.litert.org',
         'ca': FS.readFileSync(`${__dirname}/../../debug/pki/ca.pem`),

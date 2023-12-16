@@ -16,16 +16,16 @@
 
 import * as Tv from '../../lib';
 import * as WebSocket from '../../lib/transporters/websocket';
-import { IApis, sleep, testSendingStream, testRecvStream } from './shared';
+import { IApis, sleep, testSendingStream, testRecvStream, getClaOption, holdProcess } from './shared';
 
-setInterval(() => { console.log('Ticking'); }, 1000);
+holdProcess();
 
 (async () => {
 
     const client: Tv.Clients.IClient<IApis> = Tv.Clients.createJsonApiClient<IApis>(
         WebSocket.createWsConnector({
-            port: parseInt(process.argv[3] ?? '8080'),
-            hostname: process.argv[2] ?? '127.0.0.1',
+            'port': parseInt(getClaOption('port', '8080')),
+            'hostname': getClaOption('hostname', '127.0.0.1'),
         })
     );
 

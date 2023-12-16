@@ -15,14 +15,14 @@
 */
 
 import * as Tv from '../../lib';
-import { IApis, sleep } from './shared';
+import { IApis, getClaOption, holdProcess, sleep } from './shared';
 
-setInterval(() => { console.log('Ticking'); }, 1000);
+holdProcess();
 
 (async () => {
 
     const client: Tv.Clients.IClient<IApis> = Tv.Clients.createLegacyHttpClient<IApis>({
-        socketPath: '/tmp/televoke2-http.sock'
+        socketPath: getClaOption('socket-path', '/tmp/televoke2-http.sock'),
     });
 
     client.on('error', (e) => console.error(`[Client] Unexpected error: ${e}`));

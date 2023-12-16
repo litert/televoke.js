@@ -117,3 +117,14 @@ export function sleep(ms: number): Promise<void> {
         setTimeout(resolve, ms);
     });
 }
+
+export function getClaOption(name: string, defaultValue: string): string {
+
+    const ret = process.argv.find(i => i.startsWith(`--${name}=`));
+
+    return ret?.slice(name.length + 3).trim() ?? defaultValue;
+}
+
+export function holdProcess(): void {
+    setInterval(() => { console.log(`[${new Date().toISOString()}]: Process holding`); }, 1000);
+}

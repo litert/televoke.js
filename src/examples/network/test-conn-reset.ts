@@ -15,7 +15,7 @@
 */
 
 import * as Tv from '../../lib';
-import { IApis } from './shared';
+import { IApis, getClaOption } from './shared';
 
 function syncSleep(ms: number): void {
 
@@ -33,8 +33,8 @@ function syncSleep(ms: number): void {
 async function testLegacyHttpDisabledRetry(): Promise<void> {
     
     const client: Tv.Clients.IClient<IApis> = Tv.Clients.createLegacyHttpClient<IApis>({
-        port: parseInt(process.argv[3] ?? '8080'),
-        hostname: process.argv[2] ?? '127.0.0.1',
+        port: parseInt(getClaOption('port', '8080')),
+        hostname: getClaOption('hostname', '127.0.0.1'),
         retryOnConnReset: false,
     });
 
@@ -76,8 +76,8 @@ async function testLegacyHttpDisabledRetry(): Promise<void> {
 async function testLegacyHttpEnabledRetry(): Promise<void> {
     
     const client: Tv.Clients.IClient<IApis> = Tv.Clients.createLegacyHttpClient<IApis>({
-        port: parseInt(process.argv[3] ?? '8080'),
-        hostname: process.argv[2] ?? '127.0.0.1',
+        'port': parseInt(getClaOption('port', '8080')),
+        'hostname': getClaOption('hostname', '127.0.0.1'),
     });
 
     client.on('error', (e) => console.error(`[Client] Unexpected error: ${e}`));

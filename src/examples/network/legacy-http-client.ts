@@ -15,15 +15,15 @@
 */
 
 import * as Tv from '../../lib';
-import { IApis, sleep } from './shared';
+import { IApis, getClaOption, holdProcess, sleep } from './shared';
 
-setInterval(() => { console.log('Ticking'); }, 1000);
+holdProcess();
 
 (async () => {
 
     const client: Tv.Clients.IClient<IApis> = Tv.Clients.createLegacyHttpClient<IApis>({
-        port: parseInt(process.argv[3] ?? '8080'),
-        hostname: process.argv[2] ?? '127.0.0.1',
+        port: parseInt(getClaOption('port', '8080')),
+        hostname: getClaOption('hostname', '127.0.0.1'),
     });
 
     client.on('error', (e) => console.error(`[Client] Unexpected error: ${e}`));

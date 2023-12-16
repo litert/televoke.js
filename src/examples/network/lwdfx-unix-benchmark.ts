@@ -16,7 +16,7 @@
 
 import * as Tv from '../../lib';
 import * as LwDfx from '../../lib/transporters/lwdfx';
-import { IApis } from './shared';
+import { IApis, getClaOption } from './shared';
 
 const cases = new Array(50000).fill(0) as number[];
 
@@ -24,7 +24,7 @@ const cases = new Array(50000).fill(0) as number[];
 
     const client: Tv.Clients.IClient<IApis> = Tv.Clients.createJsonApiClient<IApis>(
         LwDfx.createUnixSocketConnector({
-            path: process.argv[2] ?? '/tmp/televoke2-lwdfx.sock',
+            path: getClaOption('socket-path', '/tmp/televoke2-lwdfx.sock'),
         })
     );
 

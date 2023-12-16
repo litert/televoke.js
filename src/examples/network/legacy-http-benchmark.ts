@@ -15,15 +15,15 @@
 */
 
 import * as Tv from '../../lib';
-import { IApis } from './shared';
+import { IApis, getClaOption } from './shared';
 
 const cases = new Array(10000).fill(0) as number[];
 
 (async () => {
 
     const client: Tv.Clients.IClient<IApis> = Tv.Clients.createLegacyHttpClient<IApis>({
-        port: parseInt(process.argv[3] ?? '8080'),
-        hostname: process.argv[2] ?? '127.0.0.1',
+        port: parseInt(getClaOption('port', '8080')),
+        hostname: getClaOption('hostname', '127.0.0.1'),
     });
 
     client.on('error', (e) => console.error(`[Client] Unexpected error: ${e}`));

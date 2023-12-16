@@ -16,15 +16,15 @@
 
 import * as Tv from '../../lib';
 import * as LwDfx from '../../lib/transporters/lwdfx';
-import { IApis, sleep, testSendingStream, testRecvStream } from './shared';
+import { IApis, sleep, testSendingStream, testRecvStream, getClaOption, holdProcess } from './shared';
 
-setInterval(() => { console.log('Ticking'); }, 1000);
+holdProcess();
 
 (async () => {
 
     const client: Tv.Clients.IClient<IApis> = Tv.Clients.createJsonApiClient<IApis>(
         LwDfx.createUnixSocketConnector({
-            path: process.argv[2] ?? '/tmp/televoke2-lwdfx.sock',
+            path: getClaOption('socket-path', '/tmp/televoke2-lwdfx.sock'),
         })
     );
 

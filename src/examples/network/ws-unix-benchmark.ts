@@ -16,7 +16,7 @@
 
 import * as Tv from '../../lib';
 import * as WebSocket from '../../lib/transporters/websocket';
-import { IApis } from './shared';
+import { IApis, getClaOption } from './shared';
 
 const cases = new Array(50000).fill(0) as number[];
 
@@ -24,7 +24,7 @@ const cases = new Array(50000).fill(0) as number[];
 
     const client: Tv.Clients.IClient<IApis> = Tv.Clients.createJsonApiClient<IApis>(
         WebSocket.createWsConnector({
-            socketPath: '/tmp/televoke2-http.sock'
+            socketPath: getClaOption('socket-path', '/tmp/televoke2-http.sock'),
         })
     );
 

@@ -20,9 +20,11 @@ import * as LwDfx from '../../lib/transporters/lwdfx';
 import * as LegacyHttp from '../../lib/transporters/legacy-http';
 import * as HttpListener from '../../lib/transporters/http-listener';
 import * as WebSocket from '../../lib/transporters/websocket';
-import { testRecvStream, testSendingStream } from './shared';
+import { getClaOption, holdProcess, testRecvStream, testSendingStream } from './shared';
 
 const router = new Tv.Servers.SimpleJsonApiRouter();
+
+const NETWORK_HOSTNAME = getClaOption('listen-hostname', '127.0.0.1');
 
 const server = new Tv.Servers.TvServer(router)
     .on('error', (e) => { console.error(e); });
@@ -100,13 +102,13 @@ router
     });
 
 const lwdfxTcpGateway = LwDfx.createTcpGateway(server, {
-    port: parseInt(process.argv[3] ?? '8698'),
-    hostname: process.argv[2] ?? '127.0.0.1',
+    port: parseInt(getClaOption('lwdfx-tcp-port', '8698')),
+    hostname: NETWORK_HOSTNAME,
 });
 
 const lwdfxTlsGateway = LwDfx.createTlsGateway(server, {
-    port: parseInt(process.argv[3] ?? '9330'),
-    hostname: process.argv[2] ?? '127.0.0.1',
+    port: parseInt(getClaOption('lwdfx-tls-port', '9330')),
+    hostname: NETWORK_HOSTNAME,
     tlsOptions: {
         cert: FS.readFileSync(`${__dirname}/../../debug/pki/newcerts/server-lwdfx1.litert.org.fullchain.pem`),
         key: FS.readFileSync(`${__dirname}/../../debug/pki/private/server-lwdfx1.litert.org.key.pem`),
@@ -114,17 +116,19 @@ const lwdfxTlsGateway = LwDfx.createTlsGateway(server, {
 });
 
 const httpListener = HttpListener.createHttpListener({
-    port: parseInt(process.argv[4] ?? '8080'),
-    hostname: process.argv[2] ?? '127.0.0.1',
+    port: parseInt(getClaOption('http-port', '8080')),
+    hostname: NETWORK_HOSTNAME,
 });
 
+const HTTP_UDS_PATH = getClaOption('http-uds-path', '/tmp/televoke2-http.sock');
+
 const httpUnixListener = HttpListener.createHttpUnixSocketListener({
-    socketPath: '/tmp/televoke2-http.sock'
+    socketPath: HTTP_UDS_PATH
 });
 
 const httpsListener = HttpListener.createHttpsListener({
-    port: parseInt(process.argv[4] ?? '10443'),
-    hostname: process.argv[2] ?? '127.0.0.1',
+    port: parseInt(getClaOption('https-port', '10443')),
+    hostname: NETWORK_HOSTNAME,
     tlsOptions: {
         cert: FS.readFileSync(`${__dirname}/../../debug/pki/newcerts/server-https.litert.org.fullchain.pem`),
         key: FS.readFileSync(`${__dirname}/../../debug/pki/private/server-https.litert.org.key.pem`),
@@ -149,15 +153,33 @@ const legacyHttpsGateway = LegacyHttp.createLegacyHttpGateway(httpsListener, ser
         console.error('HttpsGateway Error:', e);
     });
 
-const wsGateway = WebSocket.createWebsocketGateway(httpListener, server);
+const wsGateway = WebSocket.createWebsocketGateway(httpListener, server, {
+    'timeout': parseInt(getClaOption('ws-timeout', '30000')),
+});
 const wssGateway = WebSocket.createWebsocketGateway(httpsListener, server);
 const wsUnixGateway = WebSocket.createWebsocketGateway(httpUnixListener, server);
 
+const LWDFX_UDS_PATH = getClaOption('lwdfx-uds-path', '/tmp/televoke2-lwdfx.sock');
+
 const lwdfxUnixGateway = LwDfx.createUnixSocketGateway(server, {
-    path: process.argv[6] ?? '/tmp/televoke2-lwdfx.sock',
+    path: LWDFX_UDS_PATH,
 });
 
+holdProcess();
+
 (async () => {
+
+    for (const udsFile of [LWDFX_UDS_PATH, HTTP_UDS_PATH]) {
+
+        try {
+
+            FS.unlinkSync(udsFile);
+        }
+        catch {
+
+            // do nothing.
+        }
+    }
 
     await lwdfxTcpGateway.start();
     await lwdfxTlsGateway.start();

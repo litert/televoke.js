@@ -17,19 +17,19 @@
 import * as FS from 'node:fs';
 import * as Tv from '../../lib';
 import * as LwDfx from '../../lib/transporters/lwdfx';
-import { IApis, sleep, testSendingStream, testRecvStream } from './shared';
+import { IApis, sleep, testSendingStream, testRecvStream, getClaOption, holdProcess } from './shared';
 
-setInterval(() => { console.log('Ticking'); }, 1000);
+holdProcess();
 
 (async () => {
 
     const client: Tv.Clients.IClient<IApis> = Tv.Clients.createJsonApiClient<IApis>(
         LwDfx.createTlsConnector({
-            port: parseInt(process.argv[3] ?? '9330'),
-            hostname: process.argv[2] ?? '127.0.0.1',
-            tlsOptions: {
-                servername: 'lwdfx1.litert.org',
-                ca: FS.readFileSync(`${__dirname}/../../debug/pki/ca.pem`),
+            'port': parseInt(getClaOption('port', '9330')),
+            'hostname': getClaOption('hostname', '127.0.0.1'),
+            'tlsOptions': {
+                'servername': 'lwdfx1.litert.org',
+                'ca': FS.readFileSync(`${__dirname}/../../debug/pki/ca.pem`),
             }
         })
     );
