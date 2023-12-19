@@ -28,7 +28,7 @@ enum EStatus {
     CLOSING,
 }
 
-const INVALID_REQUEST_RESPONSE = Buffer.from('{"rid":"null","body":INVALID REQUEST,"sst":1698886839989,"srt":0,"code":4}');
+const INVALID_REQUEST_RESPONSE = Buffer.from('{"rid":"null","body":"INVALID REQUEST","sst":1698886839989,"srt":0,"code":4}');
 
 function refuseBadRequest(resp: $Http.ServerResponse): void {
 

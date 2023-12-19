@@ -1,5 +1,9 @@
 # Changes Logs
 
+## v0.4.10
+
+- fix(server): fixed error response content for invalid requests.
+
 ## v0.4.8
 
 - fix(client): fixed `ECONNRESET` error when using `http/https` client.
