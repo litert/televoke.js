@@ -27,7 +27,7 @@ const encoder = new v1.TvEncoderV1();
 const INVALID_REQUEST_RESPONSE = Buffer.from(encoder.encodeApiErrorResponse(
     'null',
     Shared.Encodings.v1.EResponseCode.MALFORMED_ARGUMENTS,
-    'INVALID REQUEST',
+    '"INVALID REQUEST"',
     0
 ));
 
@@ -199,7 +199,7 @@ class LegacyHttpGateway extends EventEmitter implements dT.IGateway {
                             this._sendResponse(resp, encoder.encodeApiErrorResponse(
                                 input.rid,
                                 v1.EResponseCode.FAILURE,
-                                result.message,
+                                JSON.stringify(result.message),
                                 recvAt
                             ));
                         }
