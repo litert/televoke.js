@@ -199,7 +199,7 @@ class LegacyHttpGateway extends EventEmitter implements dT.IGateway {
                             this._sendResponse(resp, encoder.encodeApiErrorResponse(
                                 input.rid,
                                 v1.EResponseCode.FAILURE,
-                                JSON.stringify(result.message),
+                                result.message,
                                 recvAt
                             ));
                         }
