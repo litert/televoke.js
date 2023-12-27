@@ -74,6 +74,7 @@ class HttpListener extends AbstractHttpListener {
         }
 
         const gateway = this._gateway;
+        this._gateway = null;
 
         return new Promise<void>((resolve, reject) => {
 
