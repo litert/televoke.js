@@ -128,9 +128,20 @@ class TvLegacyHttpClient extends EventEmitter implements C.IClient<any> {
                 },
             }, (resp) => {
 
+                if (resp.statusCode !== 200) {
+
+                    resp.socket.destroy();
+                    reject(new Shared.errors.invalid_response({
+                        reason: 'invalid_status_code',
+                        statusCode: resp.statusCode
+                    }));
+                    return;
+                }
+
                 if (!resp.headers[HTTP_HEADER_CONTENT_LENGTH]) {
 
-                    reject(new Shared.errors.invalid_response());
+                    resp.socket.destroy();
+                    reject(new Shared.errors.invalid_response({ reason: 'missing_content_length' }));
                     return;
                 }
 
@@ -138,6 +149,7 @@ class TvLegacyHttpClient extends EventEmitter implements C.IClient<any> {
 
                 if (!Number.isSafeInteger(length) || length > v1.MAX_PACKET_SIZE) { // Maximum request packet is 64MB
 
+                    resp.socket.destroy();
                     reject(new Shared.errors.invalid_packet({ reason: 'packet_too_large' }));
                     return;
                 }

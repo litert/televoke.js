@@ -3,6 +3,7 @@ services:
   nginx:
     container_name: televoke-nginx
     image: nginx:alpine
+    network_mode: host
     volumes:
       - ./nginx.conf:/etc/nginx/nginx.conf
     depends_on:
@@ -10,12 +11,14 @@ services:
   server:
     container_name: televoke-server
     image: node:18-alpine
+    network_mode: host
     volumes:
       - ..:/data
     working_dir: /data
     command: ['node', 'examples/network/server.js', '--listen-hostname=0.0.0.0', '--port=8080']
   lwdfx-tcp-client-to-server:
     image: node:18-alpine
+    network_mode: host
     volumes:
       - ..:/data
     depends_on:
@@ -24,6 +27,7 @@ services:
     command: ['node', 'examples/network/lwdfx-tcp-client.js', '--hostname=televoke-server', '--port=8698']
   lwdfx-tcp-client-over-nginx:
     image: node:18-alpine
+    network_mode: host
     volumes:
       - ..:/data
     depends_on:
@@ -32,6 +36,7 @@ services:
     command: ['node', 'examples/network/lwdfx-tcp-client.js', '--hostname=televoke-nginx', '--port=18698']
   legacy-http-client-to-server:
     image: node:18-alpine
+    network_mode: host
     volumes:
       - ..:/data
     depends_on:
@@ -40,6 +45,7 @@ services:
     command: ['node', 'examples/network/legacy-http-client.js', '--hostname=televoke-server', '--port=8080']
   legacy-http-client-over-nginx:
     image: node:18-alpine
+    network_mode: host
     volumes:
       - ..:/data
     depends_on:
@@ -48,6 +54,7 @@ services:
     command: ['node', 'examples/network/legacy-http-client.js', '--hostname=televoke-nginx', '--port=18080']
   ws-client-to-server:
     image: node:18-alpine
+    network_mode: host
     volumes:
       - ..:/data
     depends_on:
@@ -56,6 +63,7 @@ services:
     command: ['node', 'examples/network/ws-client.js', '--hostname=televoke-server', '--port=2095']
   ws-client-over-nginx:
     image: node:18-alpine
+    network_mode: host
     volumes:
       - ..:/data
     depends_on:
