@@ -1,5 +1,9 @@
 # Changes Logs
 
+## v0.4.12
+
+- fix(client): reject when status code is not 200.
+
 ## v0.4.10
 
 - fix(server): fixed error response content for invalid requests.

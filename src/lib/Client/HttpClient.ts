@@ -120,16 +120,24 @@ class HttpClient extends Events.EventEmitter<Events.ICallbackDefinitions> implem
                 timeout: this._timeout
             }, (resp) => {
 
+                if (resp.statusCode !== 200) {
+
+                    resp.destroy();
+                    reject(new E.E_INVALID_RESPONSE({ statusCode: resp.statusCode })); return;
+                }
+
                 if (!resp.headers['content-length']) {
 
-                    reject(new E.E_INVALID_RESPONSE()); return;
+                    resp.destroy();
+                    reject(new E.E_INVALID_RESPONSE({ problem: 'no_content_length' })); return;
                 }
 
                 const length = parseInt(resp.headers['content-length']);
 
                 if (!Number.isSafeInteger(length) || length > G.MAX_PACKET_SIZE) { // Maximum request packet is 64MB
 
-                    reject(new GE.E_PACKET_TOO_LARGE()); return;
+                    resp.destroy();
+                    reject(new GE.E_PACKET_TOO_LARGE({ length })); return;
                 }
 
                 const buf = Buffer.allocUnsafe(length);
@@ -199,7 +207,7 @@ class HttpClient extends Events.EventEmitter<Events.ICallbackDefinitions> implem
             });
 
             req.once('timeout', () => {
-                reject(new E.E_REQUEST_TIMEOUT({
+                req.destroy(new E.E_REQUEST_TIMEOUT({
                     metadata: { api, requestId: rid, time: Date.now(), details: null }
                 }));
             });

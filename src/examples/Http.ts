@@ -18,18 +18,25 @@ import * as $Televoke from '../lib';
 import * as $Http from 'http';
 import * as Timers from 'node:timers/promises';
 
+function getClaOption(name: string, defaultValue: string): string {
+
+    const ret = process.argv.find(i => i.startsWith(`--${name}=`));
+
+    return ret?.slice(name.length + 3).trim() ?? defaultValue;
+}
+
 interface IGreetArguments {
 
     name: string;
 }
 
-const SERVER_PORT = 8899;
+const SERVER_PORT = '8899';
 
 function requestByHttp(method: 'POST' | 'PUT', data: string, headers: Record<string, string>): Promise<string> {
 
     const req = $Http.request({
-        hostname: '127.0.0.1',
-        port: SERVER_PORT,
+        hostname: getClaOption('hostname', '127.0.0.1'),
+        port: parseInt(getClaOption('port', SERVER_PORT)),
         method,
         path: '/',
         headers,
@@ -62,6 +69,8 @@ interface IGa extends $Televoke.IServiceAPIs {
 
     hi(data: IGreetArguments): string;
 
+    debug(text: string): void;
+
     /* eslint-disable @typescript-eslint/naming-convention */
     Hello(data: IGreetArguments): string;
 
@@ -91,8 +100,8 @@ interface IGa extends $Televoke.IServiceAPIs {
     const server = $Televoke.createServer();
 
     const client = $Televoke.createHttpClient<IGa>({
-        host: '127.0.0.1',
-        port: 8899,
+        host: getClaOption('hostname', '127.0.0.1'),
+        port: parseInt(getClaOption('port', SERVER_PORT)),
         ridGenerator: $Televoke.createIncrementRIDGenerator(0)
     });
 
@@ -105,6 +114,7 @@ interface IGa extends $Televoke.IServiceAPIs {
 
     await client.connect();
 
+    console.log(await client.invoke('debug', 'hello'));
     console.log(await client.invoke('hi', {'name': 'Mick'}));
     console.log(await client.call('Hello', {'name': 'Angus'}));
 
@@ -183,4 +193,7 @@ interface IGa extends $Televoke.IServiceAPIs {
 
     await server.close();
 
-})().catch(console.error);
+})().catch((e) => {
+
+    console.error(e)
+});
