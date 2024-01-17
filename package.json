@@ -1,6 +1,6 @@
 {
   "name": "@litert/televoke",
-  "version": "1.0.0-11",
+  "version": "1.0.1",
   "description": "A simple RPC service framework.",
   "main": "lib/index.js",
   "scripts": {

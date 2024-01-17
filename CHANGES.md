@@ -1,6 +1,6 @@
 # Changes Logs
 
-## v1.0.0
+## v1.0.1
 
 - build(project): full refactored.
 - feat(protocol): added televoke/2 protocol supports.
