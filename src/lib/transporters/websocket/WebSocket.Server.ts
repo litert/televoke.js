@@ -38,7 +38,7 @@ class WebSocketGateway extends EventEmitter implements dT.IGateway {
             .setUpgradeProcessor(this._onUpgrade);
 
         this._wsServer = LibWS.createServer({
-            liteFrameMode: true,
+            frameReceiveMode: LibWS.EFrameReceiveMode.LITE,
             timeout,
         });
     }

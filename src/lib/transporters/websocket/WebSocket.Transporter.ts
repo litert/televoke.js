@@ -32,17 +32,17 @@ export class WebSocketTransporter extends EventEmitter implements dT.ITransporte
         this._conn
             .on('end', () => this.emit('end'))
             .on('finish', () => this.emit('finish'))
-            .on('frame', (frame) => {
+            .on('message', (frame) => {
 
                 switch (frame.opcode) {
                     case LibWS.EOpcode.BINARY:
-                        this.emit('frame', (frame as LibWS.ILiteFrame).data);
+                        this.emit('frame', (frame as LibWS.ISimpleMessage).data);
                         break;
                     case LibWS.EOpcode.CLOSE:
                         this.end();
                         break;
                     case LibWS.EOpcode.PING:
-                        this._conn.pong(Buffer.concat((frame as LibWS.ILiteFrame).data));
+                        this._conn.pong(Buffer.concat((frame as LibWS.ISimpleMessage).data));
                         break;
                     default:
                         this.emit('error', new Shared.errors.network_error({ reason: 'invalid_frame' }));

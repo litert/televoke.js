@@ -36,7 +36,7 @@
     "@commitlint/config-conventional": "^18.6.2",
     "@litert/eslint-plugin-rules": "^0.1.6",
     "@litert/lwdfx": "^1.1.3",
-    "@litert/websocket": "^0.1.1",
+    "@litert/websocket": "^0.2.0",
     "@types/mocha": "^10.0.6",
     "@types/node": "^20.11.19",
     "husky": "^9.0.11",

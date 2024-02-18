@@ -65,12 +65,12 @@ class WssConnector implements dT.IConnector {
 
 export function createWsConnector(opts: LibWS.IWsConnectOptions): dT.IConnector {
 
-    opts.liteFrameMode = true;
+    opts.frameReceiveMode = LibWS.EFrameReceiveMode.LITE;
     return new WsConnector(opts);
 }
 
 export function createWssConnector(opts: LibWS.IWssConnectOptions): dT.IConnector {
 
-    opts.liteFrameMode = true;
+    opts.frameReceiveMode = LibWS.EFrameReceiveMode.LITE;
     return new WssConnector(opts);
 }

@@ -1,5 +1,9 @@
 # Changes Logs
 
+## v1.0.2
+
+- build(project): updated dependencies.
+
 ## v1.0.1
 
 - build(project): full refactored.
