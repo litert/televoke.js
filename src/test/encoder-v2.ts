@@ -233,7 +233,7 @@ describe('Encoder/Decoder', () => {
 
             testHeader(
                 packet,
-                W_LEN + dataLen,
+                DW_LEN + dataLen,
                 Tv.Encodings.v2.ECommand.PUSH_MESSAGE,
                 Tv.Encodings.v2.EPacketType.REQUEST,
                 PACKET_SEQ
@@ -247,7 +247,7 @@ describe('Encoder/Decoder', () => {
             it('The bytes[11...N] should be the corrected message data', function() {
 
                 Assert.equal(
-                    packet.subarray(Tv.Encodings.v2.HEADER_SIZE + W_LEN)
+                    packet.subarray(Tv.Encodings.v2.HEADER_SIZE + DW_LEN)
                         .compare(Buffer.concat(chunks)),
                     0
                 );
