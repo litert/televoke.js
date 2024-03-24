@@ -16,4 +16,5 @@
 
 export * from './Client.decl';
 export * from './JsonApiClient.impl';
-export * from './LegacyHttpClient.impl';
+
+export * from '../../lib/transporters/legacy-http/LegacyHttp.Client.Native';

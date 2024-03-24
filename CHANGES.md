@@ -1,5 +1,9 @@
 # Changes Logs
 
+## v1.0.3
+
+- fix(client): Set default maxConnections to `100` for `televoke/1` protocol clients.
+
 ## v1.0.2
 
 - build(project): updated dependencies.

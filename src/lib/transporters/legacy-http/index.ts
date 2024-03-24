@@ -16,3 +16,4 @@
 
 export * from './LegacyHttp.Server';
 export * from './LegacyHttp.Transporter';
+export * from './LegacyHttp.Client.Native';

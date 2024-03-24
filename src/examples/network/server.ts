@@ -117,6 +117,7 @@ const lwdfxTlsGateway = LwDfx.createTlsGateway(server, {
 
 const httpListener = HttpListener.createHttpListener({
     port: parseInt(getClaOption('http-port', '8080')),
+    backlog: 2047,
     hostname: NETWORK_HOSTNAME,
 });
 

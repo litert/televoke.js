@@ -16,14 +16,15 @@
 
 import * as $Http from 'http';
 import * as $Https from 'https';
-import * as C from './Client.decl';
-import * as Shared from '../shared';
-import * as v1 from '../shared/Encodings/v1';
+import type * as C from '../../client/Client.decl';
+import * as Shared from '../../shared';
+import * as v1 from '../../shared/Encodings/v1';
 import { EventEmitter } from 'node:events';
 
 const HTTP_HEADER_CONTENT_LENGTH = 'content-length';
 const HTTP_HEADER_TV_VER = 'x-tv-ver';
 
+const DEFAULT_MAX_CONNECTIONS = 100;
 const DEFAULT_TIMEOUT = 30_000;
 
 const disabledStreamManager = Shared.createDisabledStreamManagerFactory()(null as any);
@@ -261,6 +262,27 @@ interface IHttpClientOptionsBase extends $Https.RequestOptions {
      * @default true
      */
     retryOnConnReset?: boolean;
+
+    /**
+     * The maximum number of connections.
+     *
+     * @default 100
+     */
+    maxConnections?: number;
+
+    /**
+     * The timeout of keep-alive.
+     *
+     * @default 30000
+     */
+    keepAliveTimeout?: number;
+
+    /**
+     * Whether to keep-alive.
+     *
+     * @default true
+     */
+    keepAlive?: boolean;
 }
 
 export interface IHttpClientNetworkOptions extends IHttpClientOptionsBase {
@@ -296,13 +318,13 @@ export function createLegacyHttpClient<TAPIs extends Shared.IObject>(opts: IHttp
         opts.https ? $Https.request : $Http.request,
         opts,
         opts.https ? new $Https.Agent({
-            'maxSockets': 0,
-            'keepAlive': true,
-            'keepAliveMsecs': DEFAULT_TIMEOUT
+            'maxSockets': opts.maxConnections ?? DEFAULT_MAX_CONNECTIONS,
+            'keepAlive': opts.keepAlive ?? true,
+            'keepAliveMsecs': opts.keepAliveTimeout ?? DEFAULT_TIMEOUT
         }) : new $Http.Agent({
-            'maxSockets': 0,
-            'keepAlive': true,
-            'keepAliveMsecs': DEFAULT_TIMEOUT
+            'maxSockets': opts.maxConnections ?? DEFAULT_MAX_CONNECTIONS,
+            'keepAlive': opts.keepAlive ?? true,
+            'keepAliveMsecs': opts.keepAliveTimeout ?? DEFAULT_TIMEOUT
         }),
         opts.retryOnConnReset,
         opts.apiNameWrapper,
