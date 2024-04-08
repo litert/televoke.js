@@ -3,6 +3,7 @@
 ## v1.0.3
 
 - fix(client): Set default maxConnections to `100` for `televoke/1` protocol clients.
+- fix(client): Emit `close` event when connection to server is closed.
 
 ## v1.0.2
 

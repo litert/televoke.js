@@ -57,6 +57,7 @@ class TvJsonApiClient<TApis extends Shared.IObject> extends EventEmitter impleme
             .off('push_message', this._onMessage);
 
         this._channel = null;
+        this.emit('close');
     };
 
     private readonly _onMessage = (msg: Buffer[]): void => {
