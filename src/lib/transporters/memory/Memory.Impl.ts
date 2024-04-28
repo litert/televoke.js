@@ -176,16 +176,11 @@ class MemorySocket extends EventEmitter implements dT.ITransporter, Shared.ITran
         };
     }
 
-    public write(data: string | Buffer | Array<string | Buffer>): void {
+    public write(data: Array<string | Buffer>): void {
 
         if (this._exchange.isEnded(this._endpoint)) {
 
             throw new Shared.errors.network_error({ reason: 'conn_lost' });
-        }
-
-        if (!Array.isArray(data)) {
-
-            data = [data];
         }
 
         for (let i = 0; i < data.length; ++i) {
@@ -204,12 +199,7 @@ class MemorySocket extends EventEmitter implements dT.ITransporter, Shared.ITran
         this._exchange.close();
     }
 
-    public end(lastChunk?: any): void {
-
-        if (lastChunk !== undefined) {
-
-            this.write(lastChunk);
-        }
+    public end(): void {
 
         this._exchange.end(this._endpoint);
     }

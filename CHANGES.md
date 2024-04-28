@@ -1,7 +1,8 @@
 # Changes Logs
 
-## vNext
+## v1.1.0
 
+- fix(protocol): Simplified the ITransporter.end method.
 - fix(decoder): should decode protocol error as special error.
 
 ## v1.0.3

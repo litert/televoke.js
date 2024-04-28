@@ -75,7 +75,7 @@ export class LwDFXTransporter extends EventEmitter implements dT.ITransporter, S
         return this._conn.connected;
     }
 
-    public write(frame: string | Buffer | Array<string | Buffer>): void {
+    public write(frame: Array<string | Buffer>): void {
 
         if (!this._conn.writable) {
 
@@ -85,14 +85,9 @@ export class LwDFXTransporter extends EventEmitter implements dT.ITransporter, S
         this._conn.write(frame);
     }
 
-    public end(frame?: Buffer | string): void {
+    public end(): void {
 
         if (this._conn.writable) {
-
-            if (frame) {
-
-                this._conn.write(frame);
-            }
 
             this._conn.end();
         }

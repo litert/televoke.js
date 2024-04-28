@@ -89,7 +89,7 @@ export interface ITransporter extends Shared.IEventListener<ITransporterEvents> 
      *
      * @param lastFrame The last frame.
      */
-    end(lastFrame?: Buffer | string | Array<Buffer | string>): void;
+    end(): void;
 
     /**
      * Destroy the transporter.
@@ -101,7 +101,7 @@ export interface ITransporter extends Shared.IEventListener<ITransporterEvents> 
      *
      * @param frame The frame to write.
      */
-    write(frame: Buffer | string | Array<Buffer | string>): void;
+    write(frame: Array<Buffer | string>): void;
 }
 
 export interface IConnector {

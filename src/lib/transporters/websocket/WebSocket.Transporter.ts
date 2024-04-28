@@ -93,7 +93,7 @@ export class WebSocketTransporter extends EventEmitter implements dT.ITransporte
         return this._conn.connected;
     }
 
-    public write(frame: string | Buffer | Array<string | Buffer>): void {
+    public write(frame: Array<string | Buffer>): void {
 
         if (!this._conn.writable) {
 
@@ -110,21 +110,9 @@ export class WebSocketTransporter extends EventEmitter implements dT.ITransporte
         }
     }
 
-    public end(frame?: Buffer | string): void {
+    public end(): void {
 
         if (this._conn.writable) {
-
-            if (frame) {
-
-                try {
-
-                    this._conn.writeBinary(frame);
-                }
-                catch (e) {
-
-                    throw new Shared.errors.network_error({ reason: 'conn_lost', cause: e });
-                }
-            }
 
             this._conn.end();
         }
