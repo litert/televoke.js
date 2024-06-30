@@ -184,13 +184,31 @@ class TvErrorResponseDecoder implements IPacketDecoder {
 
         const errorMsg = readString(len, ctx);
 
+        let err: TelevokeError;
+
+        if (errorMsg.startsWith(CS.PROTOCOL_ERROR_NAMESPACE)) {
+
+            const errMsg = errorMsg.slice(CS.PROTOCOL_ERROR_NAMESPACE.length + 1);
+
+            if (errMsg in errors) {
+
+                err = new (errors as any)[errMsg]();
+            }
+            else {
+
+                err = new ProtocolError(errMsg, null);
+            }
+        }
+        else {
+
+            err = new errors.app_error(errorMsg.slice(CS.APP_ERROR_NAMESPACE.length + 1), null);
+        }
+
         return {
             'cmd': ctx.command,
             'typ': CSv2.EPacketType.ERROR_RESPONSE,
             'seq': ctx.seq,
-            'ct': errorMsg.startsWith(CS.PROTOCOL_ERROR_NAMESPACE) ?
-                new ProtocolError(errorMsg.slice(CS.PROTOCOL_ERROR_NAMESPACE.length + 1), null) :
-                new errors.app_error(errorMsg.slice(CS.APP_ERROR_NAMESPACE.length + 1), null),
+            'ct': err,
         } satisfies dEnc2.IErrorResponsePacket;
     }
 }

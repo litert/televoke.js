@@ -1,5 +1,9 @@
 # Changes Logs
 
+## vNext
+
+- fix(decoder): should decode protocol error as special error.
+
 ## v1.0.3
 
 - fix(client): Set default maxConnections to `100` for `televoke/1` protocol clients.
