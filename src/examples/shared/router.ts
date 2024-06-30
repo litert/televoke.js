@@ -62,6 +62,7 @@ export const router: Tv.Servers.IRouter = new Tv.Servers.SimpleJsonApiRouter()
         }
         catch (e) {
             serverLogs.error(`Failed while sending message, error: ${e}`);
+            throw e;
         }
     })
     .registerApi('replyNonValidDataInJson', (ctx): unknown => {

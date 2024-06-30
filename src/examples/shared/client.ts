@@ -209,13 +209,21 @@ export async function doClientTest(
                     }
                     catch (e) {
 
-                        if (connLess && e instanceof Tv.errors.server_internal_error) {
+                        if (connLess && e instanceof Tv.errors.server_internal_error && (e.data as any)?.body?.message) {
 
-                            clientLogs.warning(mkMsg(`Specific command is not implemented by current protocol, skipped`));
-                            break;
+                            switch ((e.data as any)?.body?.message) {
+
+                                case 'cmd_not_impl':
+                                    clientLogs.warning(mkMsg(`Specific command is not implemented by current protocol, skipped`));
+                                    break;
+                                default:
+                                    clientLogs.error(mkMsg(`Unexpected error thrown, error: ${e}`));
+                            }
                         }
+                        else {
 
-                        clientLogs.error(mkMsg(`Unexpected error thrown, error: ${e}`));
+                            clientLogs.error(mkMsg(`Unexpected error thrown, error: ${e}`));
+                        }
                     }
                     break;
                 case 'send_stream': {
@@ -229,15 +237,19 @@ export async function doClientTest(
                     }
                     catch (e) {
 
-                        if (connLess && e instanceof Tv.errors.server_internal_error) {
+                        if (connLess && e instanceof Tv.errors.server_internal_error && (e.data as any)?.body?.message) {
 
-                            clientLogs.warning(mkMsg(`Specific command is not implemented by current protocol, skipped`));
-                            break;
-                        }
+                            switch ((e.data as any)?.body?.message) {
 
-                        if (e instanceof Tv.errors.system_busy) {
-
-                            clientLogs.warning(mkMsg(`Server is busy, skipped`));
+                                case 'cmd_not_impl':
+                                    clientLogs.warning(mkMsg(`Specific command is not implemented by current protocol, skipped: ${e}`));
+                                    break;
+                                case 'system_busy':
+                                    clientLogs.warning(mkMsg(`Server is busy, skipped: ${e}`));
+                                    break;
+                                default:
+                                    clientLogs.error(mkMsg(`Unexpected error thrown, error: ${e}`));
+                            }
                         }
                         else {
 
@@ -259,10 +271,23 @@ export async function doClientTest(
                     }
                     catch (e) {
 
-                        if (connLess && e instanceof Tv.errors.cmd_not_impl) {
+                        if (connLess && e instanceof Tv.errors.server_internal_error && (e.data as any)?.body?.message) {
+
+                            switch ((e.data as any)?.body?.message) {
+
+                                case 'cmd_not_impl':
+                                    clientLogs.warning(mkMsg(`Specific command is not implemented by current protocol, skipped`));
+                                    break;
+                                case 'system_busy':
+                                    clientLogs.warning(mkMsg(`Server is busy, skipped: ${e}`));
+                                    break;
+                                default:
+                                    clientLogs.error(mkMsg(`Unexpected error thrown, error: ${e}`));
+                            }
+                        }
+                        else if (e instanceof Tv.errors.cmd_not_impl) {
 
                             clientLogs.warning(mkMsg(`Specific command is not implemented by current protocol, skipped`));
-                            break;
                         }
                         else {
 

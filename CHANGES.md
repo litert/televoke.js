@@ -3,8 +3,9 @@
 ## v1.1.0
 
 - feat(protocol): added experimental supports for transports between worker thread.
-- fix(protocol): Simplified the ITransporter.end method.
+- fix(protocol): simplified the ITransporter.end method.
 - fix(decoder): should decode protocol error as special error.
+- fix(protocol): put protocol-error code in server_internal_server data.
 
 ## v1.0.3
 

@@ -212,6 +212,19 @@ class LegacyHttpGateway extends EventEmitter implements dT.IGateway {
                                 recvAt
                             ));
                         }
+                        else if (result instanceof Shared.ProtocolError) {
+
+                            this._sendResponse(resp, encoder.encodeApiErrorResponse(
+                                input.rid,
+                                v1.EResponseCode.SYSTEM_ERROR,
+                                JSON.stringify({
+                                    name: result.name,
+                                    message: result.message,
+                                    data: result.data,
+                                }),
+                                recvAt
+                            ));
+                        }
                         else {
 
                             this._sendResponse(resp, encoder.encodeApiErrorResponse(

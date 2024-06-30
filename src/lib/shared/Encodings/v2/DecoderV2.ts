@@ -196,7 +196,7 @@ class TvErrorResponseDecoder implements IPacketDecoder {
             }
             else {
 
-                err = new ProtocolError(errMsg, null);
+                err = new ProtocolError(errMsg, null, null);
             }
         }
         else {

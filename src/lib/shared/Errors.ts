@@ -36,6 +36,7 @@ export class ProtocolError extends TelevokeError {
 
     public constructor(
         message: string,
+        public readonly data: unknown,
         origin: unknown,
     ) {
 
@@ -52,9 +53,9 @@ function defineProtocolError<T extends string>(name: T): Record<T, new (
 
         [name]: class extends ProtocolError {
 
-            public constructor(public readonly data: unknown = null, origin: unknown = null) {
+            public constructor(data: unknown = null, origin: unknown = null) {
 
-                super(name, origin);
+                super(name, data, origin);
             }
         },
     } as any;
