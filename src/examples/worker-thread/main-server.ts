@@ -17,84 +17,11 @@
 import * as Tv from '../../lib';
 import * as NodeWorker from 'node:worker_threads';
 import * as WorkerThread from '../../lib/transporters/worker-thread';
-import { holdProcess, testRecvStream, testSendingStream } from '../network/shared';
-
-const router = new Tv.Servers.SimpleJsonApiRouter();
+import { holdProcess } from '../shared/test-utils';
+import { router } from '../shared/router';
 
 const server = new Tv.Servers.TvServer(router)
     .on('error', (e) => { console.error(e); });
-
-router
-    .registerApi('debug', (ctx, text: string): void => {
-
-        console.log(`[Server] Channel#${ctx.channel.id} invoked debug`);
-        console.log(`[Server] Client says: ${text}`);
-
-        if (Math.random() > 0.5) {
-            console.log('[Server] Sent a message to client');
-            ctx.channel.sendMessage('hello').catch(console.error);
-        }
-    })
-    .registerApi('test_bad_response', (ctx): unknown => {
-
-        console.log(`[Server] Channel#${ctx.channel.id} invoked test_bad_response`);
-
-        return {
-            f: BigInt(123)
-        };
-    })
-    .registerApi('test_bad_response_async', (ctx): Promise<unknown> => {
-
-        console.log(`[Server] Channel#${ctx.channel.id} invoked test_bad_response`);
-
-        return Promise.resolve({
-            f: BigInt(123)
-        });
-    })
-    .registerApi('say', (ctx, text: string): string => {
-
-        return text;
-    })
-    .registerApi('startStream2Server', (ctx): number => {
-
-        console.log(`[Server] Channel#${ctx.channel.id} invoked startStream2Server`);
-        const stream = ctx.channel.streams.create();
-        console.log(`[Server] Opened stream #${stream.id}`);
-
-        testRecvStream(stream, 'Server');
-
-        return stream.id;
-    })
-    .registerApi('serverShouldCloseConn', (ctx): void => {
-
-        console.log(`[Server] Channel#${ctx.channel.id} invoked serverShouldCloseConn`);
-
-        ctx.channel.close();
-    })
-    .registerApi('hi', (ctx, text: string): string => {
-
-        console.log(`[Server] Channel#${ctx.channel.id} invoked hi`);
-
-        return Buffer.from(text).toString('base64url');
-    })
-    .registerApi('shit', (ctx): string => {
-
-        console.log(`[Server] Channel#${ctx.channel.id} invoked shit`);
-
-        if (Math.random() > 0.5) {
-            throw { test: 'this error should be unclear to clients' };
-        }
-        else {
-            throw new Tv.TvErrorResponse({
-                test: 'this error should be visible to clients'
-            });
-        }
-    })
-    .registerApi('startStream2Client', (ctx, streamId: number): void => {
-
-        console.log(`[Server] Channel#${ctx.channel.id} invoked startStream2Client`);
-        testSendingStream(ctx.channel, streamId, 'Server').catch(console.error);
-    });
 
 const wtGateway = WorkerThread.createMainThreadGateway(server);
 

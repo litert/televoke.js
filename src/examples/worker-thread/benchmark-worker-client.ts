@@ -16,7 +16,7 @@
 
 import * as Tv from '../../lib';
 import * as WorkerThread from '../../lib/transporters/worker-thread';
-import { IApis } from '../network/shared';
+import { IApis } from '../shared/decl';
 
 const cases = new Array(50000).fill(0) as number[];
 
@@ -30,7 +30,7 @@ const cases = new Array(50000).fill(0) as number[];
 
     for (let i = 0; i < 10; i++) {
         console.time('[televoke2/worker-thread] 50000 requests');
-        await Promise.all(cases.map(() => client.invoke('say', 'test')));
+        await Promise.all(cases.map(() => client.invoke('echo', 'test')));
         console.timeEnd('[televoke2/worker-thread] 50000 requests');
     }
 

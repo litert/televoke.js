@@ -15,7 +15,9 @@
  */
 
 import * as Tv from '../../lib';
-import { IApis, getClaOption, holdProcess, sleep } from './shared';
+import { doClientTest } from '../shared/client';
+import { getClaOption, holdProcess } from '../shared/test-utils';
+import { IApis } from '../shared/decl';
 
 holdProcess();
 
@@ -25,46 +27,6 @@ holdProcess();
         socketPath: getClaOption('socket-path', '/tmp/televoke2-http.sock'),
     });
 
-    client.on('error', (e) => console.error(`[Client] Unexpected error: ${e}`));
-
-    do {
-
-        await sleep(100);
-
-        try {
-
-            switch (([
-                'debug',
-                'hi',
-                'shit',
-            ] as const)[Math.floor(Math.random() * 3)]) {
-                case 'debug':
-                    console.log('[Client] [Start Invoke] debug');
-                    await client.invoke('debug', new Date() + ': Hello, world!');
-                    console.log('[Client] [End Invoke] debug');
-                    break;
-                case 'shit':
-                    console.log('[Client] [Start Invoke] shit');
-                    try {
-                        await client.invoke('shit');
-                    }
-                    catch (e) {
-                        console.error(e);
-                    }
-                    console.log('[Client] [End Invoke] shit');
-                    break;
-                case 'hi':
-                    console.log('[Client] [Start Invoke] hi');
-                    console.log('Response: ' + await client.invoke('hi', new Date() + ': Hello, world!'));
-                    console.log('[Client] [End Invoke] hi');
-                    break;
-            }
-        }
-        catch (e) {
-
-            console.error('[Client] Error: ', e);
-        }
-    }
-    while (1);
+    doClientTest(client, true);
 
 })().catch(console.error);

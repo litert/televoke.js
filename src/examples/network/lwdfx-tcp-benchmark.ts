@@ -16,7 +16,8 @@
 
 import * as Tv from '../../lib';
 import * as LwDfx from '../../lib/transporters/lwdfx';
-import { IApis, getClaOption } from './shared';
+import { getClaOption } from '../shared/test-utils';
+import { IApis } from '../shared/decl';
 
 const cases = new Array(50000).fill(0) as number[];
 
@@ -33,7 +34,7 @@ const cases = new Array(50000).fill(0) as number[];
 
     for (let i = 0; i < 10; i++) {
         console.time('[televoke2/lwdfx] 50000 requests');
-        await Promise.all(cases.map(() => client.invoke('say', 'test')));
+        await Promise.all(cases.map(() => client.invoke('echo', 'test')));
         console.timeEnd('[televoke2/lwdfx] 50000 requests');
     }
 

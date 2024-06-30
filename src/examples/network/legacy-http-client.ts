@@ -15,7 +15,9 @@
  */
 
 import * as Tv from '../../lib';
-import { IApis, getClaOption, holdProcess, sleep } from './shared';
+import { doClientTest } from '../shared/client';
+import { getClaOption, holdProcess } from '../shared/test-utils';
+import { IApis } from '../shared/decl';
 
 holdProcess();
 
@@ -26,58 +28,6 @@ holdProcess();
         hostname: getClaOption('hostname', '127.0.0.1'),
     });
 
-    client.on('error', (e) => console.error(`[Client] Unexpected error: ${e}`));
-
-    do {
-
-        await sleep(1000);
-
-        try {
-
-            switch (([
-                'debug',
-                'test_bad_response',
-                'test_bad_response_async',
-                'hi',
-                'shit',
-            ] as const)[Math.floor(Math.random() * 5)]) {
-                case 'debug':
-                    console.log('[Client] [Start Invoke] debug');
-                    await client.invoke('debug', new Date() + ': Hello, world!');
-                    console.log('[Client] [End Invoke] debug');
-                    break;
-                case 'test_bad_response':
-                    console.log('[Client] [Start Invoke] test_bad_response');
-                    await client.invoke('test_bad_response');
-                    console.log('[Client] [End Invoke] test_bad_response');
-                    break;
-                case 'test_bad_response_async':
-                    console.log('[Client] [Start Invoke] test_bad_response_async');
-                    await client.invoke('test_bad_response_async');
-                    console.log('[Client] [End Invoke] test_bad_response_async');
-                    break;
-                case 'shit':
-                    console.log('[Client] [Start Invoke] shit');
-                    try {
-                        await client.invoke('shit');
-                    }
-                    catch (e) {
-                        console.error(e);
-                    }
-                    console.log('[Client] [End Invoke] shit');
-                    break;
-                case 'hi':
-                    console.log('[Client] [Start Invoke] hi');
-                    console.log('Response: ' + await client.invoke('hi', new Date() + ': Hello, world!'));
-                    console.log('[Client] [End Invoke] hi');
-                    break;
-            }
-        }
-        catch (e) {
-
-            console.error('[Client] Error: ', e);
-        }
-    }
-    while (1);
+    doClientTest(client, true);
 
 })().catch(console.error);

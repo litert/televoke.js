@@ -20,86 +20,13 @@ import * as LwDfx from '../../lib/transporters/lwdfx';
 import * as LegacyHttp from '../../lib/transporters/legacy-http';
 import * as HttpListener from '../../lib/transporters/http-listener';
 import * as WebSocket from '../../lib/transporters/websocket';
-import { getClaOption, holdProcess, testRecvStream, testSendingStream } from './shared';
-
-const router = new Tv.Servers.SimpleJsonApiRouter();
+import { getClaOption, holdProcess } from '../shared/test-utils';
+import { router } from '../shared/router';
 
 const NETWORK_HOSTNAME = getClaOption('listen-hostname', '127.0.0.1');
 
 const server = new Tv.Servers.TvServer(router)
     .on('error', (e) => { console.error(e); });
-
-router
-    .registerApi('debug', (ctx, text: string): void => {
-
-        console.log(`[Server] Channel#${ctx.channel.id} invoked debug`);
-        console.log(`[Server] Client says: ${text}`);
-
-        if (Math.random() > 0.5) {
-            console.log('[Server] Sent a message to client');
-            ctx.channel.sendMessage('hello').catch(console.error);
-        }
-    })
-    .registerApi('test_bad_response', (ctx): unknown => {
-
-        console.log(`[Server] Channel#${ctx.channel.id} invoked test_bad_response`);
-
-        return {
-            f: BigInt(123)
-        };
-    })
-    .registerApi('test_bad_response_async', (ctx): Promise<unknown> => {
-
-        console.log(`[Server] Channel#${ctx.channel.id} invoked test_bad_response`);
-
-        return Promise.resolve({
-            f: BigInt(123)
-        });
-    })
-    .registerApi('say', (ctx, text: string): string => {
-
-        return text;
-    })
-    .registerApi('startStream2Server', (ctx): number => {
-
-        console.log(`[Server] Channel#${ctx.channel.id} invoked startStream2Server`);
-        const stream = ctx.channel.streams.create();
-        console.log(`[Server] Opened stream #${stream.id}`);
-
-        testRecvStream(stream, 'Server');
-
-        return stream.id;
-    })
-    .registerApi('serverShouldCloseConn', (ctx): void => {
-
-        console.log(`[Server] Channel#${ctx.channel.id} invoked serverShouldCloseConn`);
-
-        ctx.channel.close();
-    })
-    .registerApi('hi', (ctx, text: string): string => {
-
-        console.log(`[Server] Channel#${ctx.channel.id} invoked hi`);
-
-        return Buffer.from(text).toString('base64url');
-    })
-    .registerApi('shit', (ctx): string => {
-
-        console.log(`[Server] Channel#${ctx.channel.id} invoked shit`);
-
-        if (Math.random() > 0.5) {
-            throw { test: 'this error should be unclear to clients' };
-        }
-        else {
-            throw new Tv.TvErrorResponse({
-                test: 'this error should be visible to clients'
-            });
-        }
-    })
-    .registerApi('startStream2Client', (ctx, streamId: number): void => {
-
-        console.log(`[Server] Channel#${ctx.channel.id} invoked startStream2Client`);
-        testSendingStream(ctx.channel, streamId, 'Server').catch(console.error);
-    });
 
 const lwdfxTcpGateway = LwDfx.createTcpGateway(server, {
     port: parseInt(getClaOption('lwdfx-tcp-port', '8698')),

@@ -15,7 +15,8 @@
  */
 
 import * as Tv from '../../lib';
-import { IApis, getClaOption } from './shared';
+import { getClaOption } from '../shared/test-utils';
+import { IApis } from '../shared/decl';
 
 function syncSleep(ms: number): void {
 
@@ -45,7 +46,7 @@ async function testLegacyHttpDisabledRetry(): Promise<void> {
     console.log('- Case: Normal Invoke');
     try {
 
-        await client.invoke('hi', new Date() + ': Hello, world!');
+        await client.invoke('echo', new Date() + ': Hello, world!');
 
         console.info('    PASSED: No exception thrown.');
     }
@@ -61,7 +62,7 @@ async function testLegacyHttpDisabledRetry(): Promise<void> {
 
     try {
 
-        await client.invoke('hi', new Date() + ': Hello, world!');
+        await client.invoke('echo', new Date() + ': Hello, world!');
 
         console.error('    FAILED: No exception thrown.');
     }
@@ -87,7 +88,7 @@ async function testLegacyHttpEnabledRetry(): Promise<void> {
     console.log('- Case: Normal Invoke');
     try {
 
-        await client.invoke('hi', new Date() + ': Hello, world!');
+        await client.invoke('echo', new Date() + ': Hello, world!');
 
         console.info('    PASSED: No exception thrown.');
     }
@@ -103,7 +104,7 @@ async function testLegacyHttpEnabledRetry(): Promise<void> {
 
     try {
 
-        await client.invoke('hi', new Date() + ': Hello, world!');
+        await client.invoke('echo', new Date() + ': Hello, world!');
 
         console.info('    PASSED: No exception thrown.');
     }

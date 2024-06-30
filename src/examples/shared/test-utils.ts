@@ -14,24 +14,21 @@
  * limitations under the License.
  */
 
-import * as Tv from '../../lib';
-import * as WorkerThread from '../../lib/transporters/worker-thread';
-import { router } from '../shared/router';
-import { holdProcess } from '../shared/test-utils';
+export function sleep(ms: number): Promise<void> {
 
-const server = new Tv.Servers.TvServer(router)
-    .on('error', (e) => { console.error(e); });
+    return new Promise((resolve) => {
 
-holdProcess();
+        setTimeout(resolve, ms);
+    });
+}
 
-const wtGateway = WorkerThread.createWorkerThreadGateway(server);
+export function getClaOption(name: string, defaultValue: string): string {
 
-(async () => {
+    const ret = process.argv.find(i => i.startsWith(`--${name}=`));
 
-    await wtGateway.start();
+    return ret?.slice(name.length + 3).trim() ?? defaultValue;
+}
 
-    console.log('Server started.');
-
-})().catch(console.error);
-
-
+export function holdProcess(): void {
+    setInterval(() => { console.log(`[${new Date().toISOString()}]: Process holding`); }, 1000);
+}

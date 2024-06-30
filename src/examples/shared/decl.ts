@@ -14,24 +14,37 @@
  * limitations under the License.
  */
 
-import * as Tv from '../../lib';
-import * as WorkerThread from '../../lib/transporters/worker-thread';
-import { router } from '../shared/router';
-import { holdProcess } from '../shared/test-utils';
+export interface IApis {
 
-const server = new Tv.Servers.TvServer(router)
-    .on('error', (e) => { console.error(e); });
+    closeConnection(): void;
 
-holdProcess();
+    startSendingThroughStream(streamId: number): void;
 
-const wtGateway = WorkerThread.createWorkerThreadGateway(server);
+    createStreamToReceive(): number;
 
-(async () => {
+    replyNonValidDataInJsonAsync(): unknown;
 
-    await wtGateway.start();
+    replyNonValidDataInJson(): unknown;
 
-    console.log('Server started.');
+    sendMeMessageAsync(msg: string): void;
 
-})().catch(console.error);
+    sendMeMessage(msg: string): void;
 
+    replyVoidAsync(msg: string): void;
 
+    replyVoid(msg: string): void;
+
+    echoAsync(text: string): string;
+
+    echo(text: string): string;
+
+    minimalApi(): void;
+
+    minimalApiAsync(): void;
+
+    throwValidError(): void;
+
+    throwInvalidError(): void;
+
+    notFoundApi(): void;
+}

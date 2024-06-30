@@ -16,31 +16,12 @@
 
 import * as Crypto from 'node:crypto';
 import * as Tv from '../../lib';
-
-export interface IApis {
-
-    debug(text: string): void;
-
-    say(text: string): void;
-
-    startStream2Server(): number;
-
-    startStream2Client(streamId: number): void;
-
-    serverShouldCloseConn(): void;
-
-    hi(text: string): string;
-
-    shit(): string;
-
-    test_bad_response(): unknown;
-
-    test_bad_response_async(): unknown;
-}
+import type { IApis } from './decl';
+import { sleep } from './test-utils';
+import { Logger } from './log';
 
 function sumBuffer(d: Buffer, b: number): number {
 
-    // eslint-disable-next-line @typescript-eslint/prefer-for-of
     for (let i = 0; i < d.length; i++) {
 
         b += d[i];
@@ -49,9 +30,12 @@ function sumBuffer(d: Buffer, b: number): number {
     return b;
 }
 
-export function testRecvStream(stream: Tv.IBinaryReadStream, endpoint: 'Client' | 'Server'): void {
+export function testRecvStream(stream: Tv.IBinaryReadStream, logger: Logger): void {
 
     let sum = 0;
+
+    const subject = `Stream #${stream.id}`;
+
     stream.on('data', (chunk) => {
 
         sum = sumBuffer(chunk, sum);
@@ -60,23 +44,31 @@ export function testRecvStream(stream: Tv.IBinaryReadStream, endpoint: 'Client' 
 
         if (stream.readableAborted) {
 
-            console.log(`[${endpoint}] Stream #${stream.id} aborted`);
+            logger.warning(`${subject} aborted`);
         }
         else {
 
-            console.log(`[${endpoint}] Stream #${stream.id} all received, sum = ${sum}`);
+            logger.ok(`${subject} all received, sum = ${sum}`);
         }
 
     }).on('error', (e) => {
 
-        console.error(`[${endpoint}] Stream #${stream.id} error: `, e);
+        if (e instanceof Tv.errors.stream_aborted) {
+            logger.warning(`${subject} aborted`);
+        }
+        else if (e instanceof Tv.errors.timeout) {
+            logger.warning(`${subject} timeout`);
+        }
+        else {
+            logger.error(`${subject} unexpected error: ${e}`);
+        }
     });
 }
 
 export async function testSendingStream(
     ch: Pick<Tv.Clients.IClient<IApis>, 'sendBinaryChunk'>,
     streamId: number,
-    endpoint: 'Client' | 'Server'
+    logger: Logger
 ): Promise<void> {
 
     const buffers = new Array(Math.ceil(Math.random() * 10))
@@ -87,19 +79,21 @@ export async function testSendingStream(
 
     let i = 0;
 
+    const subject = `Stream #${streamId}`;
+
     for (const [idx, p] of buffers.entries()) {
 
         sum = sumBuffer(p, sum);
 
         if (Math.random() > 0.9) {
 
-            console.log(`[${endpoint}] Aborting stream #${streamId} at chunk#${i} of ${p.length} bytes.`);
+            logger.warning(`${subject} aborted at chunk#${i} of ${p.length} bytes.`);
 
             await ch.sendBinaryChunk(streamId, false, null);
             return;
         }
 
-        console.log(`[${endpoint}] Sending chunk#${i++} of ${p.length} bytes to stream #${streamId}`);
+        logger.ok(`Sending chunk#${i++} of ${p.length} bytes to ${subject}`);
         await ch.sendBinaryChunk(streamId, idx, p);
 
         await sleep(Math.ceil(1000 * Math.random()));
@@ -107,24 +101,5 @@ export async function testSendingStream(
 
     await ch.sendBinaryChunk(streamId, buffers.length, null);
 
-    console.log(`[${endpoint}] Stream #${streamId} all sent, sum = ${sum}`);
-}
-
-export function sleep(ms: number): Promise<void> {
-
-    return new Promise((resolve) => {
-
-        setTimeout(resolve, ms);
-    });
-}
-
-export function getClaOption(name: string, defaultValue: string): string {
-
-    const ret = process.argv.find(i => i.startsWith(`--${name}=`));
-
-    return ret?.slice(name.length + 3).trim() ?? defaultValue;
-}
-
-export function holdProcess(): void {
-    setInterval(() => { console.log(`[${new Date().toISOString()}]: Process holding`); }, 1000);
+    logger.ok(`[${subject}] Stream #${streamId} all sent, sum = ${sum}`);
 }

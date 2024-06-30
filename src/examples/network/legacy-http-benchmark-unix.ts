@@ -15,7 +15,8 @@
  */
 
 import * as Tv from '../../lib';
-import { IApis, getClaOption } from './shared';
+import { getClaOption } from '../shared/test-utils';
+import { IApis } from '../shared/decl';
 
 const cases = new Array(10000).fill(0) as number[];
 
@@ -29,7 +30,7 @@ const cases = new Array(10000).fill(0) as number[];
 
     for (let i = 0; i < 10; i++) {
         console.time('[televoke1/http] 10000 requests');
-        await Promise.all(cases.map(() => client.invoke('say', 'test')));
+        await Promise.all(cases.map(() => client.invoke('echo', 'test')));
         console.timeEnd('[televoke1/http] 10000 requests');
     }
 

@@ -7,7 +7,40 @@
         {
             "type": "node",
             "request": "launch",
-            "name": "[Televoke] Network: Start Server",
+            "name": "[Televoke] Example: Memory",
+            "program": "${workspaceFolder}/src/examples/memory.ts",
+            "sourceMaps": true,
+            "cwd": "${workspaceFolder}",
+            "outFiles": [
+                "${workspaceFolder}/**/*.js",
+            ]
+        },
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "[Televoke] Example: Thread Worker - Server on Main Thread",
+            "program": "${workspaceFolder}/src/examples/worker-thread/main-server.ts",
+            "sourceMaps": true,
+            "cwd": "${workspaceFolder}",
+            "outFiles": [
+                "${workspaceFolder}/**/*.js",
+            ]
+        },
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "[Televoke] Example: Thread Worker - Server on Worker Thread",
+            "program": "${workspaceFolder}/src/examples/worker-thread/main-client.ts",
+            "sourceMaps": true,
+            "cwd": "${workspaceFolder}",
+            "outFiles": [
+                "${workspaceFolder}/**/*.js",
+            ]
+        },
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "[Televoke] Example: Network - Start Server",
             "program": "${workspaceFolder}/src/examples/network/server.ts",
             "sourceMaps": true,
             "cwd": "${workspaceFolder}",
@@ -18,7 +51,7 @@
         {
             "type": "node",
             "request": "launch",
-            "name": "[Televoke] Network: Start Legacy Http Client",
+            "name": "[Televoke] Example: Network - Start Legacy Http Client (TCP)",
             "program": "${workspaceFolder}/src/examples/network/legacy-http-client.ts",
             "sourceMaps": true,
             "cwd": "${workspaceFolder}",
@@ -29,7 +62,62 @@
         {
             "type": "node",
             "request": "launch",
-            "name": "[Televoke] Network: Start WebSocket Client",
+            "name": "[Televoke] Example: Network - Start Legacy Http Client (Unix Socket)",
+            "program": "${workspaceFolder}/src/examples/network/legacy-http-unix-client.ts",
+            "sourceMaps": true,
+            "cwd": "${workspaceFolder}",
+            "outFiles": [
+                "${workspaceFolder}/**/*.js",
+            ]
+        },
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "[Televoke] Example: Network - Start Legacy Http Client (TLS)",
+            "program": "${workspaceFolder}/src/examples/network/legacy-http-client.ts",
+            "sourceMaps": true,
+            "cwd": "${workspaceFolder}",
+            "outFiles": [
+                "${workspaceFolder}/**/*.js",
+            ]
+        },
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "[Televoke] Example: Network - Start LwDFX Client (TCP)",
+            "program": "${workspaceFolder}/src/examples/network/lwdfx-tcp-client.ts",
+            "sourceMaps": true,
+            "cwd": "${workspaceFolder}",
+            "outFiles": [
+                "${workspaceFolder}/**/*.js",
+            ]
+        },
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "[Televoke] Example: Network - Start LwDFX Client (Unix Socket)",
+            "program": "${workspaceFolder}/src/examples/network/lwdfx-unix-client.ts",
+            "sourceMaps": true,
+            "cwd": "${workspaceFolder}",
+            "outFiles": [
+                "${workspaceFolder}/**/*.js",
+            ]
+        },
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "[Televoke] Example: Network - Start LwDFX Client (TLS)",
+            "program": "${workspaceFolder}/src/examples/network/lwdfx-tls-client.ts",
+            "sourceMaps": true,
+            "cwd": "${workspaceFolder}",
+            "outFiles": [
+                "${workspaceFolder}/**/*.js",
+            ]
+        },
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "[Televoke] Example: Network - Start WebSocket Client (TCP)",
             "program": "${workspaceFolder}/src/examples/network/ws-client.ts",
             "sourceMaps": true,
             "cwd": "${workspaceFolder}",
@@ -40,13 +128,24 @@
         {
             "type": "node",
             "request": "launch",
-            "name": "[Televoke] Demo: HTTPS Client",
-            "program": "${workspaceFolder}/src/examples/Https.ts",
+            "name": "[Televoke] Example: Network - Start WebSocket Client (Unix Socket)",
+            "program": "${workspaceFolder}/src/examples/network/ws-unix-client.ts",
             "sourceMaps": true,
             "cwd": "${workspaceFolder}",
             "outFiles": [
                 "${workspaceFolder}/**/*.js",
             ]
-        }
+        },
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "[Televoke] Example: Network - Start WebSocket Client (TLS)",
+            "program": "${workspaceFolder}/src/examples/network/wss-client.ts",
+            "sourceMaps": true,
+            "cwd": "${workspaceFolder}",
+            "outFiles": [
+                "${workspaceFolder}/**/*.js",
+            ]
+        },
     ]
 }

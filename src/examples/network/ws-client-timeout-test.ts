@@ -16,7 +16,8 @@
 
 import * as Tv from '../../lib';
 import * as WebSocket from '../../lib/transporters/websocket';
-import { IApis, getClaOption, holdProcess, sleep, } from './shared';
+import { getClaOption, holdProcess, sleep } from '../shared/test-utils';
+import { IApis } from '../shared/decl';
 
 holdProcess();
 
@@ -47,7 +48,7 @@ holdProcess();
 
     while (1) {
 
-        await client.invoke('debug', new Date() + ': Hello, world!');
+        await client.invoke('echo', new Date() + ': Hello, world!');
 
         await sleep(invokeInterval);
     }

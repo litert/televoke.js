@@ -16,7 +16,9 @@
 
 import * as Tv from '../../lib';
 import * as WorkerThread from '../../lib/transporters/worker-thread';
-import { IApis, sleep, testSendingStream, testRecvStream, holdProcess } from '../network/shared';
+import { holdProcess } from '../shared/test-utils';
+import { doClientTest } from '../shared/client';
+import { IApis } from '../shared/decl';
 
 holdProcess();
 
@@ -26,100 +28,6 @@ holdProcess();
         WorkerThread.connectToMainThreadServer()
     );
 
-    client.on('error', (e) => console.error(`[Client] Unexpected error: ${e}`));
-
-    client.on('push_message', (msg) => {
-
-        console.log('[Client] Message from server: ' + Buffer.concat(msg).toString());
-    });
-
-    do {
-
-        await sleep(100);
-
-        try {
-
-            switch (([
-                'debug',
-                'test_bad_response',
-                'test_bad_response_async',
-                'startStream2Server',
-                'startStream2Client',
-                'hi',
-                'shit',
-            ] as const)[Math.floor(Math.random() * 7)]) {
-                case 'debug':
-                    console.log('[Client] [Start Invoke] debug');
-                    await client.invoke('debug', new Date() + ': Hello, world!');
-                    console.log('[Client] [End Invoke] debug');
-                    break;
-                case 'test_bad_response':
-                    console.log('[Client] [Start Invoke] test_bad_response');
-                    await client.invoke('test_bad_response');
-                    console.log('[Client] [End Invoke] test_bad_response');
-                    break;
-                case 'test_bad_response_async':
-                    console.log('[Client] [Start Invoke] test_bad_response_async');
-                    await client.invoke('test_bad_response_async');
-                    console.log('[Client] [End Invoke] test_bad_response_async');
-                    break;
-                case 'shit':
-                    console.log('[Client] [Start Invoke] shit');
-                    try {
-                        await client.invoke('shit');
-                    }
-                    catch (e) {
-                        console.error(e);
-                    }
-                    console.log('[Client] [End Invoke] shit');
-                    break;
-                case 'hi':
-                    console.log('[Client] [Start Invoke] hi');
-                    console.log('Response: ' + await client.invoke('hi', new Date() + ': Hello, world!'));
-                    console.log('[Client] [End Invoke] hi');
-                    break;
-                case 'startStream2Server': {
-                    console.log('[Client] [Start Invoke] startStream2Server');
-                    const streamId = await client.invoke('startStream2Server');
-                    console.log('[Client] [End Invoke] startStream2Server');
-                    setImmediate(() => {
-                        testSendingStream(client, streamId, 'Client').catch(console.error);
-                    });
-                    break;
-                }
-                case 'startStream2Client': {
-                    console.log('[Client] [Start Invoke] startStream2Client');
-                    if (!client.transporter?.writable) {
-
-                        await client.connect();
-                    }
-                    const stream = client.streams.create();
-                    testRecvStream(stream, 'Client');
-                    await client.invoke('startStream2Client', stream.id);
-                    console.log('[Client] [End Invoke] startStream2Client');
-                    break;
-                }
-                // case 'serverShouldCloseConn':
-                //     if (Math.random() < 0.1) {
-                //         console.log('[Client] [Start Invoke] serverShouldCloseConn');
-                //         await client.invoke('serverShouldCloseConn');
-                //         console.log('[Client] [End Invoke] serverShouldCloseConn');
-                //     }
-                //     break;
-                // case 'clientShouldCloseConn': {
-                //     if (Math.random() < 0.1) {
-                //         console.log('[Client] clientShouldCloseConn');
-                //         client.close();
-                //     }
-                //     break;
-                // }
-            }
-        }
-        catch (e) {
-
-            console.error('[Client] Error: ', e);
-        }
-    }
-    while (1);
+    doClientTest(client);
 
 })().catch(console.error);
