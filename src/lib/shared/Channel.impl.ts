@@ -88,6 +88,10 @@ export abstract class AbstractTvChannelV2
 
     public ended: boolean = false;
 
+    public get isMessageSupported(): boolean { return true; }
+
+    public get isBinaryStreamSupported(): boolean { return this.streams.maxStreams !== 0; }
+
     public get finished(): boolean {
 
         return this._state === EState.ENDED;

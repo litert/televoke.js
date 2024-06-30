@@ -304,6 +304,16 @@ export interface IChannelBase<TEvents extends IDefaultEvents> extends IEventList
     readonly transporter: ITransporter;
 
     /**
+     * Whether this channel supports server-push messages or not.
+     */
+    readonly isMessageSupported: boolean;
+
+    /**
+     * Whether this channel supports binary streams or not.
+     */
+    readonly isBinaryStreamSupported: boolean;
+
+    /**
      * Tells whether this channel is closed on the local side or not.
      */
     readonly finished: boolean;

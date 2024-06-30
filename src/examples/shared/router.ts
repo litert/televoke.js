@@ -51,6 +51,11 @@ export const router: Tv.Servers.IRouter = new Tv.Servers.SimpleJsonApiRouter()
 
         serverLogs.ok(`Channel#${ctx.channel.id} invoked sendMeMessage with message: ${msg}`);
 
+        if (!ctx.channel.isMessageSupported) {
+
+            throw new Tv.errors.cmd_not_impl();
+        }
+
         ctx.channel.sendMessage(msg).catch(e => serverLogs.error(`Failed while sending message, error: ${e}`));
     })
     .registerApi('sendMeMessageAsync', async (ctx, msg: string): Promise<void> => {

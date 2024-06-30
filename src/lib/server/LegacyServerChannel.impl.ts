@@ -32,6 +32,10 @@ export class TvLegacyServerChannelV1 extends EventEmitter implements Shared.ICha
 
     public get writable(): boolean { return false; }
 
+    public get isMessageSupported(): boolean { return false; }
+
+    public get isBinaryStreamSupported(): boolean { return false; }
+
     public get id(): number { return 0; }
 
     public get timeout(): number { return 30_000; }
