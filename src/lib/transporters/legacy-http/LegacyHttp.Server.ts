@@ -57,10 +57,28 @@ export interface IHttpGatewayOptions {
     backlog?: number;
 }
 
+export interface IRegisterListenerOptions {
+
+    onErrorCallback: (e: Error) => void;
+
+    onRequestCallback: (req: Http.IncomingMessage, resp: Http.ServerResponse) => void;
+}
+
+export interface IRegisterListenerResult {
+
+    stop?: () => void | Promise<void>;
+
+    start?: () => void | Promise<void>;
+
+    readonly running: boolean;
+}
+
 class LegacyHttpGateway extends EventEmitter implements dT.IGateway {
 
+    private readonly _listener: IRegisterListenerResult;
+
     public constructor(
-        private readonly _listener: Listener.IHttpListener,
+        registerListener: (opts: IRegisterListenerOptions) => IRegisterListenerResult,
         private readonly _server: dT.IServer,
     ) {
 
@@ -71,9 +89,10 @@ class LegacyHttpGateway extends EventEmitter implements dT.IGateway {
             throw new TypeError('Legacy HTTP gateway only supports JSON encoding');
         }
 
-        this._listener
-            .on('error', (e) => this.emit('error', e))
-            .setLegacyApiProcessor(this._onRequest);
+        this._listener = registerListener({
+            onErrorCallback: (e) => this.emit('error', e),
+            onRequestCallback: this._onRequest,
+        });
     }
 
     private _sendResponse(resp: Http.ServerResponse, data: string): void {
@@ -269,7 +288,7 @@ class LegacyHttpGateway extends EventEmitter implements dT.IGateway {
             return;
         }
 
-        await this._listener.start();
+        await this._listener.start?.();
     }
 
     public async stop(): Promise<void> {
@@ -279,14 +298,43 @@ class LegacyHttpGateway extends EventEmitter implements dT.IGateway {
             return Promise.resolve();
         }
 
-        await this._listener.stop();
+        await this._listener.stop?.();
     }
 }
 
+/**
+ * Create a legacy HTTP gateway, binding to a built-in simple HTTP server.
+ *
+ * > When using built-in HTTP server, the api will ignore headers, path and query string in the URL.
+ *
+ * @param listener  The built-in HTTP listener to bind to.
+ * @param server    The server to process the requests.
+ */
 export function createLegacyHttpGateway(
     listener: Listener.IHttpListener,
     server: dT.IServer
 ): dT.IGateway {
 
-    return new LegacyHttpGateway(listener, server);
+    return new LegacyHttpGateway((o) => {
+        listener.on('error', o.onErrorCallback);
+        listener.setLegacyApiProcessor(o.onRequestCallback);
+        return listener;
+    }, server);
+}
+
+/**
+ * Create a legacy HTTP gateway, binding to a custom HTTP server.
+ *
+ * > When using a custom HTTP server, it's able to preprocess the request before passing to the server, like
+ * > authentication, rate limiting, etc.
+ *
+ * @param registerListener  The function to register the listener to the custom HTTP server.
+ * @param server            The server to process the requests.
+ */
+export function createCustomLegacyHttpGateway(
+    registerListener: (opts: IRegisterListenerOptions) => IRegisterListenerResult,
+    server: dT.IServer
+): dT.IGateway {
+
+    return new LegacyHttpGateway(registerListener, server);
 }

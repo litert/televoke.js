@@ -15,6 +15,7 @@
  */
 
 import * as FS from 'node:fs';
+import * as NodeHttp from 'node:http';
 import * as Tv from '../../lib';
 import * as LwDfx from '../../lib/transporters/lwdfx';
 import * as LegacyHttp from '../../lib/transporters/legacy-http';
@@ -81,6 +82,40 @@ const legacyHttpsGateway = LegacyHttp.createLegacyHttpGateway(httpsListener, ser
         console.error('HttpsGateway Error:', e);
     });
 
+const CUSTOM_HTTP_PORT = 25856;
+
+const legacyHttpsGatewayCustom = LegacyHttp.createCustomLegacyHttpGateway((o) => {
+
+    const httpServer = NodeHttp.createServer((req, res) => {
+
+        if (req.url !== '/hello/api') {
+
+            res.writeHead(404);
+            res.end();
+            return;
+        }
+
+        if (req.headers['x-tv-test'] !== 'hello-world') {
+
+            res.writeHead(403);
+            res.end();
+            return;
+        }
+
+        o.onRequestCallback(req, res);
+    });
+
+    httpServer.on('error', o.onErrorCallback);
+
+    httpServer.listen(CUSTOM_HTTP_PORT);
+
+    return { running: true };
+}, server)
+    .on('error', (e) => {
+
+        console.error('Custom HttpsGateway Error:', e);
+    });
+
 const wsGateway = WebSocket.createWebsocketGateway(httpListener, server, {
     'timeout': parseInt(getClaOption('ws-timeout', '30000')),
 });
@@ -112,10 +147,11 @@ holdProcess();
     await lwdfxTcpGateway.start();
     await lwdfxTlsGateway.start();
     await lwdfxUnixGateway.start();
-
+    
     await legacyHttpGateway.start();
     await legacyHttpsGateway.start();
     await legacyHttpUnixGateway.start();
+    await legacyHttpsGatewayCustom.start();
 
     await wsGateway.start();
     await wssGateway.start();

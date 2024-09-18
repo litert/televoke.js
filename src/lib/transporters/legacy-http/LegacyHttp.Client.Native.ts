@@ -29,7 +29,18 @@ const DEFAULT_TIMEOUT = 30_000;
 
 const disabledStreamManager = Shared.createDisabledStreamManagerFactory()(null as any);
 
-class TvLegacyHttpClient extends EventEmitter implements C.IClient<any> {
+export interface ILegacyHttpClient<T extends Shared.IObject> extends C.IClient<T> {
+
+    /**
+     * Setup the headers for the every HTTP request.
+     *
+     * @param newHeaders    The new headers to set.
+     * @param append        Whether to append the new headers to existing headers, or replace all headers. [Default: true]
+     */
+    setHeaders(newHeaders: $Http.OutgoingHttpHeaders, append?: boolean): void;
+}
+
+class TvLegacyHttpClient extends EventEmitter implements ILegacyHttpClient<any> {
 
     public onError!: any;
 
@@ -42,6 +53,8 @@ class TvLegacyHttpClient extends EventEmitter implements C.IClient<any> {
     ) {
 
         super();
+
+        this._opts.headers ??= {};
     }
 
     public get timeout(): number {
@@ -61,6 +74,18 @@ class TvLegacyHttpClient extends EventEmitter implements C.IClient<any> {
     public readonly finished: boolean = false;
 
     public readonly transporter = null;
+
+    public setHeaders(newHeaders: $Http.OutgoingHttpHeaders, append: boolean = true): void {
+
+        if (append) {
+
+            Object.assign(this._opts.headers!, newHeaders);
+        }
+        else {
+
+            this._opts.headers = newHeaders;
+        }
+    }
 
     public sendBinaryChunk(): Promise<void> {
 
@@ -312,7 +337,9 @@ export interface IHttpClientUnixSocketOptions extends IHttpClientOptionsBase {
 
 export type IHttpClientOptions = IHttpClientNetworkOptions | IHttpClientUnixSocketOptions;
 
-export function createLegacyHttpClient<TAPIs extends Shared.IObject>(opts: IHttpClientOptions): C.IClient<TAPIs> {
+export function createLegacyHttpClient<TAPIs extends Shared.IObject>(
+    opts: IHttpClientOptions,
+): ILegacyHttpClient<TAPIs> {
 
     return new TvLegacyHttpClient(
         opts.https ? $Https.request : $Http.request,

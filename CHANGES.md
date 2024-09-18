@@ -1,5 +1,10 @@
 # Changes Logs
 
+## v1.2.0
+
+- feat(protocol): allow use custom HTTP listener [v1].
+- feat(protocol): allow update HTTP headers for clients [v1].
+
 ## v1.1.0
 
 - feat(protocol): added experimental supports for transports between worker thread.
