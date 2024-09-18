@@ -15,13 +15,28 @@
  */
 
 import * as LibWS from '@litert/websocket';
+import type * as NodeHttp from 'node:http';
 import * as dWS from './WebSocket.decl';
 import type * as dT from '../Transporter.decl';
 import { WebSocketTransporter } from './WebSocket.Transporter';
 
-class WsConnector implements dT.IConnector {
+class WsConnector implements IWsConnector {
 
-    public constructor(private readonly _opts: LibWS.IWsConnectOptions) {}
+    public constructor(private readonly _opts: LibWS.IWsConnectOptions) {
+        this._opts.headers ??= {};
+    }
+
+    public setHeaders(newHeaders: NodeHttp.OutgoingHttpHeaders, append: boolean = true): void {
+
+        if (append) {
+
+            Object.assign(this._opts.headers!, newHeaders);
+        }
+        else {
+
+            this._opts.headers = newHeaders;
+        }
+    }
 
     public async connect(): Promise<dT.ITransporter> {
 
@@ -41,9 +56,23 @@ class WsConnector implements dT.IConnector {
     }
 }
 
-class WssConnector implements dT.IConnector {
+class WssConnector implements IWsConnector {
 
-    public constructor(private readonly _opts: LibWS.IWssConnectOptions) {}
+    public constructor(private readonly _opts: LibWS.IWssConnectOptions) {
+        this._opts.headers ??= {};
+    }
+
+    public setHeaders(newHeaders: NodeHttp.OutgoingHttpHeaders, append: boolean = true): void {
+
+        if (append) {
+
+            Object.assign(this._opts.headers!, newHeaders);
+        }
+        else {
+
+            this._opts.headers = newHeaders;
+        }
+    }
 
     public async connect(): Promise<dT.ITransporter> {
 
@@ -63,13 +92,24 @@ class WssConnector implements dT.IConnector {
     }
 }
 
-export function createWsConnector(opts: LibWS.IWsConnectOptions): dT.IConnector {
+export interface IWsConnector extends dT.IConnector {
+
+    /**
+     * Setup the custom headers for websocket negotiation on each connection.
+     *
+     * @param newHeaders    The new headers to set.
+     * @param append        Whether to append the new headers to existing headers, or replace all headers. [Default: true]
+     */
+    setHeaders(newHeaders: NodeHttp.OutgoingHttpHeaders, append?: boolean): void;
+}
+
+export function createWsConnector(opts: LibWS.IWsConnectOptions): IWsConnector {
 
     opts.frameReceiveMode = LibWS.EFrameReceiveMode.LITE;
     return new WsConnector(opts);
 }
 
-export function createWssConnector(opts: LibWS.IWssConnectOptions): dT.IConnector {
+export function createWssConnector(opts: LibWS.IWssConnectOptions): IWsConnector {
 
     opts.frameReceiveMode = LibWS.EFrameReceiveMode.LITE;
     return new WssConnector(opts);

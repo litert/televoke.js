@@ -84,7 +84,7 @@ const legacyHttpsGateway = LegacyHttp.createLegacyHttpGateway(httpsListener, ser
 
 const CUSTOM_HTTP_PORT = 25856;
 
-const legacyHttpsGatewayCustom = LegacyHttp.createCustomLegacyHttpGateway((o) => {
+const legacyHttpGatewayCustom = LegacyHttp.createCustomLegacyHttpGateway((o) => {
 
     const httpServer = NodeHttp.createServer((req, res) => {
 
@@ -110,6 +110,45 @@ const legacyHttpsGatewayCustom = LegacyHttp.createCustomLegacyHttpGateway((o) =>
     httpServer.listen(CUSTOM_HTTP_PORT);
 
     return { running: true };
+}, server)
+    .on('error', (e) => {
+
+        console.error('Custom HttpsGateway Error:', e);
+    });
+
+const CUSTOM_WS_PORT = 25858;
+
+const wsGatewayCustom = WebSocket.createCustomWebsocketGateway((o) => {
+
+    const httpServer = NodeHttp.createServer((req, res) => {
+
+        res.writeHead(404);
+        res.end();
+        return;
+    })
+        .on('upgrade', (req, socket, head) => {
+
+            if (req.url !== '/hello/ws') {
+
+                socket.end();
+                return;
+            }
+    
+            if (req.headers['x-tv-test'] !== 'hello-world') {
+    
+                socket.end();
+                return;
+            }
+
+            o.onUpgradeCallback(req, socket, head);
+        });
+
+    httpServer.on('error', o.onErrorCallback);
+
+    httpServer.listen(CUSTOM_WS_PORT);
+
+    return { running: true };
+
 }, server)
     .on('error', (e) => {
 
@@ -151,10 +190,11 @@ holdProcess();
     await legacyHttpGateway.start();
     await legacyHttpsGateway.start();
     await legacyHttpUnixGateway.start();
-    await legacyHttpsGatewayCustom.start();
-
+    await legacyHttpGatewayCustom.start();
+    
     await wsGateway.start();
     await wssGateway.start();
+    await wsGatewayCustom.start();
     await wsUnixGateway.start();
 
     console.log('Server started.');

@@ -15,27 +15,47 @@
  */
 
 import * as LibWS from '@litert/websocket';
+import type * as NodeHttp from 'node:http';
 import * as dWS from './WebSocket.decl';
 import type * as Listener from '../http-listener';
 import type * as dT from '../Transporter.decl';
 import { EventEmitter } from 'node:events';
 import { WebSocketTransporter } from './WebSocket.Transporter';
 
+export interface IRegisterListenerOptions {
+
+    onErrorCallback: (e: Error) => void;
+
+    onUpgradeCallback: (req: NodeHttp.IncomingMessage, socket: NodeJS.Socket, head: Buffer) => void;
+}
+
+export interface IRegisterListenerResult {
+
+    stop?: () => void | Promise<void>;
+
+    start?: () => void | Promise<void>;
+
+    readonly running: boolean;
+}
+
 class WebSocketGateway extends EventEmitter implements dT.IGateway {
 
     private readonly _wsServer: LibWS.IServer;
 
+    private readonly _listener: IRegisterListenerResult;
+
     public constructor(
-        private readonly _listener: Listener.IHttpListener,
+        registerListener: (opts: IRegisterListenerOptions) => IRegisterListenerResult,
         private readonly _server: dT.IServer,
         timeout?: number,
     ) {
 
         super();
 
-        this._listener
-            .on('error', (e) => this.emit('error', e))
-            .setUpgradeProcessor(this._onUpgrade);
+        this._listener = registerListener({
+            'onErrorCallback': (e) => this.emit('error', e),
+            'onUpgradeCallback': this._onUpgrade,
+        });
 
         this._wsServer = LibWS.createServer({
             frameReceiveMode: LibWS.EFrameReceiveMode.LITE,
@@ -91,7 +111,7 @@ class WebSocketGateway extends EventEmitter implements dT.IGateway {
             return;
         }
 
-        await this._listener.start();
+        await this._listener.start?.();
     }
 
     public async stop(): Promise<void> {
@@ -101,7 +121,7 @@ class WebSocketGateway extends EventEmitter implements dT.IGateway {
             return;
         }
 
-        await this._listener.stop();
+        await this._listener.stop?.();
     }
 }
 
@@ -118,7 +138,9 @@ export interface IWebSocketGatewayOptions {
 }
 
 /**
- * Create a WebSocket gateway.
+ * Create a WebSocket gateway, binding to a simple built-in HTTP(S) listener.
+ *
+ * > When using built-in HTTP server, the api will ignore other headers, path and query string in the URL.
  *
  * @param listener      The HTTP(S) listener object.
  * @param server        The televoke server object.
@@ -129,5 +151,29 @@ export function createWebsocketGateway(
     options: IWebSocketGatewayOptions = {}
 ): dT.IGateway {
 
-    return new WebSocketGateway(listener, server, options.timeout);
+    return new WebSocketGateway((o) => {
+
+        listener.on('error', o.onErrorCallback);
+        listener.setUpgradeProcessor(o.onUpgradeCallback);
+
+        return listener;
+
+    }, server, options.timeout);
+}
+
+/**
+ * Create a WebSocket gateway, binding to a custom HTTP server.
+ *
+ * > When using a custom HTTP server, it's able to preprocess the request before passing to the server, like
+ * > authentication, rate limiting, custom routing, etc.
+ *
+ * @param registerListener  The function to register the listener to the custom HTTP server.
+ * @param server            The server to process the requests.
+ */
+export function createCustomWebsocketGateway(
+    registerListener: (opts: IRegisterListenerOptions) => IRegisterListenerResult,
+    server: dT.IServer
+): dT.IGateway {
+
+    return new WebSocketGateway(registerListener, server);
 }

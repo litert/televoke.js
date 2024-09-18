@@ -2,8 +2,10 @@
 
 ## v1.2.0
 
-- feat(protocol): allow use custom HTTP listener [v1].
-- feat(protocol): allow update HTTP headers for clients [v1].
+- feat(protocol): allow use custom HTTP listener [televoke/v1].
+- feat(protocol): allow use custom HTTP listener for WebSocket [televoke/v2].
+- feat(protocol): allow update HTTP headers for clients [televoke/v1].
+- feat(protocol): allow update HTTP headers for clients for WebSocket [televoke/v2].
 
 ## v1.1.0
 
