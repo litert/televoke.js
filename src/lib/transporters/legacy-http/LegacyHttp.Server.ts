@@ -176,7 +176,7 @@ class LegacyHttpGateway extends EventEmitter implements dT.IGateway {
 
                 let input: any;
 
-                if (offset !== length || buf[0] !== 123 || buf[offset - 1] !== 125) {
+                if (offset !== length) {
 
                     refuseBadRequest(resp);
                     return;

@@ -6,6 +6,7 @@
 - feat(protocol): allow use custom HTTP listener for WebSocket [televoke/v2].
 - feat(protocol): allow update HTTP headers for clients [televoke/v1].
 - feat(protocol): allow update HTTP headers for clients for WebSocket [televoke/v2].
+- fix(protocol): fixed incorrect brace-pair detection of request body [televoke/1].
 
 ## v1.1.0
 
