@@ -67,7 +67,6 @@ const DEFAULT_REFUSE_STATUS_CODE = 400;
  */
 export const DEFAULT_LEGACY_HTTP_API_PROCESSOR: ILegacyHttpApiProcessor = function(_req, resp): void {
 
-    // eslint-disable-next-line @typescript-eslint/naming-convention
     resp.writeHead(DEFAULT_REFUSE_STATUS_CODE, {
         'Content-Type': 'text/plain',
         'Content-Length': DEFAULT_REFUSE_PAYLOAD.byteLength,

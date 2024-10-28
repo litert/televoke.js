@@ -257,11 +257,9 @@ class TvLegacyHttpClient extends EventEmitter implements ILegacyHttpClient<any> 
         return Promise.resolve();
     }
 
-    public close(): Promise<void> {
+    public close(): void {
 
         this._agent.destroy();
-
-        return Promise.resolve();
     }
 }
 

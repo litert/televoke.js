@@ -20,7 +20,7 @@ export type IFn<TArgs extends any[], TRet> = (...args: TArgs) => TRet;
 
 export type IVoidFn<TArgs extends any[]> = IFn<TArgs, void>;
 
-// eslint-disable-next-line @typescript-eslint/ban-types, @typescript-eslint/consistent-type-definitions
+// eslint-disable-next-line @typescript-eslint/consistent-type-definitions, @typescript-eslint/no-restricted-types
 export type IObject = {};
 
 export type IfIsFn<T, TTrue = T, TFalse = never> = T extends IFn<any[], any> ? TTrue : TFalse;
