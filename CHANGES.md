@@ -1,5 +1,9 @@
 # Changes Logs
 
+## v0.4.13
+
+- fix(server): remove braces-quick-check for the request body.
+
 ## v0.4.12
 
 - fix(client): reject when status code is not 200.

@@ -1,5 +1,5 @@
 /**
- * Copyright 2023 Angus.Fenying <fenying@litert.org>
+ * Copyright 2024 Angus.Fenying <fenying@litert.org>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -107,7 +107,7 @@ class HttpGateway implements C.IGateway {
 
             let input: any;
 
-            if (offset !== length || buf[0] !== 123 || buf[offset - 1] !== 125) {
+            if (offset !== length) {
 
                 refuseBadRequest(resp);
                 return;
