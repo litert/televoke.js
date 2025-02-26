@@ -2,6 +2,7 @@
 
 ## v1.2.0
 
+- fix(protocol): the built-in HTTP listener should not listen `upgrade` event by default.
 - feat(protocol): allow use custom HTTP listener [televoke/v1].
 - feat(protocol): allow use custom HTTP listener for WebSocket [televoke/v2].
 - feat(protocol): allow update HTTP headers for clients [televoke/v1].

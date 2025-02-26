@@ -45,13 +45,21 @@ class HttpUnixSocketListener extends AbstractHttpListener {
             }).on('listening', () => {
 
                 gateway.removeAllListeners('error');
+
                 this._gateway = gateway;
+
                 if (this.port === 0) {
 
                     this.port = (gateway.address() as $Net.AddressInfo).port;
                 }
+
                 gateway.on('error', (e) => this.emit('error', e));
-                gateway.on('upgrade', this._upgradeProcessor);
+
+                if (this._upgradeProcessor !== null) {
+
+                    gateway.on('upgrade', this._upgradeProcessor);
+                }
+
                 resolve();
             });
         });

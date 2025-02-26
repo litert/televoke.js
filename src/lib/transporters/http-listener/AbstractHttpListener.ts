@@ -24,7 +24,7 @@ export abstract class AbstractHttpListener extends EventEmitter implements dH.IH
 
     public port: number = 0;
 
-    protected _upgradeProcessor: dH.IUpgradeProcessor = dH.DEFAULT_UPGRADE_PROCESSOR;
+    protected _upgradeProcessor: dH.IUpgradeProcessor | null = null;
 
     protected _apiProcessor: dH.ILegacyHttpApiProcessor = dH.DEFAULT_LEGACY_HTTP_API_PROCESSOR;
 
@@ -39,11 +39,19 @@ export abstract class AbstractHttpListener extends EventEmitter implements dH.IH
 
     public setUpgradeProcessor(processor: dH.IUpgradeProcessor | null): void {
 
-        this._upgradeProcessor = processor ?? dH.DEFAULT_UPGRADE_PROCESSOR;
+        this._upgradeProcessor = processor;
 
-        this._gateway
-            ?.removeAllListeners('upgrade')
-            .addListener('upgrade', this._upgradeProcessor);
+        if (!this._gateway) {
+
+            return;
+        }
+
+        this._gateway.removeAllListeners('upgrade');
+
+        if (this._upgradeProcessor !== null) {
+
+            this._gateway.addListener('upgrade', this._upgradeProcessor);
+        }
     }
 
     public get running(): boolean {

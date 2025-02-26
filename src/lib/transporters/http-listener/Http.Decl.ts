@@ -75,31 +75,6 @@ export const DEFAULT_LEGACY_HTTP_API_PROCESSOR: ILegacyHttpApiProcessor = functi
     resp.end(DEFAULT_REFUSE_PAYLOAD);
 };
 
-/**
- * The default upgrade processor, it will destroy the socket.
- */
-export const DEFAULT_UPGRADE_PROCESSOR: IUpgradeProcessor = function(req): void {
-
-    const socket = req.socket;
-
-    const header: Http.OutgoingHttpHeaders = {
-        'Content-Type': 'text/plain',
-        'Content-Length': DEFAULT_REFUSE_PAYLOAD.byteLength,
-    };
-
-    socket.write([
-        `HTTP/1.1 ${DEFAULT_REFUSE_STATUS_CODE}`,
-        ...Object.entries(header).map(([k, v]) => `${k}: ${v as string}`),
-        ''
-    ].join('\r\n'));
-
-    socket.write(DEFAULT_REFUSE_PAYLOAD);
-
-    socket.write('\r\n');
-
-    socket.end();
-};
-
 export interface IHttpListenerOptions {
 
     /**

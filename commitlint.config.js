@@ -24,6 +24,6 @@ module.exports = {
         ]],
         'scope-empty': [2, 'never'],
         'subject-min-length': [2, 'always', 5],
-        'subject-max-length': [2, 'always', 50],
+        'subject-max-length': [2, 'always', 100],
     }
 };
