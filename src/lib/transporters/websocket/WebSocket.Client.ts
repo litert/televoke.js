@@ -97,6 +97,11 @@ export interface IWsConnector extends dT.IConnector {
     /**
      * Setup the custom headers for websocket negotiation on each connection.
      *
+     * **WARNING:**
+     * **In browser environment, the Websocket class cannot send custom headers.**
+     * **Considering the compatibility, custom headers in Websocket protocol are not recommended to use.**
+     * ***Don't use this feature unless you don't care about the compatibility in browser environment.***
+     *
      * @param newHeaders    The new headers to set.
      * @param append        Whether to append the new headers to existing headers, or replace all headers. [Default: true]
      */
