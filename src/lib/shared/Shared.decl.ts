@@ -1,5 +1,5 @@
 /**
- * Copyright 2024 Angus.Fenying <fenying@litert.org>
+ * Copyright 2025 Angus.Fenying <fenying@litert.org>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,7 +20,7 @@ export type IFn<TArgs extends any[], TRet> = (...args: TArgs) => TRet;
 
 export type IVoidFn<TArgs extends any[]> = IFn<TArgs, void>;
 
-// eslint-disable-next-line @typescript-eslint/ban-types, @typescript-eslint/consistent-type-definitions
+// eslint-disable-next-line @typescript-eslint/no-restricted-types, @typescript-eslint/consistent-type-definitions
 export type IObject = {};
 
 export type IfIsFn<T, TTrue = T, TFalse = never> = T extends IFn<any[], any> ? TTrue : TFalse;
@@ -372,5 +372,5 @@ export interface IChannelBase<TEvents extends IDefaultEvents> extends IEventList
     /**
      * Close the channel.
      */
-    close(): void;
+    close(): void | Promise<void>;
 }
