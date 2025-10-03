@@ -41,6 +41,7 @@ export interface ILegacyHttpClient<T extends Shared.IObject> extends C.IClient<T
     setHeaders(newHeaders: $Http.OutgoingHttpHeaders, append?: boolean): void;
 }
 
+const H_HDR_VAL_JSON_MIME = 'application/json';
 class TvLegacyHttpClient extends EventEmitter implements ILegacyHttpClient<any> {
 
     public onError!: any;
@@ -104,6 +105,25 @@ class TvLegacyHttpClient extends EventEmitter implements ILegacyHttpClient<any> 
     }
 
     public async invoke(api: any, ...args: any[]): Promise<any> {
+
+        try {
+
+            return await this._invoke(api, ...args);
+        }
+        catch (e) {
+
+            if (this._retryOnConnReset && (e as any)?.code === 'ECONNRESET') {
+
+                return this._invoke(api, ...args);
+            }
+            else {
+
+                throw e;
+            }
+        }
+    }
+
+    public async callApi(api: any, args: any[]): Promise<any> {
 
         try {
 

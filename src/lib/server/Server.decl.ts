@@ -35,9 +35,28 @@ export interface IRequestContext {
      * The channel which the request comes from.
      */
     readonly channel: IChannel;
+
+    /**
+     * The extension binary chunks carried by the request.
+     *
+     * @optional only the client implemented `televoke/2.1` will send this field, if necessary.
+     */
+    readonly requestBinaryChunks?: Buffer[][];
+
+    /**
+     * The extension binary chunks should be replied to the client.
+     *
+     * If the field is set, the client could receive the binary chunks in the reply.
+     *
+     * @optional only the client implemented `televoke/2.1` could recognize this field, and the old implementation will ignore this field.
+     */
+    replyBinaryChunks?: Array<Buffer[] | Buffer>;
 }
 
-export type IRouteApiCallback = (response: string | Buffer | Array<string | Buffer> | Shared.TelevokeError) => void;
+export type IRouteApiCallback = (
+    response: string | Buffer | Array<string | Buffer> | Shared.TelevokeError,
+    replyBinaryChunks?: Array<Buffer[] | Buffer>
+) => void;
 
 export type IRouteLegacyApiCallback = (response: unknown | Shared.TvErrorResponse | Shared.TelevokeError) => void;
 
@@ -53,12 +72,14 @@ export interface IRouter extends Shared.IEventListener<Shared.IDefaultEvents> {
      *
      * @param cb        The callback function of processing result.
      * @param name      The API name.
+     * @param argsEnc   The encoding of the API arguments.
      * @param args      The API arguments.
      * @param context   The request context.
      */
     processApi(
         cb: IRouteApiCallback,
         name: string,
+        argsEnc: number,
         args: Buffer[],
         context: IRequestContext
     ): void;

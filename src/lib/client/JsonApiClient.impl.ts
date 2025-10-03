@@ -16,6 +16,7 @@
 
 import * as Shared from '../shared';
 import type * as dC from './Client.decl';
+import * as cC from './Client.Constants';
 import type * as dT from '../transporters';
 import { EventEmitter } from 'node:events';
 import { AbstractTvChannelV2, encoder } from '../shared/Channel.impl';
@@ -144,9 +145,55 @@ class TvJsonApiClient<TApis extends Shared.IObject> extends EventEmitter impleme
 
         try {
 
-            const resp = await (await this._getChannel()).apiCall(name as string, JSON.stringify(args));
+            const resp = await (await this._getChannel()).apiCall(
+                name as string,
+                JSON.stringify(args),
+                cC.EArgsEncodings.JSON,
+            );
 
-            return buffer2json(resp);
+            return buffer2json(resp.body);
+        }
+        catch (e) {
+
+            if (e instanceof Shared.errors.app_error) {
+
+                let info: unknown;
+
+                try {
+
+                    info = JSON.parse(e.message);
+                }
+                catch {
+
+                    throw e;
+                }
+
+                throw new Shared.TvErrorResponse(info);
+            }
+
+            throw e;
+        }
+    }
+
+    public async callApi(
+        name: unknown,
+        args: any[],
+        opts?: dC.IApiCallOptions
+    ): Promise<any> {
+
+        try {
+
+            const resp = await (await this._getChannel()).apiCall(
+                name as string,
+                JSON.stringify(args),
+                cC.EArgsEncodings.JSON,
+                opts?.binChunks,
+            );
+
+            return {
+                result: buffer2json(resp.body),
+                binChunks: resp.binChunks,
+            } satisfies dC.IApiCallResult<any>;
         }
         catch (e) {
 
@@ -205,8 +252,10 @@ class TvClientChannel extends AbstractTvChannelV2 {
 
     public apiCall(
         name: string,
-        argsBody: Buffer | string | Buffer[],
-    ): Promise<Buffer[]> {
+        argsBody: v2.IEncBinItem,
+        argsEncoding: number,
+        extBinaryChunks?: Array<Buffer | string | Array<Buffer | string>>,
+    ): Promise<{ body: Buffer[]; binChunks?: Buffer[][]; }> {
 
         if (!this.writable) {
 
@@ -221,9 +270,11 @@ class TvClientChannel extends AbstractTvChannelV2 {
             'seq': seq,
             'ct': {
                 'name': name,
-                'body': typeof argsBody === 'string' ? Buffer.from(argsBody) : argsBody
+                'body': argsBody,
+                'bodyEnc': argsEncoding,
+                'binChunks': extBinaryChunks,
             }
-        } satisfies v2.IApiRequestPacket));
+        } satisfies v2.IApiRequestPacketEncoding));
 
         return new Promise((resolve, reject) => {
 
@@ -235,7 +286,7 @@ class TvClientChannel extends AbstractTvChannelV2 {
                     return;
                 }
 
-                resolve(resp.ct as Buffer[]);
+                resolve(resp.ct as v2.IApiReplyPacketDecoded['ct']);
             });
         });
     }

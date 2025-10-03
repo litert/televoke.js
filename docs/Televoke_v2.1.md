@@ -1,4 +1,4 @@
-# Televoke RPC Specification V2.0
+# Televoke RPC Specification V2.1
 
 ## Overview
 
@@ -7,6 +7,34 @@ The Televoke protocol describes a united form RPC protocol. It supports function
 The Televoke v2 protocol is an application layer protocol, it must be based on a chunk-transporting protocol, such as Http, [LwDFXv1](https://github.com/litert/lwdfx.js), WebSocket, etc.
 
 > When using Televoke v2 over `LwDFXv1` or `WebSocket`, the ALP identity is `televoke2`.
+
+## News
+
+> Compared to Televoke v2.0, the Televoke v2.1 has the following changes:
+
+- `API_CALL` command
+
+    Introduced `extension` part in the `API_CALL` command request packet, to support the new features in the future.
+
+    In this edition, the `extension` part contains the following features:
+
+    - Argument Encoding
+
+        A field named `args_encoding` is added in the header of `extension` part of the `API_CALL` command request packet, which is an unsigned 32-bit integer. It is used to specify the encoding type of the arguments. The default value is `0`, which means `JSON`.
+
+        With this feature, the client could implement a custom encoding for the arguments, and the server would be able to decode the arguments with the corresponding encoding.
+
+    - Binary Chunks
+
+        A field named `binary_chunk_qty` is added in the header of `extension` header part of the `API_CALL` command request packet, which is an unsigned 32-bit integer. When it is larger than `0`, it means that the request packet contains binary chunks immediately after the `extension` header part. Every binary chunk is a variable-length binary chunk.
+
+        With this feature, the client could send multiple binary chunks in the request body, to solve the problem of sending binary data when the arguments encoding is JSON.
+
+## Compatibility
+
+The Televoke v2.1 protocol is completely compatible with the Televoke v2.0 protocol. All features introduced in the Televoke v2.1 protocol are optional to the Televoke v2.0 implementation.
+
+For best compatibility, the implementation of Televoke v2.x protocol must always read/write the data exactly as the protocol specification, skipping the optional new fields added in the new version.
 
 ## Terminology
 
@@ -195,12 +223,35 @@ typedef struct {
 
 } var_binary32_t;
 
+typedef struct {
+
+    uint32_t                dwHeaderLength;
+
+    uint32_t                dwArgsEncoding;
+
+    uint32_t                dwBinaryChunkQty;
+
+    uint8_t                 aTailingHeader[];
+
+} tv2p1_api_req_ext_header_t;
+
+typedef struct {
+
+    tv2p1_api_req_ext_header_t  header;
+
+    var_binary32_t               sBinaryChunkList[];
+
+} tv21_api_call_ext_t;
+
 struct Tv2ApiInvokeCommandRequestPacket {
 
     struct Tv2PacketHeader  header;
 
     var_string_t            sApiName;
+
     var_binary32_t          aArguments;
+
+    tv21_api_call_ext_t     tv21ext;
 };
 ```
 
@@ -214,14 +265,62 @@ Here are the explanations of the fields:
 
     The arguments of the API. It is a variable-length binary chunk.
 
+- `tv21ext`
+
+    This is an extension part added in the Televoke v2.1 protocol. It is optional for the Televoke v2.0 protocol implementation. When decoding the `tv21ext` part, **must consider the possibility that the `tv21ext` part may not present in the request packet.**
+
+    The extension part contains two parts:
+
+    - `tv21ext.header` Extension Header
+
+        This is a variable-length binary chunk contains multiple fields.
+        
+        - `tv21ext.header.dwHeaderLength`
+
+            The first 4 bytes is a 32-bit unsigned integer, which is the length of the extension header. For every new field introduced in the future must be added to the end of the extension header.
+
+        - `tv21ext.header.dwArgsEncoding`
+
+            The encoding type of the arguments. It is a 32-bit unsigned integer. The default value is `0`, which means `JSON`.
+
+        - `tv21ext.header.dwBinaryChunkQty`
+
+            Televoke/2.1 introduced the binary chunks in the `API_CALL` request packet. The `API_CALL` command request packet could contain multiple binary chunks in the body, and the `dwBinaryChunkQty` field is used to indicate the number of binary chunks in the request packet.
+
+        After decoding the known fields, there may be some new added fields in the future, for the compatibilities, **the decoder must skip the rest of the unrecognizable bytes at the end of the extension header**.
+
+    - `tv21ext.sBinaryChunkList`
+
+        The `sBinaryChunkList` is an array of binary chunks, each chunk is a `var_binary32_t` type data. The `tv21ext.header.dwBinaryChunkQty` field indicates the number of binary chunks in the array.
+
 #### Response Packet
 
 ```c
+typedef struct {
+
+    uint32_t                dwHeaderLength;
+
+    uint32_t                dwBinaryChunkQty;
+
+    uint8_t                 aTailingHeader[];
+
+} tv2p1_api_resp_ext_header_t;
+
+typedef struct {
+
+    tv2p1_api_resp_ext_header_t  header;
+
+    var_binary32_t               sBinaryChunkList[];
+
+} tv21_api_call_ext_t;
+
 struct Tv2ApiInvokeCommandResponsePacket {
 
-    struct Tv2PacketHeader  header;
+    struct Tv2PacketHeader          header;
 
-    var_binary32_t            aResult;
+    var_binary32_t                  aResult;
+
+    tv2p1_api_resp_ext_header_t     tv21ext;
 };
 ```
 
@@ -230,6 +329,28 @@ Here are the explanations of the fields:
 - `sResult`
 
     The result of the API. It is a variable-length binary chunk.
+
+- `tv21ext`
+
+    This is an extension part added in the Televoke v2.1 protocol. It is optional for the Televoke v2.0 protocol implementation. When decoding the `tv21ext` part, **must consider the possibility that the `tv21ext` part may not present in the response packet.**
+
+    The extension part contains two parts:
+
+    - `tv21ext.header` Extension Header
+
+        - `tv21ext.header.dwHeaderLength`
+
+            The first 4 bytes is a 32-bit unsigned integer, which is the length of the extension header. For every new field introduced in the future must be added to the end of the extension header.
+
+        - `tv21ext.header.dwBinaryChunkQty`
+
+            Televoke/2.1 introduced the binary chunks in the `API_CALL` response packet. The `API_CALL` command response packet could contain multiple binary chunks in the body, and the `dwBinaryChunkQty` field is used to indicate the number of binary chunks in the response packet.
+
+        After decoding the known fields, there may be some new added fields in the future, for the compatibilities, **the decoder must skip the rest of the unrecognizable bytes at the end of the extension header**.
+
+    - `tv21ext.sBinaryChunkList`
+
+        The `sBinaryChunkList` is an array of binary chunks, each chunk is a `var_binary32_t` type data. The `tv21ext.header.dwBinaryChunkQty` field indicates the number of binary chunks in the array.
 
 ### Command: Push Message
 

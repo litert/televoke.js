@@ -2,6 +2,18 @@
 
 ## v1.3.0
 
+- feat(protocol): Added supports of the features introduced in `televoke/2.1` protocol, including:
+
+    - Specify arguments encoding
+
+        Instead of using the default encoding `JSON`, now you can implement your custom client with a custom encoding,
+        by specifying the `argsEncoding` field in the extension part of `API_CALL` command request.
+
+    - Extended Binary chunks
+
+        Now even with JSON, it's possible to send binary data in the request body, by passing the binary data in the
+        `extBinaryChunks` field. And it's allowed to pass multiple binary chunks per request.
+
 - fix(client): The legacy HTTP client does not send `content-type` header.
 
 ## v1.2.0

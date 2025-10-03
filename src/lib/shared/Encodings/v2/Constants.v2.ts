@@ -28,4 +28,23 @@ export enum EPacketType {
     ERROR_RESPONSE = 0x02,
 }
 
+export const JSON_API_ARGS_ENCODING = 0x00; // JSON encoding
+export const DEFAULT_API_ARGS_ENCODING = JSON_API_ARGS_ENCODING;
+
 export const HEADER_SIZE = 8;
+
+export const API_CALL_REQ_EXT_HEADER_SIZE = 12;
+export const API_CALL_RESP_EXT_HEADER_SIZE = 8;
+
+export enum EApiCallReqExtHeaderFieldOffset {
+
+    LENGTH = 0,
+    BODY_ENC = 4,
+    BIN_CHUNK_QTY = 8
+}
+
+export enum EApiCallRespExtHeaderFieldOffset {
+
+    LENGTH = 0,
+    BIN_CHUNK_QTY = 4
+}

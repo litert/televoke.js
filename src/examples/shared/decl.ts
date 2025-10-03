@@ -18,6 +18,8 @@ export interface IApis {
 
     closeConnection(): void;
 
+    testExtBinChunks(args: { name: string; }): { v: number; };
+
     startSendingThroughStream(streamId: number): void;
 
     createStreamToReceive(): number;

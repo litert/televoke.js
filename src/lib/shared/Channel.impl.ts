@@ -1,3 +1,4 @@
+/* eslint-disable max-lines */
 /**
  * Copyright 2025 Angus.Fenying <fenying@litert.org>
  *
@@ -26,10 +27,15 @@ export interface IChannelEvents extends Shared.IDefaultEvents {
     close(): void;
 
     ['api_call'](
-        callback: (response: v2.IDataChunkField | E.TelevokeError | E.TvErrorResponse) => void,
+        callback: (
+            result: string | Buffer | Array<string | Buffer> | E.TelevokeError | E.TvErrorResponse,
+            binChunks?: Array<Buffer | Buffer[]>,
+        ) => void,
         name: string,
         args: Buffer[],
         sequence: number,
+        argsEncoding: number,
+        extBinChunks?: Buffer[][],
     ): void;
 
     ['push_message'](
@@ -290,7 +296,7 @@ export abstract class AbstractTvChannelV2
         request.callback(packet);
     }
 
-    private _reply(packet: v2.ICommandPacket): void {
+    private _reply<T extends v2.ICommandPacket = v2.ICommandPacket>(packet: T): void {
 
         try {
 
@@ -403,30 +409,44 @@ export abstract class AbstractTvChannelV2
 
                 this.emit(
                     'api_call',
-                    once((response: v2.IDataChunkField | E.TelevokeError) => {
+                    once((response: v2.IEncBinItem | E.TelevokeError, binChunks?: v2.IEncBinItem[]) => {
 
                         this._recvRequests--;
 
-                        this._reply({
-                            'cmd': v2.ECommand.API_CALL,
-                            'typ': response instanceof E.TelevokeError ?
-                                v2.EPacketType.ERROR_RESPONSE :
-                                v2.EPacketType.SUCCESS_RESPONSE,
-                            'seq': packet.seq,
-                            'ct': response,
-                        });
+                        if (response instanceof E.TelevokeError) {
+
+                            this._reply<v2.IErrorReplyPacket>({
+                                'cmd': v2.ECommand.API_CALL,
+                                'typ': v2.EPacketType.ERROR_RESPONSE,
+                                'seq': packet.seq,
+                                'ct': response,
+                            });
+                        }
+                        else {
+                            this._reply<v2.IApiReplyPacketEncoding>({
+                                'cmd': v2.ECommand.API_CALL,
+                                'typ': v2.EPacketType.SUCCESS_RESPONSE,
+                                'seq': packet.seq,
+                                'ct': {
+                                    'body': response,
+                                    binChunks,
+                                },
+                            });
+                        }
                         this._tryClean();
                     }),
-                    (packet as v2.IApiRequestPacket).ct.name,
-                    (packet as v2.IApiRequestPacket).ct.body,
-                    packet.seq
+                    (packet as v2.IApiRequestPacketDecoded).ct.name,
+                    (packet as v2.IApiRequestPacketDecoded).ct.body,
+                    packet.seq,
+                    (packet as v2.IApiRequestPacketDecoded).ct.bodyEnc,
+                    (packet as v2.IApiRequestPacketDecoded).ct.binChunks,
                 );
 
                 break;
 
             case v2.ECommand.BINARY_CHUNK: {
 
-                const stream = this.streams.get((packet as v2.IBinaryChunkRequestPacket).ct.streamId)!;
+                const stream = this.streams.get((packet as v2.IBinaryChunkRequestPacketEncoding).ct.streamId)!;
 
                 if (!stream) {
 
@@ -435,16 +455,16 @@ export abstract class AbstractTvChannelV2
                         'typ': v2.EPacketType.ERROR_RESPONSE,
                         'seq': packet.seq,
                         'ct': new E.errors.stream_not_found({
-                            'sid': (packet as v2.IBinaryChunkRequestPacket).ct.streamId,
+                            'sid': (packet as v2.IBinaryChunkRequestPacketEncoding).ct.streamId,
                             'chId': this.id,
                         }),
                     });
                     break;
                 }
 
-                const chunkSegments = (packet as v2.IBinaryChunkRequestPacket).ct.body as Buffer[];
+                const chunkSegments = (packet as v2.IBinaryChunkRequestPacketEncoding).ct.body as Buffer[];
 
-                const chunkIndex = (packet as v2.IBinaryChunkRequestPacket).ct.index;
+                const chunkIndex = (packet as v2.IBinaryChunkRequestPacketEncoding).ct.index;
 
                 if (chunkIndex === 0xFFFFFFFF) {
 
@@ -457,7 +477,7 @@ export abstract class AbstractTvChannelV2
                         'typ': v2.EPacketType.ERROR_RESPONSE,
                         'seq': packet.seq,
                         'ct': new E.errors.stream_index_mismatch({
-                            'sid': (packet as v2.IBinaryChunkRequestPacket).ct.streamId,
+                            'sid': (packet as v2.IBinaryChunkRequestPacketEncoding).ct.streamId,
                             'chId': this.id,
                         }),
                     });
@@ -541,7 +561,7 @@ export abstract class AbstractTvChannelV2
             'typ': v2.EPacketType.REQUEST,
             'seq': seq,
             'ct': message,
-        } satisfies v2.IPingRequestPacket));
+        } satisfies v2.IPingRequestPacketEncoding));
 
         return new Promise((resolve, reject) => {
 
@@ -584,7 +604,7 @@ export abstract class AbstractTvChannelV2
                 'index': index === false ? 0xFFFFFFFF : index,
                 'body': chunk ?? [],
             }
-        } satisfies v2.IBinaryChunkRequestPacket));
+        } satisfies v2.IBinaryChunkRequestPacketEncoding));
 
         return new Promise((resolve, reject) => {
 
@@ -616,7 +636,7 @@ export abstract class AbstractTvChannelV2
             'typ': v2.EPacketType.REQUEST,
             'seq': seq,
             'ct': message,
-        } satisfies v2.IPushMessageRequestPacket));
+        } satisfies v2.IPushMessageRequestPacketEncoding));
 
         return new Promise((resolve, reject) => {
 

@@ -17,122 +17,174 @@
 import type * as CS from './Constants.v2';
 import type { TelevokeError } from '../../Errors';
 
-export type IDataChunkArray = Array<string | Buffer>;
+export type IBinLike = Buffer | string;
 
-export type IDataChunkField = string | Buffer | IDataChunkArray;
+export type IBinLikeArray = IBinLike[];
+
+export type IDecBinItem = Buffer[];
+
+export type IEncBinItem = IBinLike | IBinLikeArray;
 
 export interface ICommandPacket {
 
     /**
      * The command of this packet.
      */
-    readonly cmd: CS.ECommand;
+    cmd: CS.ECommand;
 
     /**
      * The type of this packet.
      */
-    readonly typ: CS.EPacketType;
+    typ: CS.EPacketType;
 
     /**
      * The sequence number of this packet.
      */
-    readonly seq: number;
+    seq: number;
 
     /**
      * The content of this packet.
      */
-    readonly ct: unknown;
+    ct: unknown;
 }
 
 export interface IRequestPacket extends ICommandPacket {
 
-    readonly typ: CS.EPacketType.REQUEST;
+    typ: CS.EPacketType.REQUEST;
 }
 
-export interface IErrorResponsePacket extends ICommandPacket {
+export interface IErrorReplyPacket extends ICommandPacket {
 
-    readonly typ: CS.EPacketType.ERROR_RESPONSE;
+    typ: CS.EPacketType.ERROR_RESPONSE;
 
-    readonly ct: TelevokeError;
+    ct: TelevokeError;
 }
 
-export interface ISuccessResponsePacket extends ICommandPacket {
+export interface IOkReplyPacket extends ICommandPacket {
 
-    readonly typ: CS.EPacketType.SUCCESS_RESPONSE;
+    typ: CS.EPacketType.SUCCESS_RESPONSE;
 }
 
-export interface IApiRequestPacket extends IRequestPacket {
+export interface IApiRequestPacket<TIsReq extends boolean> extends IRequestPacket {
 
-    readonly cmd: CS.ECommand.API_CALL;
+    cmd: CS.ECommand.API_CALL;
 
-    readonly ct: {
+    ct: {
 
         /**
          * The name of the API to be invoked.
          */
-        readonly name: string;
+        name: string;
 
         /**
          * The arguments of the API to be invoked.
          */
-        readonly body: IDataChunkField;
+        body: TIsReq extends true ? IEncBinItem : Buffer[];
+
+        /**
+         * The encoding identifier of the body.
+         *
+         * @default 0 which means JSON
+         */
+        bodyEnc?: number;
+
+        /**
+         * The extension binary chunks of the API to be invoked.
+         */
+        binChunks?: TIsReq extends true ? IEncBinItem[] : Buffer[][];
     };
 }
 
-export interface IPingRequestPacket extends IRequestPacket {
+export type IApiRequestPacketEncoding = IApiRequestPacket<true>;
 
-    readonly cmd: CS.ECommand.PING;
+export type IApiRequestPacketDecoded = IApiRequestPacket<false>;
 
-    readonly ct: IDataChunkField;
+export interface IApiReplyPacket<TIsReq extends boolean> extends IOkReplyPacket {
+
+    cmd: CS.ECommand.API_CALL;
+
+    ct: {
+
+        body: TIsReq extends true ? IEncBinItem : Buffer[];
+
+        /**
+         * The extension binary chunks of the API to be invoked.
+         */
+        binChunks?: TIsReq extends true ? IEncBinItem[] : Buffer[][];
+    };
 }
 
-export interface IPushMessageRequestPacket extends IRequestPacket {
+export type IApiReplyPacketEncoding = IApiReplyPacket<true>;
 
-    readonly cmd: CS.ECommand.PUSH_MESSAGE;
+export type IApiReplyPacketDecoded = IApiReplyPacket<false>;
 
-    readonly ct: IDataChunkField;
+// PING Command
+
+export interface IPingRequestPacket<TIsReq extends boolean> extends IRequestPacket {
+
+    cmd: CS.ECommand.PING;
+
+    ct: TIsReq extends true ? IEncBinItem : IDecBinItem;
 }
+
+export type IPingRequestPacketEncoding = IPingRequestPacket<true>;
+
+export type IPingRequestPacketDecoded = IPingRequestPacket<false>;
+
+export interface IPingReplyPacket<TIsReq extends boolean> extends IOkReplyPacket {
+
+    cmd: CS.ECommand.PING;
+
+    ct: TIsReq extends true ? IEncBinItem : Buffer[];
+}
+
+export type IPingReplyPacketEncoding = IPingReplyPacket<true>;
+
+export type IPingReplyPacketDecoded = IPingReplyPacket<false>;
+
+// PUSH_MESSAGE Command
+
+export interface IPushMessageRequestPacket<TIsReq extends boolean> extends IRequestPacket {
+
+    cmd: CS.ECommand.PUSH_MESSAGE;
+
+    ct: TIsReq extends true ? IEncBinItem : Buffer[];
+}
+
+export type IPushMessageRequestPacketEncoding = IPushMessageRequestPacket<true>;
+
+export type IPushMessageRequestPacketDecoded = IPushMessageRequestPacket<false>;
 
 export interface ICloseRequestPacket extends IRequestPacket {
 
-    readonly cmd: CS.ECommand.CLOSE;
+    cmd: CS.ECommand.CLOSE;
 
-    readonly ct: null;
+    ct: null;
 }
 
-export interface IBinaryChunkRequestPacket extends IRequestPacket {
+export interface IBinaryChunkRequestPacket<TIsReq extends boolean> extends IRequestPacket {
 
-    readonly cmd: CS.ECommand.BINARY_CHUNK;
+    cmd: CS.ECommand.BINARY_CHUNK;
 
-    readonly ct: {
+    ct: {
 
         /**
          * The stream ID of this chunk should be sent to.
          */
-        readonly streamId: number;
+        streamId: number;
 
         /**
          * The index of this chunk in the stream.
          */
-        readonly index: number;
+        index: number;
 
         /**
          * The chunk data.
          */
-        readonly body: IDataChunkField;
+        body: TIsReq extends true ? IEncBinItem : Buffer[];
     };
 }
 
-export interface IApiResponsePacket extends ISuccessResponsePacket {
+export type IBinaryChunkRequestPacketEncoding = IBinaryChunkRequestPacket<true>;
 
-    readonly cmd: CS.ECommand.API_CALL;
-
-    readonly ct: IDataChunkField;
-}
-
-export interface IPingResponsePacket extends ISuccessResponsePacket {
-
-    readonly cmd: CS.ECommand.PING;
-
-    readonly ct: IDataChunkField;
-}
+export type IBinaryChunkRequestPacketDecoded = IBinaryChunkRequestPacket<false>;

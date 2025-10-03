@@ -18,7 +18,7 @@ import * as Shared from '../shared';
 import { EventEmitter } from 'node:events';
 import * as v2 from '../shared/Encodings/v2';
 
-export type ILegacyApiResponseCallback = (body: v2.IDataChunkField | Shared.TelevokeError) => void;
+export type ILegacyApiResponseCallback = (body: v2.IEncBinItem | Shared.TelevokeError) => void;
 
 const streamManager = Shared.createDisabledStreamManagerFactory()(null as any);
 

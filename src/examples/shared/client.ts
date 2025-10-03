@@ -61,6 +61,7 @@ export async function doClientTest(
         'test_message',
         'send_stream',
         'recv_stream',
+        'test_ext_bin_chunks',
     ] as const;
 
     const autoAsync = <T extends string>(n: T): T | `${T}Async` => Math.random() > 0.5 ? n : `${n}Async`;
@@ -82,6 +83,24 @@ export async function doClientTest(
 
                         await client.invoke(autoAsync('minimalApi'));
                         clientLogs.ok(mkMsg(`Passed`));
+                    }
+                    catch (e) {
+
+                        clientLogs.error(mkMsg(`Unexpected error thrown, error: ${e}`));
+                    }
+                    break;
+                case 'test_ext_bin_chunks':
+                    try {
+
+                        const ret = await client.callApi('testExtBinChunks', [{ 'name': 'Mick' }], {
+                            binChunks: [
+                                [Buffer.from('Hello'), Buffer.from('World')],
+                                [Buffer.from('Hi')],
+                                [Buffer.from('Angus')],
+                            ]
+                        });
+                        clientLogs.ok(mkMsg(`Passed: ` + ret.result.v));
+                        clientLogs.ok(mkMsg(`Ext Bin Chunks: ` + Buffer.concat((ret.binChunks ?? []).flat(1)).toString()));
                     }
                     catch (e) {
 

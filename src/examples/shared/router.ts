@@ -86,6 +86,23 @@ export const router: Tv.Servers.IRouter = new Tv.Servers.SimpleJsonApiRouter()
             f: BigInt(123)
         });
     })
+    .registerApi('testExtBinChunks', (ctx, args): unknown => {
+
+        serverLogs.ok(`Channel#${ctx.channel.id} invoked testExtBinChunks with args: ${JSON.stringify(args)}`);
+        serverLogs.ok(`Channel#${ctx.channel.id} invoked testExtBinChunks with ext chunks: ${
+            Buffer.concat((ctx.requestBinaryChunks ?? []).flat(2)).toString()
+        }`);
+
+        ctx.replyBinaryChunks = [
+            Buffer.from('Hi, '),
+            Buffer.from('Angus'),
+            Buffer.from('.'),
+            [Buffer.from('How are '), Buffer.from('you')],
+            [Buffer.from('?')],
+        ];
+
+        return { v: 123 };
+    })
     .registerApi('createStreamToReceive', (ctx): number => {
 
         serverLogs.ok(`Channel#${ctx.channel.id} invoked createStreamToReceive`);

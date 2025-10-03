@@ -37,9 +37,10 @@ interface IPacketEncoder {
      */
     encode(packet: dEnc2.ICommandPacket): Array<string | Buffer>;
 }
-class ErrorResponseEncoder implements IPacketEncoder {
 
-    public encode(packet: dEnc2.IErrorResponsePacket): v2.IDataChunkArray {
+class ErrorReplyEncoder implements IPacketEncoder {
+
+    public encode(packet: dEnc2.IErrorReplyPacket): v2.IBinLikeArray {
 
         const errorMsg = `${packet.ct.name}:${packet.ct.message}`;
 
@@ -56,9 +57,9 @@ class ErrorResponseEncoder implements IPacketEncoder {
     }
 }
 
-class VoidResponseEncoder implements IPacketEncoder {
+class VoidReplyEncoder implements IPacketEncoder {
 
-    public encode(packet: dEnc2.ISuccessResponsePacket): v2.IDataChunkArray {
+    public encode(packet: dEnc2.IOkReplyPacket): v2.IBinLikeArray {
 
         const buf = Buffer.allocUnsafe(CS.HEADER_SIZE);
 
@@ -70,13 +71,68 @@ class VoidResponseEncoder implements IPacketEncoder {
 
 class ApiRequestEncoder implements IPacketEncoder {
 
-    public encode(packet: dEnc2.IApiRequestPacket): v2.IDataChunkArray {
+    private _createExtPart(
+        out: dEnc2.IBinLikeArray,
+        argsBodyEncoding: number = CS.DEFAULT_API_ARGS_ENCODING,
+        binChunks?: dEnc2.IEncBinItem[],
+    ): dEnc2.IBinLikeArray {
+
+        const header = Buffer.allocUnsafe(CS.API_CALL_REQ_EXT_HEADER_SIZE);
+
+        out.push(header);
+
+        header.writeUInt32LE(CS.API_CALL_REQ_EXT_HEADER_SIZE, CS.EApiCallReqExtHeaderFieldOffset.LENGTH);
+        header.writeUInt32LE(argsBodyEncoding, CS.EApiCallReqExtHeaderFieldOffset.BODY_ENC);
+        header.writeUInt32LE(binChunks?.length ?? 0, CS.EApiCallReqExtHeaderFieldOffset.BIN_CHUNK_QTY);
+
+        if (!binChunks?.length) {
+
+            return out;
+        }
+
+        for (const chunk of binChunks) {
+
+            let chunkLen = 0;
+
+            if (!chunk.length) {
+
+                const lenBuf = Buffer.allocUnsafe(4);
+                lenBuf.writeUInt32LE(chunkLen, 0);
+                out.push(lenBuf);
+                continue;
+            }
+
+            const lenBuf = Buffer.allocUnsafe(4);
+
+            if (Array.isArray(chunk)) {
+
+                for (const p of chunk) {
+    
+                    chunkLen += p instanceof Buffer ? p.length : Buffer.byteLength(p);
+                }
+
+                lenBuf.writeUInt32LE(chunkLen, 0);
+                out.push(lenBuf);
+                out.push(...chunk);
+            }
+            else {
+
+                lenBuf.writeUInt32LE(Buffer.byteLength(chunk), 0);
+                out.push(lenBuf, chunk);
+            }
+        }
+
+        return out;
+    }
+
+    public encode(packet: dEnc2.IApiRequestPacketEncoding): v2.IBinLikeArray {
 
         const apiNameLen = Buffer.byteLength(packet.ct.name);
 
         const leadSeg = Buffer.allocUnsafe(CS.HEADER_SIZE + 2 + 4 + apiNameLen);
 
         writePacketHeader(leadSeg, packet.cmd, packet.typ, packet.seq);
+
         leadSeg.writeUInt16LE(apiNameLen, CS.HEADER_SIZE);
         leadSeg.write(packet.ct.name, CS.HEADER_SIZE + 2);
 
@@ -91,18 +147,24 @@ class ApiRequestEncoder implements IPacketEncoder {
 
             leadSeg.writeUInt32LE(bodyLen, CS.HEADER_SIZE + 2 + apiNameLen);
 
-            return [leadSeg, ...packet.ct.body];
+            return this._createExtPart([
+                leadSeg,
+                ...packet.ct.body
+            ], packet.ct.bodyEnc, packet.ct.binChunks);
         }
 
         leadSeg.writeUInt32LE(Buffer.byteLength(packet.ct.body), CS.HEADER_SIZE + 2 + apiNameLen);
 
-        return [leadSeg, packet.ct.body];
+        return this._createExtPart([
+            leadSeg,
+            packet.ct.body
+        ], packet.ct.bodyEnc, packet.ct.binChunks);
     }
 }
 
 class BinaryChunkRequestEncoder implements IPacketEncoder {
 
-    public encode(packet: dEnc2.IBinaryChunkRequestPacket): v2.IDataChunkArray {
+    public encode(packet: dEnc2.IBinaryChunkRequestPacketEncoding): v2.IBinLikeArray {
 
         const leadSeg = Buffer.allocUnsafe(CS.HEADER_SIZE + 12);
 
@@ -132,7 +194,7 @@ class BinaryChunkRequestEncoder implements IPacketEncoder {
 
 class PingRequestEncoder implements IPacketEncoder {
 
-    public encode(packet: dEnc2.IPingRequestPacket): v2.IDataChunkArray {
+    public encode(packet: dEnc2.IPingRequestPacketEncoding): v2.IBinLikeArray {
 
         const leadSeg = Buffer.allocUnsafe(CS.HEADER_SIZE + 2);
 
@@ -160,7 +222,7 @@ class PingRequestEncoder implements IPacketEncoder {
 
 class CloseRequestEncoder implements IPacketEncoder {
 
-    public encode(packet: dEnc2.ICloseRequestPacket): v2.IDataChunkArray {
+    public encode(packet: dEnc2.ICloseRequestPacket): v2.IBinLikeArray {
 
         const leadSeg = Buffer.allocUnsafe(CS.HEADER_SIZE);
 
@@ -172,7 +234,7 @@ class CloseRequestEncoder implements IPacketEncoder {
 
 class PushMessageRequestEncoder implements IPacketEncoder {
 
-    public encode(packet: dEnc2.IPushMessageRequestPacket): v2.IDataChunkArray {
+    public encode(packet: dEnc2.IPushMessageRequestPacketEncoding): v2.IBinLikeArray {
 
         const leadSeg = Buffer.allocUnsafe(CS.HEADER_SIZE + 4);
 
@@ -198,37 +260,99 @@ class PushMessageRequestEncoder implements IPacketEncoder {
     }
 }
 
-class ApiResponseEncoder implements IPacketEncoder {
+class ApiReplyEncoder implements IPacketEncoder {
 
-    public encode(packet: dEnc2.IApiResponsePacket): v2.IDataChunkArray {
+    private _createExtPart(
+        out: dEnc2.IBinLikeArray,
+        binChunks?: dEnc2.IEncBinItem[],
+    ): dEnc2.IBinLikeArray {
+
+        const header = Buffer.allocUnsafe(CS.API_CALL_RESP_EXT_HEADER_SIZE);
+        out.push(header);
+
+        header.writeUInt32LE(CS.API_CALL_RESP_EXT_HEADER_SIZE, CS.EApiCallRespExtHeaderFieldOffset.LENGTH);
+        header.writeUInt32LE(binChunks?.length ?? 0, CS.EApiCallRespExtHeaderFieldOffset.BIN_CHUNK_QTY);
+
+        if (!binChunks?.length) {
+
+            return out;
+        }
+
+        for (const chunk of binChunks) {
+
+            let chunkLen = 0;
+
+            if (!chunk.length) {
+
+                const lenBuf = Buffer.allocUnsafe(4);
+                lenBuf.writeUInt32LE(chunkLen, 0);
+                out.push(lenBuf);
+                continue;
+            }
+
+            const lenBuf = Buffer.allocUnsafe(4);
+
+            if (Array.isArray(chunk)) {
+
+                for (const p of chunk) {
+    
+                    chunkLen += p instanceof Buffer ? p.length : Buffer.byteLength(p);
+                }
+
+                lenBuf.writeUInt32LE(chunkLen, 0);
+                out.push(lenBuf);
+                out.push(...chunk);
+            }
+            else {
+
+                lenBuf.writeUInt32LE(Buffer.byteLength(chunk), 0);
+                out.push(lenBuf, chunk);
+            }
+        }
+
+        return out;
+    }
+
+    public encode(packet: dEnc2.IApiReplyPacketEncoding): v2.IBinLikeArray {
 
         const leadSeg = Buffer.allocUnsafe(CS.HEADER_SIZE + 4);
 
         writePacketHeader(leadSeg, packet.cmd, packet.typ, packet.seq);
 
-        if (Array.isArray(packet.ct)) {
+        let bodyLen = 0;
 
-            let bodyLen = 0;
+        if (Array.isArray(packet.ct.body)) {
 
-            for (const p of packet.ct) {
+            for (const p of packet.ct.body) {
 
-                bodyLen += Buffer.byteLength(p);
+                bodyLen += p instanceof Buffer ? p.byteLength : Buffer.byteLength(p);
             }
+        }
+        else {
 
-            leadSeg.writeUInt32LE(bodyLen, CS.HEADER_SIZE);
-
-            return [leadSeg, ...packet.ct];
+            bodyLen = packet.ct.body instanceof Buffer ? packet.ct.body.byteLength : Buffer.byteLength(packet.ct.body);
         }
 
-        leadSeg.writeUInt32LE(Buffer.byteLength(packet.ct), CS.HEADER_SIZE);
+        leadSeg.writeUInt32LE(bodyLen, CS.HEADER_SIZE);
 
-        return [leadSeg, packet.ct];
+        const ret: v2.IBinLikeArray = [leadSeg];
+
+        if (Array.isArray(packet.ct.body)) {
+
+            ret.push(...packet.ct.body);
+        }
+        else {
+    
+            ret.push(packet.ct.body);
+        }
+    
+        return this._createExtPart(ret, packet.ct.binChunks);
     }
 }
 
-class PingResponseEncoder implements IPacketEncoder {
+class PingReplyEncoder implements IPacketEncoder {
 
-    public encode(packet: dEnc2.IPingResponsePacket): v2.IDataChunkArray {
+    public encode(packet: dEnc2.IPingReplyPacketEncoding): v2.IBinLikeArray {
 
         const leadSeg = Buffer.allocUnsafe(CS.HEADER_SIZE + 2);
 
@@ -262,22 +386,22 @@ const encoders: Record<number, IPacketEncoder> = {
     [CS.EPacketType.REQUEST * 0x100 + CS.ECommand.PING]: new PingRequestEncoder(),
     [CS.EPacketType.REQUEST * 0x100 + CS.ECommand.PUSH_MESSAGE]: new PushMessageRequestEncoder(),
 
-    [CS.EPacketType.SUCCESS_RESPONSE * 0x100 + CS.ECommand.API_CALL]: new ApiResponseEncoder(),
-    [CS.EPacketType.SUCCESS_RESPONSE * 0x100 + CS.ECommand.BINARY_CHUNK]: new VoidResponseEncoder(),
-    [CS.EPacketType.SUCCESS_RESPONSE * 0x100 + CS.ECommand.CLOSE]: new VoidResponseEncoder(),
-    [CS.EPacketType.SUCCESS_RESPONSE * 0x100 + CS.ECommand.PING]: new PingResponseEncoder(),
-    [CS.EPacketType.SUCCESS_RESPONSE * 0x100 + CS.ECommand.PUSH_MESSAGE]: new VoidResponseEncoder(),
+    [CS.EPacketType.SUCCESS_RESPONSE * 0x100 + CS.ECommand.API_CALL]: new ApiReplyEncoder(),
+    [CS.EPacketType.SUCCESS_RESPONSE * 0x100 + CS.ECommand.BINARY_CHUNK]: new VoidReplyEncoder(),
+    [CS.EPacketType.SUCCESS_RESPONSE * 0x100 + CS.ECommand.CLOSE]: new VoidReplyEncoder(),
+    [CS.EPacketType.SUCCESS_RESPONSE * 0x100 + CS.ECommand.PING]: new PingReplyEncoder(),
+    [CS.EPacketType.SUCCESS_RESPONSE * 0x100 + CS.ECommand.PUSH_MESSAGE]: new VoidReplyEncoder(),
 
-    [CS.EPacketType.ERROR_RESPONSE * 0x100 + CS.ECommand.API_CALL]: new ErrorResponseEncoder(),
-    [CS.EPacketType.ERROR_RESPONSE * 0x100 + CS.ECommand.BINARY_CHUNK]: new ErrorResponseEncoder(),
-    [CS.EPacketType.ERROR_RESPONSE * 0x100 + CS.ECommand.CLOSE]: new ErrorResponseEncoder(),
-    [CS.EPacketType.ERROR_RESPONSE * 0x100 + CS.ECommand.PING]: new ErrorResponseEncoder(),
-    [CS.EPacketType.ERROR_RESPONSE * 0x100 + CS.ECommand.PUSH_MESSAGE]: new ErrorResponseEncoder(),
+    [CS.EPacketType.ERROR_RESPONSE * 0x100 + CS.ECommand.API_CALL]: new ErrorReplyEncoder(),
+    [CS.EPacketType.ERROR_RESPONSE * 0x100 + CS.ECommand.BINARY_CHUNK]: new ErrorReplyEncoder(),
+    [CS.EPacketType.ERROR_RESPONSE * 0x100 + CS.ECommand.CLOSE]: new ErrorReplyEncoder(),
+    [CS.EPacketType.ERROR_RESPONSE * 0x100 + CS.ECommand.PING]: new ErrorReplyEncoder(),
+    [CS.EPacketType.ERROR_RESPONSE * 0x100 + CS.ECommand.PUSH_MESSAGE]: new ErrorReplyEncoder(),
 };
 
 export class TvEncoderV2 {
 
-    public encode(packet: dEnc2.ICommandPacket): Array<Buffer | string> {
+    public encode(packet: dEnc2.ICommandPacket): v2.IBinLikeArray {
 
         return encoders[packet.typ * 0x100 + packet.cmd].encode(packet);
     }

@@ -36,11 +36,52 @@ interface IDecodeContext {
 
 const B8 = Buffer.allocUnsafe(8);
 const B4 = Buffer.allocUnsafe(4);
+const B_API_CALL_REQ_EXT_HEADER = Buffer.allocUnsafe(CSv2.API_CALL_REQ_EXT_HEADER_SIZE);
+const B_API_CALL_RESP_EXT_HEADER = Buffer.allocUnsafe(CSv2.API_CALL_RESP_EXT_HEADER_SIZE);
 const B2 = Buffer.allocUnsafe(2);
 
 interface IPacketDecoder {
 
     decode(ctx: IDecodeContext): dEnc2.ICommandPacket;
+}
+
+function skipBytes(bytes: number, ctx: IDecodeContext): void {
+
+    let readBytes = 0;
+
+    while (readBytes < bytes) {
+
+        if (ctx.chIndex === ctx.chunks.length) {
+
+            throw new errors.incomplete_packet();
+        }
+
+        const c = ctx.chunks[ctx.chIndex];
+        const cLen = c.byteLength;
+        let cOff = ctx.chOffset;
+
+        do {
+
+            readBytes++;
+            cOff++;
+        }
+        while (cOff < cLen && readBytes < bytes);
+
+        if (cOff === cLen) {
+
+            ctx.chIndex++;
+            ctx.chOffset = 0;
+        }
+        else {
+
+            ctx.chOffset = cOff;
+        }
+
+        if (readBytes === bytes) {
+
+            break;
+        }
+    }
 }
 
 function readSmallBytes(bytes: number, buf: Buffer, ctx: IDecodeContext): Buffer {
@@ -209,25 +250,67 @@ class TvErrorResponseDecoder implements IPacketDecoder {
             'typ': CSv2.EPacketType.ERROR_RESPONSE,
             'seq': ctx.seq,
             'ct': err,
-        } satisfies dEnc2.IErrorResponsePacket;
+        } satisfies dEnc2.IErrorReplyPacket;
     }
 }
 
 class TvApiRequestDecoder implements IPacketDecoder {
 
+    private _decodeExtPart(
+        ctx: IDecodeContext,
+        ctOut: dEnc2.IApiRequestPacketDecoded['ct']
+    ): dEnc2.IApiRequestPacketDecoded['ct'] {
+
+        if (ctx.chIndex >= ctx.chunks.length) {
+
+            ctOut.bodyEnc = CSv2.DEFAULT_API_ARGS_ENCODING;
+            return ctOut;
+        }
+
+        const hdrBuf = readSmallBytes(B_API_CALL_REQ_EXT_HEADER.byteLength, B_API_CALL_REQ_EXT_HEADER, ctx);
+        const hdrLen = hdrBuf.readUInt32LE(CSv2.EApiCallReqExtHeaderFieldOffset.LENGTH);
+        const bodyEnc = hdrBuf.readUInt32LE(CSv2.EApiCallReqExtHeaderFieldOffset.BODY_ENC);
+        const chkQty = hdrBuf.readUInt32LE(CSv2.EApiCallReqExtHeaderFieldOffset.BIN_CHUNK_QTY);
+
+        if (!chkQty) {
+
+            ctOut.bodyEnc = bodyEnc;
+            return ctOut;
+        }
+
+        if (hdrLen > B_API_CALL_REQ_EXT_HEADER.length) {
+
+            skipBytes(hdrLen - B_API_CALL_REQ_EXT_HEADER.length, ctx);
+        }
+
+        const binChunks: Buffer[][] = [];
+
+        for (let i = 0; i < chkQty; ++i) {
+
+            binChunks.push(readVarBuffer(ctx));
+        }
+
+        ctOut.bodyEnc = bodyEnc;
+        ctOut.binChunks = binChunks;
+
+        return ctOut;
+    }
+
     public decode(ctx: IDecodeContext): dEnc2.ICommandPacket {
 
         const name = readVarString(ctx);
+
+        const body = readVarBuffer(ctx);
 
         return {
             'cmd': CSv2.ECommand.API_CALL,
             'typ': CSv2.EPacketType.REQUEST,
             'seq': ctx.seq,
-            'ct': {
+            'ct': this._decodeExtPart(ctx, {
                 'name': name,
-                'body': readVarBuffer(ctx),
-            }
-        } satisfies dEnc2.IApiRequestPacket;
+                'body': body,
+            })
+        } satisfies dEnc2.IApiRequestPacketDecoded;
     }
 }
 
@@ -240,7 +323,7 @@ class TvPingRequestDecoder implements IPacketDecoder {
             'typ': CSv2.EPacketType.REQUEST,
             'seq': ctx.seq,
             'ct': readVarBuffer16(ctx)
-        } satisfies dEnc2.IPingRequestPacket;
+        } satisfies dEnc2.IPingRequestPacketDecoded;
     }
 }
 
@@ -253,7 +336,7 @@ class TvPushMessageRequestDecoder implements IPacketDecoder {
             'typ': CSv2.EPacketType.REQUEST,
             'seq': ctx.seq,
             'ct': readVarBuffer(ctx)
-        } satisfies dEnc2.IPushMessageRequestPacket;
+        } satisfies dEnc2.IPushMessageRequestPacketDecoded;
     }
 }
 
@@ -272,7 +355,7 @@ class TvBinaryChunkRequestDecoder implements IPacketDecoder {
                 'index': chunkIndex,
                 'body': readVarBuffer(ctx),
             }
-        } satisfies dEnc2.IBinaryChunkRequestPacket;
+        } satisfies dEnc2.IBinaryChunkRequestPacketDecoded;
     }
 }
 
@@ -298,20 +381,59 @@ class TvVoidResponseDecoder implements IPacketDecoder {
             'typ': CSv2.EPacketType.SUCCESS_RESPONSE,
             'seq': ctx.seq,
             'ct': null
-        } satisfies dEnc2.ISuccessResponsePacket;
+        } satisfies dEnc2.IOkReplyPacket;
     }
 }
 
-class TvApiResponseDecoder implements IPacketDecoder {
+class TvApiReplyDecoder implements IPacketDecoder {
+
+    private _decodeExtPart(
+        ctx: IDecodeContext,
+        ctOut: dEnc2.IApiReplyPacketDecoded['ct'],
+
+    ): dEnc2.IApiReplyPacketDecoded['ct'] {
+
+        if (ctx.chIndex >= ctx.chunks.length) {
+
+            return ctOut;
+        }
+
+        const MIN_EXT_HEADER_LEN = CSv2.API_CALL_RESP_EXT_HEADER_SIZE;
+        const extHdr = readSmallBytes(MIN_EXT_HEADER_LEN, B_API_CALL_RESP_EXT_HEADER, ctx);
+        const extHdrLen = extHdr.readUInt32LE(CSv2.EApiCallRespExtHeaderFieldOffset.LENGTH);
+        const extBinChunkQty = extHdr.readUInt32LE(CSv2.EApiCallRespExtHeaderFieldOffset.BIN_CHUNK_QTY);
+
+        if (!extBinChunkQty) {
+
+            return ctOut;
+        }
+
+        if (extHdrLen > MIN_EXT_HEADER_LEN) {
+
+            skipBytes(extHdrLen - MIN_EXT_HEADER_LEN, ctx);
+        }
+
+        const extBinChunks: Buffer[][] = [];
+
+        for (let i = 0; i < extBinChunkQty; ++i) {
+
+            extBinChunks.push(readVarBuffer(ctx));
+        }
+
+        ctOut.binChunks = extBinChunks;
+
+        return ctOut;
+    }
 
     public decode(ctx: IDecodeContext): dEnc2.ICommandPacket {
 
+        const body = readVarBuffer(ctx);
         return {
             'cmd': CSv2.ECommand.API_CALL,
             'typ': CSv2.EPacketType.SUCCESS_RESPONSE,
             'seq': ctx.seq,
-            'ct': readVarBuffer(ctx)
-        } satisfies dEnc2.IApiResponsePacket;
+            'ct': this._decodeExtPart(ctx, { body })
+        } satisfies dEnc2.IApiReplyPacketDecoded;
     }
 }
 
@@ -324,7 +446,7 @@ class TvPingResponseDecoder implements IPacketDecoder {
             'typ': CSv2.EPacketType.SUCCESS_RESPONSE,
             'seq': ctx.seq,
             'ct': readVarBuffer16(ctx)
-        } satisfies dEnc2.IPingResponsePacket;
+        } satisfies dEnc2.IPingReplyPacketDecoded;
     }
 }
 
@@ -345,7 +467,7 @@ const packetDecoders: Record<number, IPacketDecoder> = {
     [CSv2.EPacketType.SUCCESS_RESPONSE + 0x100 * CSv2.ECommand.PUSH_MESSAGE]: new TvVoidResponseDecoder(),
     [CSv2.EPacketType.SUCCESS_RESPONSE + 0x100 * CSv2.ECommand.CLOSE]: new TvVoidResponseDecoder(),
     [CSv2.EPacketType.SUCCESS_RESPONSE + 0x100 * CSv2.ECommand.BINARY_CHUNK]: new TvVoidResponseDecoder(),
-    [CSv2.EPacketType.SUCCESS_RESPONSE + 0x100 * CSv2.ECommand.API_CALL]: new TvApiResponseDecoder(),
+    [CSv2.EPacketType.SUCCESS_RESPONSE + 0x100 * CSv2.ECommand.API_CALL]: new TvApiReplyDecoder(),
     [CSv2.EPacketType.SUCCESS_RESPONSE + 0x100 * CSv2.ECommand.PING]: new TvPingResponseDecoder(),
 };
 

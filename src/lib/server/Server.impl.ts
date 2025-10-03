@@ -62,9 +62,10 @@ export class TvServer extends EventEmitter implements dS.IServer, dT.IServer {
         );
 
         (this._channels[id] as Shared.IChannelBase<IChannelEvents>)
-            .on('api_call', (cb, name, body) => {
-                this.router.processApi(cb, name, body, {
-                    channel: this._channels[id],
+            .on('api_call', (cb, name, argsBody, _seq, argsEnc, binChunks) => {
+                this.router.processApi(cb, name, argsEnc, argsBody, {
+                    'channel': this._channels[id],
+                    'requestBinaryChunks': binChunks
                 });
             })
             .on('error', (err) => this.emit('error', err))

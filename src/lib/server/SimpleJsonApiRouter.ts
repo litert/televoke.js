@@ -18,6 +18,7 @@ import type * as dS from './Server.decl';
 import * as Shared from '../shared';
 import { buffer2json } from '../shared/Utils';
 import { EventEmitter } from 'node:events';
+import { v2 } from '../shared/Encodings';
 
 export type ISimpleJsonApiHandler = (ctx: dS.IRequestContext, ...args: any[]) => unknown;
 
@@ -39,7 +40,13 @@ export class SimpleJsonApiRouter extends EventEmitter implements dS.IRouter {
         return this;
     }
 
-    public processApi(cb: dS.IRouteApiCallback, name: string, body: Buffer[], ctx: dS.IRequestContext): void {
+    public processApi(cb: dS.IRouteApiCallback, name: string, argsEnc: number, body: Buffer[], ctx: dS.IRequestContext): void {
+
+        if (argsEnc !== v2.JSON_API_ARGS_ENCODING) {
+
+            cb(new Shared.errors.unk_api_enc());
+            return;
+        }
 
         if (!this._apiHandlers[name]) {
             cb(new Shared.errors.api_not_found({ name }));
@@ -70,7 +77,7 @@ export class SimpleJsonApiRouter extends EventEmitter implements dS.IRouter {
 
                         try {
 
-                            cb(JSON.stringify(data ?? null));
+                            cb(JSON.stringify(data ?? null), ctx.replyBinaryChunks);
                         }
                         catch (e) {
 
@@ -82,7 +89,7 @@ export class SimpleJsonApiRouter extends EventEmitter implements dS.IRouter {
             }
             else {
 
-                cb(JSON.stringify(result ?? null));
+                cb(JSON.stringify(result ?? null), ctx.replyBinaryChunks);
             }
         }
         catch (e) {

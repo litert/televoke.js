@@ -38,9 +38,11 @@ describe('Encoder/Decoder', () => {
                 'seq': PACKET_SEQ,
                 'ct': {
                     'name': API_NAME,
-                    'body': chunks
+                    'body': chunks,
+                    'bodyEnc': 0,
+                    'binChunks': [],
                 }
-            } satisfies Tv.Encodings.v2.IApiRequestPacket))) as Tv.Encodings.v2.IApiRequestPacket;
+            } satisfies Tv.Encodings.v2.IApiRequestPacketEncoding))) as Tv.Encodings.v2.IApiRequestPacketDecoded;
 
             it('The decoded command code should be API_CALL', function() {
 
@@ -79,7 +81,7 @@ describe('Encoder/Decoder', () => {
                 'typ': Tv.Encodings.v2.EPacketType.REQUEST,
                 'seq': PACKET_SEQ,
                 'ct': chunks
-            } satisfies Tv.Encodings.v2.IPingRequestPacket))) as Tv.Encodings.v2.IPingRequestPacket;
+            } satisfies Tv.Encodings.v2.IPingRequestPacketEncoding))) as Tv.Encodings.v2.IPingRequestPacketEncoding;
 
             it('The decoded command code should be PING', function() {
 
@@ -113,7 +115,7 @@ describe('Encoder/Decoder', () => {
                 'typ': Tv.Encodings.v2.EPacketType.REQUEST,
                 'seq': PACKET_SEQ,
                 'ct': chunks
-            } satisfies Tv.Encodings.v2.IPushMessageRequestPacket))) as Tv.Encodings.v2.IPushMessageRequestPacket;
+            } satisfies Tv.Encodings.v2.IPushMessageRequestPacketEncoding))) as Tv.Encodings.v2.IPushMessageRequestPacketEncoding;
 
             it('The decoded command code should be PUSH_MESSAGE', function() {
 
@@ -152,7 +154,7 @@ describe('Encoder/Decoder', () => {
                     'index': 123,
                     'body': chunks
                 }
-            } satisfies Tv.Encodings.v2.IBinaryChunkRequestPacket))) as Tv.Encodings.v2.IBinaryChunkRequestPacket;
+            } satisfies Tv.Encodings.v2.IBinaryChunkRequestPacketEncoding))) as Tv.Encodings.v2.IBinaryChunkRequestPacketEncoding;
 
             it('The decoded command code should be BINARY_CHUNK', function() {
 

@@ -74,7 +74,7 @@ describe('Encoder/Decoder', () => {
 
             testHeader(
                 packet,
-                W_LEN + DW_LEN + API_NAME_LEN + dataLen,
+                W_LEN + DW_LEN + API_NAME_LEN + dataLen + 12,
                 Tv.Encodings.v2.ECommand.API_CALL,
                 Tv.Encodings.v2.EPacketType.REQUEST,
                 PACKET_SEQ
@@ -104,7 +104,10 @@ describe('Encoder/Decoder', () => {
             it('The bytes[N + 2...] should be the corrected body', function() {
 
                 Assert.equal(
-                    packet.subarray(Tv.Encodings.v2.HEADER_SIZE + W_LEN + API_NAME_LEN + DW_LEN)
+                    packet.subarray(
+                        Tv.Encodings.v2.HEADER_SIZE + W_LEN + API_NAME_LEN + DW_LEN,
+                        Tv.Encodings.v2.HEADER_SIZE + W_LEN + API_NAME_LEN + DW_LEN + dataLen
+                    )
                         .compare(Buffer.concat(chunks)),
                     0
                 );

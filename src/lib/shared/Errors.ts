@@ -69,6 +69,7 @@ const errorCtors = {
     ...defineProtocolError('channel_inactive'),
     ...defineProtocolError('channel_closed'),
     ...defineProtocolError('api_not_found'),
+    ...defineProtocolError('unk_api_enc'),
     ...defineProtocolError('cmd_not_impl'),
     ...defineProtocolError('network_error'),
     ...defineProtocolError('stream_not_found'),
