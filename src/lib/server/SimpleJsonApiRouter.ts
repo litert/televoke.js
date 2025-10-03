@@ -40,7 +40,13 @@ export class SimpleJsonApiRouter extends EventEmitter implements dS.IRouter {
         return this;
     }
 
-    public processApi(cb: dS.IRouteApiCallback, name: string, argsEnc: number, body: Buffer[], ctx: dS.IRequestContext): void {
+    public processApi(
+        cb: dS.IRouteApiCallback,
+        name: string,
+        argsEnc: number,
+        body: Buffer[],
+        ctx: dS.IRequestContext
+    ): void {
 
         if (argsEnc !== v2.JSON_API_ARGS_ENCODING) {
 

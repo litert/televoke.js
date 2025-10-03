@@ -14,18 +14,23 @@
  * limitations under the License.
  */
 
-import { Readable } from 'node:stream';
+import type { Readable } from 'node:stream';
 
-export type IFn<TArgs extends any[], TRet> = (...args: TArgs) => TRet;
+export type IFn<TArgs extends unknown[], TRet> = (...args: TArgs) => TRet;
 
-export type IVoidFn<TArgs extends any[]> = IFn<TArgs, void>;
+export type IVoidFn<TArgs extends any[] = any[]> = IFn<TArgs, void>;
 
 // eslint-disable-next-line @typescript-eslint/no-restricted-types, @typescript-eslint/consistent-type-definitions
 export type IObject = {};
 
-export type IfIsFn<T, TTrue = T, TFalse = never> = T extends IFn<any[], any> ? TTrue : TFalse;
+export type IfIsFn<T, TTrue = T, TFalse = never> = T extends IFn<any[], unknown> ? TTrue : TFalse;
 
-export type IfIsOfFn<T, TFn extends IFn<any[], any>, TTrue = T, TFalse = never> = T extends TFn ? TTrue : TFalse;
+export type IfIsOfFn<
+    T,
+    TFn extends IFn<unknown[], unknown>,
+    TTrue = T,
+    TFalse = never
+> = T extends TFn ? TTrue : TFalse;
 
 export interface IEventListener<T extends IDefaultEvents> {
 
@@ -37,7 +42,7 @@ export interface IEventListener<T extends IDefaultEvents> {
      * @param event         The event name.
      * @param listener      The listener function.
      */
-    on<TKey extends keyof T>(event: TKey, listener: IfIsOfFn<T[TKey], IVoidFn<any[]>>): this;
+    on<TKey extends keyof T>(event: TKey, listener: IfIsOfFn<T[TKey], IVoidFn>): this;
 
     /**
      * Register a listener for the given event.
@@ -47,7 +52,7 @@ export interface IEventListener<T extends IDefaultEvents> {
      * @param event         The event name.
      * @param listener      The listener function.
      */
-    on(event: string | symbol, listener: IVoidFn<any[]>): this;
+    on(event: string | symbol, listener: IVoidFn): this;
 
     /**
      * Register a one-time listener for the given event.
@@ -57,7 +62,7 @@ export interface IEventListener<T extends IDefaultEvents> {
      * @param event         The event name.
      * @param listener      The listener function.
      */
-    once<TKey extends keyof T>(event: TKey, listener: IfIsOfFn<T[TKey], IVoidFn<any[]>>): this;
+    once<TKey extends keyof T>(event: TKey, listener: IfIsOfFn<T[TKey], IVoidFn>): this;
 
     /**
      * Register a one-time listener for the given event.
@@ -67,7 +72,7 @@ export interface IEventListener<T extends IDefaultEvents> {
      * @param event         The event name.
      * @param listener      The listener function.
      */
-    once(event: string | symbol, listener: IVoidFn<any[]>): this;
+    once(event: string | symbol, listener: IVoidFn): this;
 
     /**
      * Register a listener for the given event.
@@ -77,7 +82,7 @@ export interface IEventListener<T extends IDefaultEvents> {
      * @param event         The event name.
      * @param listener      The listener function.
      */
-    addListener<TKey extends keyof T>(event: TKey, listener: IfIsOfFn<T[TKey], IVoidFn<any[]>>): this;
+    addListener<TKey extends keyof T>(event: TKey, listener: IfIsOfFn<T[TKey], IVoidFn>): this;
 
     /**
      * Register a listener for the given event.
@@ -87,7 +92,7 @@ export interface IEventListener<T extends IDefaultEvents> {
      * @param event         The event name.
      * @param listener      The listener function.
      */
-    addListener(event: string | symbol, listener: IVoidFn<any[]>): this;
+    addListener(event: string | symbol, listener: IVoidFn): this;
 
     /**
      * Remove the given listener for the given event.
@@ -97,7 +102,7 @@ export interface IEventListener<T extends IDefaultEvents> {
      * @param event     The event name.
      * @param listener  The listener function.
      */
-    removeListener<TKey extends keyof T>(event: TKey, listener: IVoidFn<any[]>): this;
+    removeListener<TKey extends keyof T>(event: TKey, listener: IVoidFn): this;
 
     /**
      * Remove the given listener for the given event.
@@ -107,7 +112,7 @@ export interface IEventListener<T extends IDefaultEvents> {
      * @param event     The event name.
      * @param listener  The listener function.
      */
-    removeListener(event: string | symbol, listener: IVoidFn<any[]>): this;
+    removeListener(event: string | symbol, listener: IVoidFn): this;
 
     /**
      * Remove the given listener for the given event.
@@ -117,7 +122,7 @@ export interface IEventListener<T extends IDefaultEvents> {
      * @param event     The event name.
      * @param listener  The listener function.
      */
-    off<TKey extends keyof T>(event: TKey, listener: IVoidFn<any[]>): this;
+    off<TKey extends keyof T>(event: TKey, listener: IVoidFn): this;
 
     /**
      * Remove the given listener for the given event.
@@ -127,7 +132,7 @@ export interface IEventListener<T extends IDefaultEvents> {
      * @param event     The event name.
      * @param listener  The listener function.
      */
-    off(event: string | symbol, listener: IVoidFn<any[]>): this;
+    off(event: string | symbol, listener: IVoidFn): this;
 
     /**
      * Remove all listeners for the given event.

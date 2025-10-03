@@ -184,7 +184,7 @@ class LegacyHttpGateway extends EventEmitter implements dT.IGateway {
 
                 try {
 
-                    input = JSON.parse(buf as any);
+                    input = JSON.parse(buf as unknown as string);
                 }
                 catch (e) {
 

@@ -107,7 +107,7 @@ class ApiRequestEncoder implements IPacketEncoder {
             if (Array.isArray(chunk)) {
 
                 for (const p of chunk) {
-    
+
                     chunkLen += p instanceof Buffer ? p.length : Buffer.byteLength(p);
                 }
 
@@ -295,7 +295,7 @@ class ApiReplyEncoder implements IPacketEncoder {
             if (Array.isArray(chunk)) {
 
                 for (const p of chunk) {
-    
+
                     chunkLen += p instanceof Buffer ? p.length : Buffer.byteLength(p);
                 }
 
@@ -342,10 +342,10 @@ class ApiReplyEncoder implements IPacketEncoder {
             ret.push(...packet.ct.body);
         }
         else {
-    
+
             ret.push(packet.ct.body);
         }
-    
+
         return this._createExtPart(ret, packet.ct.binChunks);
     }
 }

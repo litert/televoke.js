@@ -16,6 +16,7 @@
 
 import * as LibWS from '@litert/websocket';
 import type * as NodeHttp from 'node:http';
+import type * as NodeNet from 'node:net';
 import * as dWS from './WebSocket.decl';
 import type * as Listener from '../http-listener';
 import type * as dT from '../Transporter.decl';
@@ -71,7 +72,7 @@ class WebSocketGateway extends EventEmitter implements dT.IGateway {
 
             this._wsServer.reject({
                 'request': req,
-                'socket': socket as any,
+                'socket': socket as unknown as NodeNet.Socket,
             });
             return;
         }
@@ -85,14 +86,14 @@ class WebSocketGateway extends EventEmitter implements dT.IGateway {
 
             this._wsServer.reject({
                 'request': req,
-                'socket': socket as any,
+                'socket': socket as unknown as NodeNet.Socket,
             });
             return;
         }
 
         const ws = this._wsServer.accept({
             'request': req,
-            'socket': socket as any,
+            'socket': socket as unknown as NodeNet.Socket,
             'subProtocol': dWS.WEBSOCKET_SUB_PROTOCOL,
         });
 

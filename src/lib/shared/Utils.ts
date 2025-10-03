@@ -20,10 +20,10 @@
  * @param fn    The function to call.
  * @returns     The wrapped function.
  */
-export function once<T extends (...args: any[]) => any>(fn: T): T {
+export function once<T extends (...args: any[]) => unknown>(fn: T): T {
 
     let called = false;
-    let result: any;
+    let result: unknown;
 
     return function(...args: any[]) {
 

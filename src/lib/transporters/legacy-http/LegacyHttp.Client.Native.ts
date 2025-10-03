@@ -42,6 +42,7 @@ export interface ILegacyHttpClient<T extends Shared.IObject> extends C.IClient<T
 }
 
 const H_HDR_VAL_JSON_MIME = 'application/json';
+
 class TvLegacyHttpClient extends EventEmitter implements ILegacyHttpClient<any> {
 
     public onError!: any;
@@ -230,7 +231,7 @@ class TvLegacyHttpClient extends EventEmitter implements ILegacyHttpClient<any> 
 
                     try {
 
-                        data = JSON.parse(buf as any);
+                        data = JSON.parse(buf as unknown as string);
                     }
                     catch (e) {
 

@@ -33,9 +33,9 @@ function createRandomName(): string {
 
 interface IMemoryExchangeEvents extends Shared.IDefaultEvents {
 
-    ['data_a'](data: any): void;
+    ['data_a'](data: unknown): void;
 
-    ['data_b'](data: any): void;
+    ['data_b'](data: unknown): void;
 
     ['end_a'](): void;
 
@@ -57,7 +57,7 @@ class MemoryExchange extends EventEmitter implements Shared.IEventListener<IMemo
         super();
     }
 
-    public send(targetEndpoint: 'a' | 'b', data: any): void {
+    public send(targetEndpoint: 'a' | 'b', data: unknown): void {
 
         setImmediate(() => this.emit('data_' + targetEndpoint, data));
     }

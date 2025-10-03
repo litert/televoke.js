@@ -27,7 +27,7 @@ export interface IApiCallResult<T> {
 
     /**
      * The extension binary chunks replied from server.
-     * 
+     *
      * @optional only the server who supports `televoke/2.1` would send this field, if necessary.
      */
     binChunks?: Buffer[][];
@@ -84,7 +84,7 @@ export interface IClient<TApis extends Shared.IObject>
      */
     invoke<TName extends keyof TApis>(
         name: Shared.IfIsFn<TApis[TName], TName>,
-        ...args: TApis[TName] extends Shared.IFn<infer TArgs, any> ? TArgs : never
+        ...args: TApis[TName] extends Shared.IFn<infer TArgs, unknown> ? TArgs : never
     ): Promise<TApis[TName] extends Shared.IFn<any[], infer TRet> ? TRet : never>;
 
     /**
@@ -95,7 +95,7 @@ export interface IClient<TApis extends Shared.IObject>
      */
     callApi<TName extends keyof TApis>(
         name: Shared.IfIsFn<TApis[TName], TName>,
-        args: TApis[TName] extends Shared.IFn<infer TArgs, any> ? TArgs : never,
+        args: TApis[TName] extends Shared.IFn<infer TArgs, unknown> ? TArgs : never,
         opts?: IApiCallOptions,
     ): Promise<TApis[TName] extends Shared.IFn<any[], infer TRet> ? IApiCallResult<TRet> : never>;
 }
