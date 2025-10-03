@@ -1,5 +1,9 @@
 # Changes Logs
 
+## v1.3.0
+
+- fix(client): The legacy HTTP client does not send `content-type` header.
+
 ## v1.2.0
 
 - fix(protocol): the built-in HTTP listener should not listen `upgrade` event by default.

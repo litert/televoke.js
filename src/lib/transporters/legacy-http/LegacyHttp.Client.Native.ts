@@ -21,8 +21,9 @@ import * as Shared from '../../shared';
 import * as v1 from '../../shared/Encodings/v1';
 import { EventEmitter } from 'node:events';
 
-const HTTP_HEADER_CONTENT_LENGTH = 'content-length';
-const HTTP_HEADER_TV_VER = 'x-tv-ver';
+const H_HDR_NAME_CONTENT_LENGTH = 'content-length';
+const H_HDR_NAME_CONTENT_TYPE = 'content-type';
+const H_HDR_NAME_TV_VER = 'x-tv-ver';
 
 const DEFAULT_MAX_CONNECTIONS = 100;
 const DEFAULT_TIMEOUT = 30_000;
@@ -149,8 +150,9 @@ class TvLegacyHttpClient extends EventEmitter implements ILegacyHttpClient<any> 
                 method: 'POST',
                 headers: {
                     ...this._opts.headers,
-                    [HTTP_HEADER_CONTENT_LENGTH]: Buffer.byteLength(content),
-                    [HTTP_HEADER_TV_VER]: 1
+                    [H_HDR_NAME_CONTENT_TYPE]: H_HDR_VAL_JSON_MIME,
+                    [H_HDR_NAME_CONTENT_LENGTH]: Buffer.byteLength(content),
+                    [H_HDR_NAME_TV_VER]: 1
                 },
             }, (resp) => {
 
@@ -164,14 +166,14 @@ class TvLegacyHttpClient extends EventEmitter implements ILegacyHttpClient<any> 
                     return;
                 }
 
-                if (!resp.headers[HTTP_HEADER_CONTENT_LENGTH]) {
+                if (!resp.headers[H_HDR_NAME_CONTENT_LENGTH]) {
 
                     resp.socket.destroy();
                     reject(new Shared.errors.invalid_response({ reason: 'missing_content_length' }));
                     return;
                 }
 
-                const length = parseInt(resp.headers[HTTP_HEADER_CONTENT_LENGTH]);
+                const length = parseInt(resp.headers[H_HDR_NAME_CONTENT_LENGTH]);
 
                 if (!Number.isSafeInteger(length) || length > v1.MAX_PACKET_SIZE) { // Maximum request packet is 64MB
 
