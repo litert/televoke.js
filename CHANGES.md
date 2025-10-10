@@ -1,5 +1,11 @@
 # Changes Logs
 
+## v1.3.1
+
+- fix(client): Simplified the WebSocket client handshake arguments.
+
+    Should not use the internal method of `@litert/websocket` package.
+
 ## v1.3.0
 
 - feat(protocol): Added supports of the features introduced in `televoke/2.1` protocol, including:

@@ -42,12 +42,9 @@ class WsConnector implements IWsConnector {
 
         const ws = await LibWS.wsConnect({
             ...this._opts,
-            headers: {
-                ...this._opts?.headers,
-                ...LibWS.createClientHandshakeHeaders({
-                    'subProtocols': [dWS.WEBSOCKET_SUB_PROTOCOL]
-                })
-            }
+            'wsHandshakeOpts': {
+                'subProtocols': [dWS.WEBSOCKET_SUB_PROTOCOL],
+            },
         });
 
         ws.setMasking(false);
@@ -78,12 +75,9 @@ class WssConnector implements IWsConnector {
 
         const ws = await LibWS.wssConnect({
             ...this._opts,
-            headers: {
-                ...this._opts?.headers,
-                ...LibWS.createClientHandshakeHeaders({
-                    'subProtocols': [dWS.WEBSOCKET_SUB_PROTOCOL]
-                })
-            }
+            'wsHandshakeOpts': {
+                'subProtocols': [dWS.WEBSOCKET_SUB_PROTOCOL],
+            },
         });
 
         ws.setMasking(false);
