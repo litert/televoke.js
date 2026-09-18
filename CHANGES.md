@@ -1,5 +1,10 @@
 # Changes Logs
 
+## v1.4.0
+
+- chore: updated main dependencies
+- lint: fixed linting problems
+
 ## v1.3.1
 
 - fix(client): Simplified the WebSocket client handshake arguments.

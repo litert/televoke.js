@@ -1,6 +1,6 @@
 /* eslint-disable max-lines */
 /**
- * Copyright 2025 Angus.Fenying <fenying@litert.org>
+ * Copyright 2026 Angus.Fenying <fenying@litert.org>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -388,7 +388,7 @@ export abstract class AbstractTvChannelV2
                     'ct': null,
                 });
 
-                this.emit('push_message', packet.ct as Buffer[], packet.seq);
+                this.emit('push_message', packet.ct, packet.seq);
 
                 break;
 

@@ -1,5 +1,5 @@
 /**
- * Copyright 2025 Angus.Fenying <fenying@litert.org>
+ * Copyright 2026 Angus.Fenying <fenying@litert.org>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -40,7 +40,7 @@ class WsConnector implements IWsConnector {
 
     public async connect(): Promise<dT.ITransporter> {
 
-        const ws = await LibWS.wsConnect({
+        const ws = LibWS.createClient({
             ...this._opts,
             'wsHandshakeOpts': {
                 'subProtocols': [dWS.WEBSOCKET_SUB_PROTOCOL],
@@ -49,7 +49,11 @@ class WsConnector implements IWsConnector {
 
         ws.setMasking(false);
 
-        return new WebSocketTransporter(dWS.WS_PROTOCOL_NAME, ws);
+        const ret = new WebSocketTransporter(dWS.WS_PROTOCOL_NAME, ws);
+
+        await ws.connect();
+
+        return ret;
     }
 }
 
@@ -73,7 +77,7 @@ class WssConnector implements IWsConnector {
 
     public async connect(): Promise<dT.ITransporter> {
 
-        const ws = await LibWS.wssConnect({
+        const ws = LibWS.createSecureClient({
             ...this._opts,
             'wsHandshakeOpts': {
                 'subProtocols': [dWS.WEBSOCKET_SUB_PROTOCOL],
@@ -82,7 +86,11 @@ class WssConnector implements IWsConnector {
 
         ws.setMasking(false);
 
-        return new WebSocketTransporter(dWS.WSS_PROTOCOL_NAME, ws);
+        const ret = new WebSocketTransporter(dWS.WSS_PROTOCOL_NAME, ws);
+
+        await ws.connect();
+
+        return ret;
     }
 }
 
