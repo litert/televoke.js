@@ -5,6 +5,7 @@
 - chore: updated main dependencies
 - lint: fixed linting problems
 - test: migrated to `node:test`
+- feat(proto:http): customizable HTTP listener options
 
 ## v1.3.1
 

@@ -74,7 +74,7 @@ export const DEFAULT_LEGACY_HTTP_API_PROCESSOR: ILegacyHttpApiProcessor = functi
     resp.end(DEFAULT_REFUSE_PAYLOAD);
 };
 
-export interface IHttpListenerOptions {
+export interface IHttpListenerOptions extends Http.ServerOptions {
 
     /**
      * The hostname to listen on.

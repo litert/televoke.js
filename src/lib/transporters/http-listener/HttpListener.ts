@@ -38,7 +38,7 @@ class HttpListener extends AbstractHttpListener {
             return;
         }
 
-        const gateway = Http.createServer(this._apiProcessor);
+        const gateway = Http.createServer(this._opts, this._apiProcessor);
 
         const ret = new Promise<void>((resolve, reject) => {
             gateway.on('error', (e) => {
