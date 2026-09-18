@@ -1,3 +1,4 @@
+/* eslint-disable */
 /**
  * Copyright 2026 Angus.Fenying <fenying@litert.org>
  *
@@ -14,12 +15,12 @@
  * limitations under the License.
  */
 
-import * as Tv from '../lib';
-import * as TvWs from '../lib/transporters/websocket';
-import * as TvHttpListener from '../lib/transporters/http-listener';
 import * as NodeAssert from 'node:assert';
 import * as NodeTest from 'node:test';
 import * as NodeTimers from 'node:timers/promises';
+import * as Tv from '../lib';
+import * as TvHttpListener from '../lib/transporters/http-listener';
+import * as TvWs from '../lib/transporters/websocket';
 
 interface IApiDecl {
 
@@ -40,19 +41,19 @@ const server = new Tv.Servers.TvServer(router)
 const hListener = TvHttpListener.createHttpListener({
     hostname: '0.0.0.0',
     port: 29482,
-})
+});
 
 const wsGateway = TvWs.createWebsocketGateway(hListener, server);
 
-NodeTest.describe('Protocol v2', async () => {
+NodeTest.describe('Televoke v2 timeout', () => {
 
-    await NodeTest.it('Timeout', async () => {
+    NodeTest.it('B-F-00001: rejects an invocation that exceeds the client timeout', async () => {
 
         await wsGateway.start();
 
         const client = Tv.Clients.createJsonApiClient<IApiDecl>(
             TvWs.createWsConnector({
-                hostname: '0.0.0.0',
+                hostname: '127.0.0.1',
                 port: 29482,
             }),
             undefined,
@@ -61,15 +62,10 @@ NodeTest.describe('Protocol v2', async () => {
 
         try {
 
-            try {
-                await client.invoke('testTimeout', '23333');
-                NodeAssert.fail('Timeout error should be thrown');
-            }
-            catch (e) {
-
-                NodeAssert.ok(e instanceof Tv.errors.timeout, 'Timeout error should be thrown');
-            }
-
+            await NodeAssert.rejects(
+                client.invoke('testTimeout', '23333'),
+                Tv.errors.timeout,
+            );
         }
         finally {
 

@@ -1,3 +1,4 @@
+/* eslint-disable */
 /**
  * Copyright 2026 Angus.Fenying <fenying@litert.org>
  *
@@ -14,12 +15,12 @@
  * limitations under the License.
  */
 
-import * as Tv from '../lib';
-import * as TvLegacyHttp from '../lib/transporters/legacy-http';
-import * as TvHttpListener from '../lib/transporters/http-listener';
 import * as NodeAssert from 'node:assert';
 import * as NodeTest from 'node:test';
 import * as NodeTimers from 'node:timers/promises';
+import * as Tv from '../lib';
+import * as TvHttpListener from '../lib/transporters/http-listener';
+import * as TvLegacyHttp from '../lib/transporters/legacy-http';
 
 interface IApiDecl {
 
@@ -40,13 +41,13 @@ const tvServer = new Tv.Servers.TvServer(router)
 const h1Server = TvHttpListener.createHttpListener({
     hostname: '0.0.0.0',
     port: 29483,
-})
+});
 
 const h1Gw = TvLegacyHttp.createLegacyHttpGateway(h1Server, tvServer);
 
-NodeTest.describe('Protocol v1', async () => {
+NodeTest.describe('Televoke v1 timeout', () => {
 
-    await NodeTest.it('Timeout', async () => {
+    NodeTest.it('B-F-00001: rejects an invocation that exceeds the client timeout', async () => {
 
         await h1Gw.start();
 
@@ -58,14 +59,10 @@ NodeTest.describe('Protocol v1', async () => {
 
         try {
 
-            try {
-                await client.invoke('testTimeout', '23333');
-                NodeAssert.fail('Timeout error should be thrown');
-            }
-            catch (e) {
-
-                NodeAssert.ok(e instanceof Tv.errors.timeout, 'Timeout error should be thrown');
-            }
+            await NodeAssert.rejects(
+                client.invoke('testTimeout', '23333'),
+                Tv.errors.timeout,
+            );
         }
         finally {
 

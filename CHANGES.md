@@ -4,6 +4,7 @@
 
 - chore: updated main dependencies
 - lint: fixed linting problems
+- test: migrated to `node:test`
 
 ## v1.3.1
 
