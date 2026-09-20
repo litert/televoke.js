@@ -1,6 +1,6 @@
 # Changes Logs
 
-## v1.4.0
+## v1.5.0
 
 - chore: updated main dependencies
 - lint: fixed linting problems
